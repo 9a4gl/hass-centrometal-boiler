@@ -1,0 +1,6 @@
+{
+  "name": "Centrometal PelTec System",
+  "domains": ["sensor", "switch", "binary_sensor"],
+  "render_readme": true,
+  "homeassistant": "2021.10.6"
+}
