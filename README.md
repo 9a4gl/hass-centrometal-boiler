@@ -18,3 +18,7 @@ mkdir custom_components
 cd custom_components
 ln -s ../hass-peltec/custom_components/peltec
 ```
+
+### Important
+
+This project is in early development stage, better not try to use it yet.

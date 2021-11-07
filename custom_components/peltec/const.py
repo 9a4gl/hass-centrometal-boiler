@@ -1,4 +1,8 @@
 DOMAIN = "peltec"
+PELTEC_CLIENT = "peltec_client"
+PELTEC_SYSTEM = "peltec_system"
+
+
 GARDENA_SYSTEM = "gardena_system"
 GARDENA_LOCATION = "gardena_location"
 
