@@ -6,14 +6,13 @@ from peltec import PelTecClient
 from homeassistant.config_entries import ConfigEntry
 
 from homeassistant.const import (
-    CONF_CLIENT_ID,
     CONF_EMAIL,
     CONF_PASSWORD,
     EVENT_HOMEASSISTANT_STOP,
+    EVENT_TIME_CHANGED,
 )
 
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import discovery
 
 from .const import DOMAIN, PELTEC_CLIENT, PELTEC_SYSTEM
 
@@ -55,6 +54,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         EVENT_HOMEASSISTANT_STOP, lambda event: peltec_system.stop()
     )
 
+    hass.bus.async_listen(EVENT_TIME_CHANGED, peltec_system.tick)
+
     for component in PLATFORMS:
         hass.async_create_task(
             hass.config_entries.async_forward_entry_setup(entry, component)
@@ -95,10 +96,13 @@ class PelTecSystem:
                 )
             if len(self.peltec_client.data) == 0:
                 raise Exception("No device found to Centrometal PelTec server")
-            self.peltec_client.start(self.on_parameter_updated)
+            self.peltec_client.start_websocket(self.on_parameter_updated, False)
         except Exception as ex:
             _LOGGER.error("Authentication failed : %s", str(ex))
 
     def stop(self):
         _LOGGER.debug("Stopping CentrometalPelTecSystem")
         self.peltec_client.stop()
+
+    def tick(self, now):
+        _LOGGER.info("Tick CentrometalPelTecSystem " + str(now))

@@ -1,88 +1,162 @@
-"""Support for Gardena Smart System sensors."""
+# -*- coding: utf-8 -*-
+
+"""Support for Centrometal PelTec System sensors."""
 import logging
 
+import homeassistant.util.dt as dt_util
+from datetime import datetime
+
+import peltec
+
 from homeassistant.const import (
-    DEVICE_CLASS_HUMIDITY,
-    DEVICE_CLASS_ILLUMINANCE,
     DEVICE_CLASS_TEMPERATURE,
     TEMP_CELSIUS,
+    TIME_MINUTES,
+    CONF_COUNT,
 )
 from homeassistant.helpers.entity import Entity
 from homeassistant.core import callback
-from homeassistant.const import (
-    ATTR_BATTERY_LEVEL,
-    DEVICE_CLASS_BATTERY,
-    PERCENTAGE,
-)
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 
-from .const import (
-    DOMAIN,
-    ATTR_BATTERY_STATE,
-    ATTR_RF_LINK_LEVEL,
-    ATTR_RF_LINK_STATE,
-    ATTR_SERIAL,
-    GARDENA_LOCATION,
-)
+from .const import DOMAIN, PELTEC_CLIENT
 
 _LOGGER = logging.getLogger(__name__)
 
-SOIL_SENSOR_TYPES = {
-    "soil_temperature": [TEMP_CELSIUS, "mdi:thermometer", DEVICE_CLASS_TEMPERATURE],
-    "soil_humidity": ["%", "mdi:water-percent", DEVICE_CLASS_HUMIDITY],
-    ATTR_BATTERY_LEVEL: [PERCENTAGE, "mdi:battery", DEVICE_CLASS_BATTERY],
+PELTEC_SENSOR_TEMPERATURES = {
+    "B_Tak1_1": [
+        TEMP_CELSIUS,
+        "mdi:thermometer",
+        DEVICE_CLASS_TEMPERATURE,
+        "Temperatura Gornja",
+    ],
+    "B_Tak2_1": [
+        TEMP_CELSIUS,
+        "mdi:thermometer",
+        DEVICE_CLASS_TEMPERATURE,
+        "Temperatura Donja",
+    ],
+    "B_Tdpl1": [
+        TEMP_CELSIUS,
+        "mdi:thermometer",
+        DEVICE_CLASS_TEMPERATURE,
+        "Temperatura u dimovodu",
+    ],
+    "B_Tpov1": [
+        TEMP_CELSIUS,
+        "mdi:thermometer",
+        DEVICE_CLASS_TEMPERATURE,
+        "Temperatura mjesaca",
+    ],
+    "B_Tk1": [
+        TEMP_CELSIUS,
+        "mdi:thermometer",
+        DEVICE_CLASS_TEMPERATURE,
+        "Temperatura u kotlu",
+    ],
 }
 
-SENSOR_TYPES = {
-    **{
-        "ambient_temperature": [
-            TEMP_CELSIUS,
-            "mdi:thermometer",
-            DEVICE_CLASS_TEMPERATURE,
-        ],
-        "light_intensity": ["lx", None, DEVICE_CLASS_ILLUMINANCE],
-    },
-    **SOIL_SENSOR_TYPES,
+PELTEC_SENSOR_COUNTERS = {
+    "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner work"],
+    "CNT_1": [
+        CONF_COUNT,
+        "mdi:counter",
+        None,
+        "Number of burner start",
+    ],
+    "CNT_2": [
+        TIME_MINUTES,
+        "mdi:timer",
+        None,
+        "Feeder screw work",
+    ],
+    "CNT_3": [
+        TIME_MINUTES,
+        "mdi:timer",
+        None,
+        "Flame duration",
+    ],
+    "CNT_4": [
+        TIME_MINUTES,
+        "mdi:timer",
+        None,
+        "Fan working time",
+    ],
+    "CNT_5": [
+        TIME_MINUTES,
+        "mdi:timer",
+        None,
+        "Electric heater working time",
+    ],
+    "CNT_6": [
+        TIME_MINUTES,
+        "mdi:timer",
+        None,
+        "Vacuum turbine working time",
+    ],
+    "CNT_7": [
+        CONF_COUNT,
+        "mdi:counter",
+        None,
+        "Vacuum turbine cycles number",
+    ],
+    "CNT_8": [TIME_MINUTES, "mdi:timer", None, "Time on D6"],
+    "CNT_9": [TIME_MINUTES, "mdi:timer", None, "Time on D5"],
+    "CNT_10": [TIME_MINUTES, "mdi:timer", None, "Time on D4"],
+    "CNT_11": [TIME_MINUTES, "mdi:timer", None, "Time on D3"],
+    "CNT_12": [TIME_MINUTES, "mdi:timer", None, "Time on D2"],
+    "CNT_13": [TIME_MINUTES, "mdi:timer", None, "Time on D1"],
+    "CNT_14": [TIME_MINUTES, "mdi:timer", None, "Time on D0"],
+    "CNT_15": [CONF_COUNT, "mdi:counter", None, "Reserve counter"],
+}
+
+PELTEC_SENSOR_MISC = {
+    "B_STATE": ["state", "mdi:state-machine", None, "State"],
+    "B_fan": ["rpm", "mdi:fan", None, "Fan"],
+    "B_fanB": ["rpm", "mdi:fan", None, "Fan B"],
+    "B_Oxy1": ["% O2", "mdi:gas-cylinder", None, "Lambda Sensor"],
+    "B_FotV": ["kOhm", "mdi:fire", None, "Fire"],
+}
+
+PELTEC_SENSOR_TYPES = {
+    **PELTEC_SENSOR_TEMPERATURES,
+    **PELTEC_SENSOR_COUNTERS,
+    **PELTEC_SENSOR_MISC,
 }
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Perform the setup for Gardena sensor devices."""
+    """Perform the setup for Centrometal PelTec sensor devices."""
     entities = []
-    # for sensor in hass.data[DOMAIN][GARDENA_LOCATION].find_device_by_type("SENSOR"):
-    #    for sensor_type in SENSOR_TYPES:
-    #        entities.append(GardenaSensor(sensor, sensor_type))
 
-    # for sensor in hass.data[DOMAIN][GARDENA_LOCATION].find_device_by_type("SOIL_SENSOR"):
-    #    for sensor_type in SOIL_SENSOR_TYPES:
-    #        entities.append(GardenaSensor(sensor, sensor_type))
+    peltec_client = hass.data[DOMAIN][PELTEC_CLIENT]
+    for device in peltec_client.data.values():
+        parameters = device["parameters"]
+        for param_id, sensor_data in PELTEC_SENSOR_TYPES.items():
+            if param_id in parameters.keys():
+                parameter = parameters[param_id]
+                entities.append(PelTecSensor(hass, device, sensor_data, parameter))
 
-    # for mower in hass.data[DOMAIN][GARDENA_LOCATION].find_device_by_type("MOWER"):
-    #    # Add battery sensor for mower
-    #    entities.append(GardenaSensor(mower, ATTR_BATTERY_LEVEL))
-
-    # for water_control in hass.data[DOMAIN][GARDENA_LOCATION].find_device_by_type("WATER_CONTROL"):
-    #    # Add battery sensor for water control
-    #    entities.append(GardenaSensor(water_control, ATTR_BATTERY_LEVEL))
-
-    entities.append(GardenaSensor(None, ATTR_BATTERY_LEVEL))
-    _LOGGER.debug("Adding sensor as sensor %s", entities)
     async_add_entities(entities, True)
 
 
-class GardenaSensor(Entity):
-    """Representation of a Gardena Sensor."""
+class PelTecSensor(Entity):
+    """Representation of a Centrometal PelTec Sensor."""
 
-    def __init__(self, device, sensor_type):
-        """Initialize the Gardena Sensor."""
-        self._sensor_type = sensor_type
-        self._name = "name"  # f"{device.name} {sensor_type.replace('_', ' ')}"
-        self._unique_id = "serial"  # f"{device.serial}-{sensor_type}"
-        self._device = device
+    def __init__(self, hass, device, sensor_data, parameter):
+        """Initialize the Centrometarl PelTec Sensor."""
+        self.hass = hass
+        self.sensor_data = sensor_data
+        self.device = device
+        self.parameter = parameter
+        #
+        self.serial = device["serial"]
+        self.parameter_name = parameter["name"]
+        self._name = sensor_data[3]
+        self._unique_id = f"{self.parameter_name}_{self.serial}"
 
     async def async_added_to_hass(self):
         """Subscribe to sensor events."""
-        # self._device.add_callback(self.update_callback)
+        # self.device.add_callback(self.update_callback) # TIHOTODO subscribe to parameter change
 
     @property
     def should_poll(self) -> bool:
@@ -96,7 +170,8 @@ class GardenaSensor(Entity):
     @property
     def name(self):
         """Return the name of the device."""
-        return self._name
+        # return self._name
+        return self._unique_id
 
     @property
     def unique_id(self) -> str:
@@ -106,49 +181,48 @@ class GardenaSensor(Entity):
     @property
     def icon(self):
         """Return the icon to use in the frontend."""
-        return SENSOR_TYPES[self._sensor_type][1]
+        return self.sensor_data[1]
 
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement of this entity, if any."""
-        return SENSOR_TYPES[self._sensor_type][0]
+        return self.sensor_data[0]
 
     @property
     def device_class(self):
         """Return the device class of this entity."""
-        if self._sensor_type in SENSOR_TYPES:
-            return SENSOR_TYPES[self._sensor_type][2]
+        if self.parameter_name in PELTEC_SENSOR_TYPES:
+            return self.sensor_data[2]
         return None
 
     @property
     def state(self):
         """Return the state of the sensor."""
-        # return getattr(self._device, self._sensor_type)
-        return 12.4
+        return self.parameter["value"]
 
     @property
     def device_state_attributes(self):
         """Return the state attributes of the sensor."""
-        return {
-            # ATTR_BATTERY_LEVEL: self._device.battery_level,
-            # ATTR_BATTERY_STATE: self._device.battery_state,
-            # ATTR_RF_LINK_LEVEL: self._device.rf_link_level,
-            # ATTR_RF_LINK_STATE: self._device.rf_link_state,
-            ATTR_BATTERY_LEVEL: 50,
-            ATTR_BATTERY_STATE: "on",
-            ATTR_RF_LINK_LEVEL: 60,
-            ATTR_RF_LINK_STATE: "off",
-        }
+        tzinfo = dt_util.get_time_zone(self.hass.config.time_zone)
+        last_updated_dt = datetime.fromtimestamp(int(self.parameter["timestamp"]))
+        last_updated = last_updated_dt.astimezone(tzinfo).strftime("%d.%m.%Y %H:%M:%S")
+        return {"Last updated:": last_updated}
 
     @property
     def device_info(self):
+        power = self.device["parameters"]["B_sng"]["value"] or "?"
+        firmware_ver = self.device["parameters"]["B_VER"]["value"] or "?"
+        wifi_ver = self.device["parameters"]["B_WifiVER"]["value"] or "?"
+        name = self.device["product"] + " " + power
+        model = self.device["product"] + " " + power
+        sw_version = firmware_ver + " Wifi:" + wifi_ver
         return {
             "identifiers": {
                 # Serial numbers are unique identifiers within a specific domain
-                # (DOMAIN, self._device.serial)
-                (DOMAIN, "serial-2")
+                (DOMAIN, self.serial)
             },
-            "name": "name2",  # self._device.name,
-            "manufacturer": "Gardena",
-            "model": "model-2",  # self._device.model_type,
+            "name": name,
+            "manufacturer": "Centrometal",
+            "model": model,
+            "sw_version": sw_version,
         }
