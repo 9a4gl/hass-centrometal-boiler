@@ -1,5 +1,6 @@
 """Support for Centrometa PelTec System devices."""
 import logging
+import datetime
 
 from peltec import PelTecClient
 
@@ -14,7 +15,13 @@ from homeassistant.const import (
 
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN, PELTEC_CLIENT, PELTEC_SYSTEM
+from .const import (
+    DOMAIN,
+    PELTEC_CLIENT,
+    PELTEC_SYSTEM,
+    PELTEC_LOGIN_RETRY_INTERVAL,
+    PELTEC_REFRESH_INTERVAL,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -75,6 +82,12 @@ class PelTecSystem:
         self.password = password
         self.peltec_client = None
         self.peltec_client = PelTecClient()
+        self.last_relogin_timestamp = datetime.datetime.timestamp(
+            datetime.datetime.now()
+        )
+        self.last_refresh_timestamp = datetime.datetime.timestamp(
+            datetime.datetime.now()
+        )
 
     def on_parameter_updated(self, device, param, create=False):
         action = "Create" if create else "update"
@@ -105,4 +118,23 @@ class PelTecSystem:
         self.peltec_client.stop()
 
     def tick(self, now):
-        _LOGGER.info("Tick CentrometalPelTecSystem " + str(now))
+        timestamp = datetime.datetime.timestamp(now.time_fired)
+        # _LOGGER.info("Tick CentrometalPelTecSystem " + str(now.time_fired))
+        if not self.peltec_client.is_websocket_connected():
+            if timestamp - self.last_relogin_timestamp > PELTEC_LOGIN_RETRY_INTERVAL:
+                _LOGGER.info("CentrometalPelTecSystem::tick trying to relogin")
+                self.last_relogin_timestamp = timestamp
+                self.peltec_client.relogin()
+                if self.peltec_client.relogin():
+                    self.peltec_client.close_websocket()
+                    self.peltec_client.start_websocket(self.on_parameter_updated, False)
+                    self.last_refresh_timestamp = timestamp
+                else:
+                    _LOGGER.warning("CentrometalPelTecSystem::tick failed to relogin")
+        else:
+            if timestamp < self.last_refresh_timestamp < PELTEC_REFRESH_INTERVAL:
+                self.last_refresh_timestamp = timestamp
+                self.peltec_client.refresh()
+
+        # TIHOTODO refresh
+        # TIHOTODO make unavailable if older then refresh interval
