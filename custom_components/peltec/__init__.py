@@ -90,11 +90,11 @@ class PelTecSystem:
         )
 
     def on_parameter_updated(self, device, param, create=False):
-        # action = "Create" if create else "update"
-        # serial = device["serial"]
-        # name = param["name"]
-        # value = param["value"]
-        # _LOGGER.info("%s %s %s = %s", action, serial, name, value)
+        action = "Create" if create else "update"
+        serial = device["serial"]
+        name = param["name"]
+        value = param["value"]
+        _LOGGER.info("%s %s %s = %s", action, serial, name, value)
         pass
 
     def start(self):

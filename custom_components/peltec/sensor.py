@@ -12,7 +12,6 @@ from homeassistant.const import (
     DEVICE_CLASS_TEMPERATURE,
     TEMP_CELSIUS,
     TIME_MINUTES,
-    STATE_UNAVAILABLE,
 )
 
 from homeassistant.components.sensor import SensorEntity
@@ -116,6 +115,13 @@ PELTEC_SENSOR_MISC = {
     "B_fanB": ["rpm", "mdi:fan", None, "Fan B"],
     "B_Oxy1": ["% O2", "mdi:gas-cylinder", None, "Lambda Sensor"],
     "B_FotV": ["kOhm", "mdi:fire", None, "Fire Sensor"],
+    "B_vanjS": [
+        TEMP_CELSIUS,
+        "mdi:thermometer",
+        DEVICE_CLASS_TEMPERATURE,
+        "Outdoor Temperature",
+    ],
+    "B_cm2k": ["", "mdi:state-machine", None, "CM2K Status"],
 }
 
 PELTEC_SENSOR_SETTINGS = {
@@ -168,6 +174,22 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             if param_id in parameters.keys():
                 parameter = parameters[param_id]
                 entities.append(PelTecSensor(hass, device, sensor_data, parameter))
+        entities.append(
+            PelTecConfigurationSensor(
+                hass,
+                device,
+                ["", "mdi:state-machine", None, "Configuration"],
+                parameters["B_KONF"],
+            )
+        )
+        entities.append(
+            PelTecTableSensor(
+                hass,
+                device,
+                ["", "mdi:state-machine", None, "Working table"],
+                parameters["PVAL_222_0"],
+            )
+        )
 
     async_add_entities(entities, True)
 
@@ -276,3 +298,72 @@ class PelTecSensor(SensorEntity):
             "model": model,
             "sw_version": sw_version,
         }
+
+
+class PelTecConfigurationSensor(PelTecSensor):
+    @property
+    def native_value(self):
+        """Return the value of the sensor."""
+        configurations = [
+            "1. DHW",
+            "2. DHC",
+            "3. DHW || DHC",
+            "4. BUF",
+            "5. DHW || BUF",
+            "6. BUF -- IHC",
+            "7. DHW || BUF -- IHC",
+            "8. BUF -- DHW",
+            "9. BUF -- IHC || DHW",
+            "10. CRO",
+            "11. CRO / BUF",
+            "12. DHC || DHW(2)",
+            "13. DHC 2X",
+            "14. BUF--IHCX2",
+            "15. CRO -- DHW",
+        ]
+        return configurations[int(self.parameter["value"])]
+
+
+# TIHOTODO 223 is table 1 ? 224 is table 2? where is table 3?
+# TIHOTODO how to refresh specific table?
+# TIHOTODO doees 222_0 clear tables?
+
+
+class PelTecTableSensor(PelTecSensor):
+    async def async_added_to_hass(self):
+        """Subscribe to sensor events."""
+        await super().async_added_to_hass()
+        for i in range(0, 42):
+            param = "PVAL_223_" + str(i)
+            self.device["parameters"][param].set_update_callback(self.update_callback)
+
+    def getValue(self, dayIndex, i):
+        param = "PVAL_223_" + str(dayIndex * 6 + i)
+        value = self.device["parameters"][param]["value"]
+        return int(value)
+
+    def formatTime(self, val):
+        return "%02d:%02d" % (int(val / 60), val % 60)
+
+    def getRange(self, dayIndex, i, j):
+        val1 = self.getValue(dayIndex, i)
+        val2 = self.getValue(dayIndex, j)
+        if val1 == 1440 and val2 == 1440:
+            return ""
+        return self.formatTime(val1) + "-" + self.formatTime(val2)
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes of the sensor."""
+        attributes = super().device_state_attributes
+        days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        for i in range(0, 7):
+            day = days[i]
+            texts = [
+                self.getRange(i, 0, 1),
+                self.getRange(i, 2, 3),
+                self.getRange(i, 4, 5),
+            ]
+            texts = [x for x in texts if x]
+            attributes[day] = " / ".join(texts)
+        return attributes
