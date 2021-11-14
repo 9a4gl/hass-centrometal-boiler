@@ -90,11 +90,12 @@ class PelTecSystem:
         )
 
     def on_parameter_updated(self, device, param, create=False):
-        action = "Create" if create else "update"
-        serial = device["serial"]
-        name = param["name"]
-        value = param["value"]
-        _LOGGER.info("%s %s %s = %s", action, serial, name, value)
+        # action = "Create" if create else "update"
+        # serial = device["serial"]
+        # name = param["name"]
+        # value = param["value"]
+        # _LOGGER.info("%s %s %s = %s", action, serial, name, value)
+        pass
 
     def start(self):
         _LOGGER.debug("Starting Centrometal PelTec System")
@@ -115,11 +116,10 @@ class PelTecSystem:
 
     def stop(self):
         _LOGGER.debug("Stopping CentrometalPelTecSystem")
-        self.peltec_client.stop()
+        self.peltec_client.stop_websocket()
 
     def tick(self, now):
         timestamp = datetime.datetime.timestamp(now.time_fired)
-        # _LOGGER.info("Tick CentrometalPelTecSystem " + str(now.time_fired))
         if not self.peltec_client.is_websocket_connected():
             if timestamp - self.last_relogin_timestamp > PELTEC_LOGIN_RETRY_INTERVAL:
                 _LOGGER.info("CentrometalPelTecSystem::tick trying to relogin")

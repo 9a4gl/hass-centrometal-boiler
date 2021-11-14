@@ -12,7 +12,6 @@ from homeassistant.const import (
     DEVICE_CLASS_TEMPERATURE,
     TEMP_CELSIUS,
     TIME_MINUTES,
-    CONF_COUNT,
 )
 from homeassistant.helpers.entity import Entity
 from homeassistant.core import callback
@@ -27,77 +26,77 @@ PELTEC_SENSOR_TEMPERATURES = {
         TEMP_CELSIUS,
         "mdi:thermometer",
         DEVICE_CLASS_TEMPERATURE,
-        "Temperatura Gornja",
+        "Buffer Tank Temparature Up",
     ],
     "B_Tak2_1": [
         TEMP_CELSIUS,
         "mdi:thermometer",
         DEVICE_CLASS_TEMPERATURE,
-        "Temperatura Donja",
+        "Buffer Tank Temparature Down",
     ],
     "B_Tdpl1": [
         TEMP_CELSIUS,
         "mdi:thermometer",
         DEVICE_CLASS_TEMPERATURE,
-        "Temperatura u dimovodu",
+        "Flue gas",
     ],
     "B_Tpov1": [
         TEMP_CELSIUS,
         "mdi:thermometer",
         DEVICE_CLASS_TEMPERATURE,
-        "Temperatura mjesaca",
+        "Mixer Temperature",
     ],
     "B_Tk1": [
         TEMP_CELSIUS,
         "mdi:thermometer",
         DEVICE_CLASS_TEMPERATURE,
-        "Temperatura u kotlu",
+        "Boiler Temperature",
     ],
 }
 
 PELTEC_SENSOR_COUNTERS = {
     "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner work"],
     "CNT_1": [
-        CONF_COUNT,
+        "",
         "mdi:counter",
         None,
-        "Number of burner start",
+        "Number of Burner Start",
     ],
     "CNT_2": [
         TIME_MINUTES,
         "mdi:timer",
         None,
-        "Feeder screw work",
+        "Feeder Screw Work",
     ],
     "CNT_3": [
         TIME_MINUTES,
         "mdi:timer",
         None,
-        "Flame duration",
+        "Flame Duration",
     ],
     "CNT_4": [
         TIME_MINUTES,
         "mdi:timer",
         None,
-        "Fan working time",
+        "Fan Working Time",
     ],
     "CNT_5": [
         TIME_MINUTES,
         "mdi:timer",
         None,
-        "Electric heater working time",
+        "Electric Heater Working Time",
     ],
     "CNT_6": [
         TIME_MINUTES,
         "mdi:timer",
         None,
-        "Vacuum turbine working time",
+        "Vacuum Turbine Working Time",
     ],
     "CNT_7": [
-        CONF_COUNT,
+        "",
         "mdi:counter",
         None,
-        "Vacuum turbine cycles number",
+        "Vacuum Turbine Cycles Number",
     ],
     "CNT_8": [TIME_MINUTES, "mdi:timer", None, "Time on D6"],
     "CNT_9": [TIME_MINUTES, "mdi:timer", None, "Time on D5"],
@@ -106,7 +105,7 @@ PELTEC_SENSOR_COUNTERS = {
     "CNT_12": [TIME_MINUTES, "mdi:timer", None, "Time on D2"],
     "CNT_13": [TIME_MINUTES, "mdi:timer", None, "Time on D1"],
     "CNT_14": [TIME_MINUTES, "mdi:timer", None, "Time on D0"],
-    "CNT_15": [CONF_COUNT, "mdi:counter", None, "Reserve counter"],
+    "CNT_15": ["", "mdi:counter", None, "Reserve Counter"],
 }
 
 PELTEC_SENSOR_MISC = {
@@ -114,7 +113,7 @@ PELTEC_SENSOR_MISC = {
     "B_fan": ["rpm", "mdi:fan", None, "Fan"],
     "B_fanB": ["rpm", "mdi:fan", None, "Fan B"],
     "B_Oxy1": ["% O2", "mdi:gas-cylinder", None, "Lambda Sensor"],
-    "B_FotV": ["kOhm", "mdi:fire", None, "Fire"],
+    "B_FotV": ["kOhm", "mdi:fire", None, "Fire Sensor"],
 }
 
 PELTEC_SENSOR_TYPES = {
@@ -145,33 +144,39 @@ class PelTecSensor(Entity):
     def __init__(self, hass, device, sensor_data, parameter):
         """Initialize the Centrometarl PelTec Sensor."""
         self.hass = hass
-        self.sensor_data = sensor_data
-        self.device = device
         self.parameter = parameter
+        self.device = device
         #
-        self.serial = device["serial"]
-        self.parameter_name = parameter["name"]
-        self._name = sensor_data[3]
-        self._unique_id = f"{self.parameter_name}_{self.serial}"
+        self._unit = sensor_data[0]
+        self._icon = sensor_data[1]
+        self._device_class = sensor_data[2]
+        self._description = sensor_data[3]
+        self._serial = device["serial"]
+        self._parameter_name = parameter["name"]
+        self._name = f"PelTec {self._description}"
+        self._unique_id = f"{self._serial}-{self._parameter_name}"
+        #
+        self.added_to_hass = False
 
     async def async_added_to_hass(self):
         """Subscribe to sensor events."""
-        # self.device.add_callback(self.update_callback) # TIHOTODO subscribe to parameter change
+        self.added_to_hass = True
+        self.schedule_update_ha_state(True)
+        self.parameter.set_update_callback(self.update_callback)
 
     @property
     def should_poll(self) -> bool:
         """No polling needed for a sensor."""
         return False
 
-    def update_callback(self, device):
-        """Call update for Home Assistant when the device is updated."""
+    def update_callback(self, parameter):
+        """Call update for Home Assistant when the parameter is updated."""
         self.schedule_update_ha_state(True)
 
     @property
     def name(self):
         """Return the name of the device."""
-        # return self._name
-        return self._unique_id
+        return self._name
 
     @property
     def unique_id(self) -> str:
@@ -181,18 +186,18 @@ class PelTecSensor(Entity):
     @property
     def icon(self):
         """Return the icon to use in the frontend."""
-        return self.sensor_data[1]
+        return self._icon
 
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement of this entity, if any."""
-        return self.sensor_data[0]
+        return self._unit
 
     @property
     def device_class(self):
         """Return the device class of this entity."""
-        if self.parameter_name in PELTEC_SENSOR_TYPES:
-            return self.sensor_data[2]
+        if self._parameter_name in PELTEC_SENSOR_TYPES:
+            return self._device_class
         return None
 
     @property
@@ -213,13 +218,13 @@ class PelTecSensor(Entity):
         power = self.device["parameters"]["B_sng"]["value"] or "?"
         firmware_ver = self.device["parameters"]["B_VER"]["value"] or "?"
         wifi_ver = self.device["parameters"]["B_WifiVER"]["value"] or "?"
-        name = self.device["product"] + " " + power
+        name = "PelTec"
         model = self.device["product"] + " " + power
         sw_version = firmware_ver + " Wifi:" + wifi_ver
         return {
             "identifiers": {
                 # Serial numbers are unique identifiers within a specific domain
-                (DOMAIN, self.serial)
+                (DOMAIN, self._serial)
             },
             "name": name,
             "manufacturer": "Centrometal",
