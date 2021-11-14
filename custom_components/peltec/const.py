@@ -12,7 +12,7 @@ CONF_MOWER_DURATION = "mower_duration"
 CONF_SMART_IRRIGATION_DURATION = "smart_irrigation_control_duration"
 CONF_SMART_WATERING_DURATION = "smart_watering_duration"
 
-DEFAULT_MOWER_DURATION = 60
+
 DEFAULT_SMART_IRRIGATION_DURATION = 30
 DEFAULT_SMART_WATERING_DURATION = 30
 
@@ -32,7 +32,7 @@ ATTR_STATE = "state"
 0B2D0FDD B_Tak2_1 = 44 - Temperatura u spremniku - Dolje
 0B2D0FDD B_Tdpl1 = 33 - Temperatua u dimovodu
 0B2D0FDD B_Tk1 = 41.6 - Temperatura u kotlu
-0B2D0FDD B_Tpov1 = 40 - Temperatura mje¹aèa
+0B2D0FDD B_Tpov1 = 40 - Temperatura mjeï¿½aï¿½a
 
 0B2D0FDD CNT_0 = 1975011
 0B2D0FDD CNT_1 = 8427
@@ -64,20 +64,27 @@ ATTR_STATE = "state"
 0B2D0FDD B_BRAND = Centrometal
 0B2D0FDD B_INST = PELTEC
 
+0B2D0FDD PVAL_66_0 = 70 # Buffer tank temperature
+0B2D0FDD PVAL_67_0 = 10 # Differential of buffer tank temperature
+0B2D0FDD PVAL_69_0 = 33 # Minimal buffer tank temperature
+0B2D0FDD PVAL_70_0 = 5 # Minimal buffer tank temperature-off
+
 0B2D0FDD PDEF_66_0 = 80
 0B2D0FDD PDEF_67_0 = 10
 0B2D0FDD PDEF_69_0 = 20
 0B2D0FDD PDEF_70_0 = 5
+
 0B2D0FDD PMAX_66_0 = 85
 0B2D0FDD PMAX_67_0 = 30
 0B2D0FDD PMAX_69_0 = 54
 0B2D0FDD PMAX_70_0 = 30
+
 0B2D0FDD PMIN_66_0 = 49
 0B2D0FDD PMIN_67_0 = 5
 0B2D0FDD PMIN_69_0 = 5
 0B2D0FDD PMIN_70_0 = 3
 
-0B2D0FDD B_puz = 0 - pu¾nica za pelet?
+0B2D0FDD B_puz = 0 - puï¿½nica za pelet?
 0B2D0FDD B_ashC = 0
 0B2D0FDD B_addConf = 0
 0B2D0FDD B_ashSc = 0
@@ -90,7 +97,7 @@ ATTR_STATE = "state"
 0B2D0FDD B_doz = 0
 0B2D0FDD B_fanO = 0
 0B2D0FDD B_fireS = 0
-0B2D0FDD B_gri = 0 - grijaè?
+0B2D0FDD B_gri = 0 - grijaï¿½?
 0B2D0FDD B_HS_AKU = 0
 0B2D0FDD B_Inp1 = 28
 0B2D0FDD B_KONF = 3
@@ -180,10 +187,6 @@ ATTR_STATE = "state"
 0B2D0FDD PVAL_223_7 = 1320
 0B2D0FDD PVAL_223_8 = 1440
 0B2D0FDD PVAL_223_9 = 1440
-0B2D0FDD PVAL_66_0 = 70
-0B2D0FDD PVAL_67_0 = 10
-0B2D0FDD PVAL_69_0 = 33
-0B2D0FDD PVAL_70_0 = 5
 0B2D0FDD SE00 = 0
 0B2D0FDD SE01 = 0
 0B2D0FDD SE02 = 0

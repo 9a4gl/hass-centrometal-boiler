@@ -118,9 +118,41 @@ PELTEC_SENSOR_MISC = {
     "B_FotV": ["kOhm", "mdi:fire", None, "Fire Sensor"],
 }
 
+PELTEC_SENSOR_SETTINGS = {
+    "PVAL_66_0": [
+        "",
+        "mdi:thermometer",
+        DEVICE_CLASS_TEMPERATURE,
+        "Buffer tank temperature",
+        {"PDEF_66_0": "Default", "PMIN_66_0": "Min", "PMAX_66_0": "Max"},
+    ],
+    "PVAL_67_0": [
+        "",
+        "mdi:thermometer",
+        DEVICE_CLASS_TEMPERATURE,
+        "Differential of buffer tank temperature",
+        {"PDEF_67_0": "Default", "PMIN_67_0": "Min", "PMAX_67_0": "Max"},
+    ],
+    "PVAL_69_0": [
+        "",
+        "mdi:thermometer",
+        DEVICE_CLASS_TEMPERATURE,
+        "Minimal buffer tank temperature",
+        {"PDEF_69_0": "Default", "PMIN_69_0": "Min", "PMAX_69_0": "Max"},
+    ],
+    "PVAL_70_0": [
+        "",
+        "mdi:thermometer",
+        DEVICE_CLASS_TEMPERATURE,
+        "Minimal buffer tank temperature-off",
+        {"PDEF_70_0": "Default", "PMIN_70_0": "Min", "PMAX_70_0": "Max"},
+    ],
+}
+
 PELTEC_SENSOR_TYPES = {
     **PELTEC_SENSOR_TEMPERATURES,
     **PELTEC_SENSOR_COUNTERS,
+    **PELTEC_SENSOR_SETTINGS,
     **PELTEC_SENSOR_MISC,
 }
 
@@ -154,6 +186,7 @@ class PelTecSensor(SensorEntity):
         self._icon = sensor_data[1]
         self._device_class = sensor_data[2]
         self._description = sensor_data[3]
+        self.attributes = sensor_data[4] if len(sensor_data) == 5 else {}
         self._serial = device["serial"]
         self._parameter_name = parameter["name"]
         self._name = f"PelTec {self._description}"
@@ -219,7 +252,11 @@ class PelTecSensor(SensorEntity):
         tzinfo = dt_util.get_time_zone(self.hass.config.time_zone)
         last_updated_dt = datetime.fromtimestamp(int(self.parameter["timestamp"]))
         last_updated = last_updated_dt.astimezone(tzinfo).strftime("%d.%m.%Y %H:%M:%S")
-        return {"Last updated:": last_updated}
+        attributes = {}
+        for key, description in self.attributes.items():
+            attributes[description] = self.device["parameters"][key]["value"] or "?"
+        attributes["Last updated"] = last_updated
+        return attributes
 
     @property
     def device_info(self):
