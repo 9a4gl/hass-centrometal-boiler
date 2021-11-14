@@ -12,8 +12,10 @@ from homeassistant.const import (
     DEVICE_CLASS_TEMPERATURE,
     TEMP_CELSIUS,
     TIME_MINUTES,
+    STATE_UNAVAILABLE,
 )
-from homeassistant.helpers.entity import Entity
+
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.core import callback
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 
@@ -109,7 +111,7 @@ PELTEC_SENSOR_COUNTERS = {
 }
 
 PELTEC_SENSOR_MISC = {
-    "B_STATE": ["state", "mdi:state-machine", None, "State"],
+    "B_STATE": ["", "mdi:state-machine", None, "State"],
     "B_fan": ["rpm", "mdi:fan", None, "Fan"],
     "B_fanB": ["rpm", "mdi:fan", None, "Fan B"],
     "B_Oxy1": ["% O2", "mdi:gas-cylinder", None, "Lambda Sensor"],
@@ -138,12 +140,13 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entities(entities, True)
 
 
-class PelTecSensor(Entity):
+class PelTecSensor(SensorEntity):
     """Representation of a Centrometal PelTec Sensor."""
 
     def __init__(self, hass, device, sensor_data, parameter):
         """Initialize the Centrometarl PelTec Sensor."""
         self.hass = hass
+        self.peltec_client = hass.data[DOMAIN][PELTEC_CLIENT]
         self.parameter = parameter
         self.device = device
         #
@@ -201,9 +204,14 @@ class PelTecSensor(Entity):
         return None
 
     @property
-    def state(self):
-        """Return the state of the sensor."""
+    def native_value(self):
+        """Return the value of the sensor."""
         return self.parameter["value"]
+
+    @property
+    def available(self):
+        """Return the availablity of the sensor."""
+        return self.peltec_client.is_websocket_connected()
 
     @property
     def device_state_attributes(self):

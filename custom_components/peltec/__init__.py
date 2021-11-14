@@ -132,9 +132,9 @@ class PelTecSystem:
                 else:
                     _LOGGER.warning("CentrometalPelTecSystem::tick failed to relogin")
         else:
-            if timestamp < self.last_refresh_timestamp < PELTEC_REFRESH_INTERVAL:
+            if timestamp - self.last_refresh_timestamp > PELTEC_REFRESH_INTERVAL:
                 self.last_refresh_timestamp = timestamp
+                _LOGGER.info("CentrometalPelTecSystem::tick refresh data")
                 self.peltec_client.refresh()
 
-        # TIHOTODO refresh
         # TIHOTODO make unavailable if older then refresh interval
