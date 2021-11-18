@@ -1,0 +1,20 @@
+# Describes the format for available services for peltec
+
+turn:
+  name: Set comfort mode
+  description: >
+    Turn boiler on or off
+  fields:
+    serial:
+      description: >
+        Serial of device.
+      required: true
+      selector:
+        text:
+    value:
+      description: >
+        true or false.
+      required: true
+      default: false
+      selector:
+        boolean:
