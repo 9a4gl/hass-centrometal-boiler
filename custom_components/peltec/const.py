@@ -5,6 +5,26 @@ PELTEC_SYSTEM = "peltec_system"
 PELTEC_LOGIN_RETRY_INTERVAL = 60
 PELTEC_REFRESH_INTERVAL = 600
 
+
+def create_device_info(device):
+    power = device["parameters"]["B_sng"]["value"] or "?"
+    firmware_ver = device["parameters"]["B_VER"]["value"] or "?"
+    wifi_ver = device["parameters"]["B_WifiVER"]["value"] or "?"
+    name = "PelTec"
+    model = device["product"] + " " + power
+    sw_version = firmware_ver + " Wifi:" + wifi_ver
+    return {
+        "identifiers": {
+            # Serial numbers are unique identifiers within a specific domain
+            (DOMAIN, device["serial"])
+        },
+        "name": name,
+        "manufacturer": "Centrometal",
+        "model": model,
+        "sw_version": sw_version,
+    }
+
+
 GARDENA_SYSTEM = "gardena_system"
 GARDENA_LOCATION = "gardena_location"
 

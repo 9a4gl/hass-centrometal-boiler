@@ -18,7 +18,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.core import callback
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 
-from .const import DOMAIN, PELTEC_CLIENT
+from .const import DOMAIN, PELTEC_CLIENT, create_device_info
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -282,22 +282,7 @@ class PelTecSensor(SensorEntity):
 
     @property
     def device_info(self):
-        power = self.device["parameters"]["B_sng"]["value"] or "?"
-        firmware_ver = self.device["parameters"]["B_VER"]["value"] or "?"
-        wifi_ver = self.device["parameters"]["B_WifiVER"]["value"] or "?"
-        name = "PelTec"
-        model = self.device["product"] + " " + power
-        sw_version = firmware_ver + " Wifi:" + wifi_ver
-        return {
-            "identifiers": {
-                # Serial numbers are unique identifiers within a specific domain
-                (DOMAIN, self._serial)
-            },
-            "name": name,
-            "manufacturer": "Centrometal",
-            "model": model,
-            "sw_version": sw_version,
-        }
+        return create_device_info(self.device)
 
 
 class PelTecConfigurationSensor(PelTecSensor):
@@ -322,11 +307,6 @@ class PelTecConfigurationSensor(PelTecSensor):
             "15. CRO -- DHW",
         ]
         return configurations[int(self.parameter["value"])]
-
-
-# TIHOTODO 223 is table 1 ? 224 is table 2? where is table 3?
-# TIHOTODO how to refresh specific table?
-# TIHOTODO doees 222_0 clear tables?
 
 
 class PelTecTableSensor(PelTecSensor):

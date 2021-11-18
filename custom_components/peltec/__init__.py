@@ -26,7 +26,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 # PLATFORMS = ("vacuum", "sensor", "switch", "binary_sensor")
-PLATFORMS = ["sensor"]
+PLATFORMS = ["sensor", "switch"]
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=broad-except
