@@ -82,10 +82,7 @@ logger:
   default: info
   logs:
     custom_components.peltec: debug
-
     peltec: debug
-    gardena.smart_system: debug
-    websocket: debug
 ```
 
 After a restart detailed log entries will appear in `/config/home-assistant.log`.
