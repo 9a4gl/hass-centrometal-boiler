@@ -1,4 +1,4 @@
-name: HassFest
+name: HassFest-Validate
 
 on:
   release:
