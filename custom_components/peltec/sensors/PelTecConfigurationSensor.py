@@ -1,6 +1,7 @@
 from typing import List
-from .PelTecGenericSensor import PelTecGenericSensor
 from homeassistant.components.sensor import SensorEntity
+
+from .PelTecGenericSensor import PelTecGenericSensor
 
 
 class PelTecConfigurationSensor(PelTecGenericSensor):

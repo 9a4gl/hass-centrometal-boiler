@@ -2,14 +2,13 @@
 
 import logging
 
-from homeassistant.core import callback
 from homeassistant.components.switch import SwitchEntity
 
 import homeassistant.util.dt as dt_util
 from datetime import datetime
 
-import peltec
-from .const import DOMAIN, PELTEC_CLIENT, create_device_info
+from .const import DOMAIN, PELTEC_CLIENT
+from .common import create_device_info
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -6,25 +6,6 @@ PELTEC_LOGIN_RETRY_INTERVAL = 60
 PELTEC_REFRESH_INTERVAL = 600
 
 
-def create_device_info(device):
-    power = device["parameters"]["B_sng"]["value"] or "?"
-    firmware_ver = device["parameters"]["B_VER"]["value"] or "?"
-    wifi_ver = device["parameters"]["B_WifiVER"]["value"] or "?"
-    name = "PelTec"
-    model = device["product"] + " " + power
-    sw_version = firmware_ver + " Wifi:" + wifi_ver
-    return {
-        "identifiers": {
-            # Serial numbers are unique identifiers within a specific domain
-            (DOMAIN, device["serial"])
-        },
-        "name": name,
-        "manufacturer": "Centrometal",
-        "model": model,
-        "sw_version": sw_version,
-    }
-
-
 GARDENA_SYSTEM = "gardena_system"
 GARDENA_LOCATION = "gardena_location"
 
@@ -151,17 +132,18 @@ ATTR_STATE = "state"
 0B2D0FDD PVAL_223_7 = 1320
 0B2D0FDD PVAL_223_8 = 1440
 0B2D0FDD PVAL_223_9 = 1440
+0B2D0FDD B_razina = 0-prazno, 1-rezeva, 2-pun
+0B2D0FDD B_misP = 0
 
 ---------------------------------
 0B2D0FDD B_Time = 6188377C
-0B2D0FDD B_puz = 0 - pu�nica za pelet?
 0B2D0FDD B_resDir = 0 -
 0B2D0FDD B_resInd = 0
 0B2D0FDD B_resMax = -1
-0B2D0FDD B_razina = 0-prazno, 1-rezeva, 2-pun
-0B2D0FDD B_misP = 0
+
 0B2D0FDD B_P1 = 0 -
 0B2D0FDD B_gri = 0 - Heater 0/1
+0B2D0FDD B_puz = 0 - pu�nica za pelet?
 
 0B2D0FDD B_ashC = 0
 0B2D0FDD B_addConf = 0

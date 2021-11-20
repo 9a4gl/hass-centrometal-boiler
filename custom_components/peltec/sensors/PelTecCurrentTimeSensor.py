@@ -1,25 +1,27 @@
 from typing import List
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.util.dt import UTC
 
 from .PelTecGenericSensor import PelTecGenericSensor
+from ..common import formatTime
 
 
-class PelTecPeletLevelSensor(PelTecGenericSensor):
+class PelTecCurrentTimeSensor(PelTecGenericSensor):
     @property
     def native_value(self):
         """Return the value of the sensor."""
-        configurations = ["Empty", "Reserve", "Full"]
-        return configurations[int(self.parameter["value"])]
+        value = int(self.parameter["value"], 16)
+        return formatTime(self.hass, value, UTC)
 
     @staticmethod
     def createEntities(parameters, hass, device) -> List[SensorEntity]:
         entities = []
         entities.append(
-            PelTecPeletLevelSensor(
+            PelTecCurrentTimeSensor(
                 hass,
                 device,
-                ["", "mdi:bucket-outline", None, "Tank Level"],
-                parameters["B_razina"],
+                ["", "mdi:clock-outline", None, "Clock"],
+                parameters["B_Time"],
             )
         )
         return entities
