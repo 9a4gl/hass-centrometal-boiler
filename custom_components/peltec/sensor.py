@@ -8,6 +8,7 @@ from .sensors.PelTecConfigurationSensor import PelTecConfigurationSensor
 from .sensors.PelTecWorkingTableSensor import PelTecWorkingTableSensor
 from .sensors.PelTecPeletLevelSensor import PelTecPeletLevelSensor
 from .sensors.PelTecCurrentTimeSensor import PelTecCurrentTimeSensor
+from .sensors.PelTecFireGridSensor import PelTecFireGridSensor
 
 from .const import DOMAIN, PELTEC_CLIENT
 
@@ -32,5 +33,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         entities.extend(
             PelTecCurrentTimeSensor.createEntities(parameters, hass, device)
         )
+        entities.extend(PelTecFireGridSensor.createEntities(parameters, hass, device))
 
     async_add_entities(entities, True)

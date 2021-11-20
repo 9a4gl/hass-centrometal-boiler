@@ -134,9 +134,9 @@ ATTR_STATE = "state"
 0B2D0FDD PVAL_223_9 = 1440
 0B2D0FDD B_razina = 0-prazno, 1-rezeva, 2-pun
 0B2D0FDD B_misP = 0
+0B2D0FDD B_Time = 6188377C
 
 ---------------------------------
-0B2D0FDD B_Time = 6188377C
 0B2D0FDD B_resDir = 0 -
 0B2D0FDD B_resInd = 0
 0B2D0FDD B_resMax = -1

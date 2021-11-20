@@ -168,7 +168,7 @@ class PelTecGenericSensor(SensorEntity):
         self._icon = sensor_data[1]
         self._device_class = sensor_data[2]
         self._description = sensor_data[3]
-        self.attributes = sensor_data[4] if len(sensor_data) == 5 else {}
+        self._attributes = sensor_data[4] if len(sensor_data) == 5 else {}
         self._serial = device["serial"]
         self._parameter_name = parameter["name"]
         self._name = f"PelTec {self._description}"
@@ -231,7 +231,7 @@ class PelTecGenericSensor(SensorEntity):
         """Return the state attributes of the sensor."""
         last_updated = formatTime(self.hass, int(self.parameter["timestamp"]))
         attributes = {}
-        for key, description in self.attributes.items():
+        for key, description in self._attributes.items():
             attributes[description] = self.device["parameters"][key]["value"] or "?"
         attributes["Last updated"] = last_updated
         return attributes
