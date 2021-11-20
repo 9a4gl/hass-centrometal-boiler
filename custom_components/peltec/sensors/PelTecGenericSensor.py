@@ -1,6 +1,4 @@
 from typing import List
-import homeassistant.util.dt as dt_util
-from datetime import datetime
 
 from homeassistant.components.sensor import SensorEntity
 
@@ -8,9 +6,11 @@ from homeassistant.const import (
     DEVICE_CLASS_TEMPERATURE,
     TEMP_CELSIUS,
     TIME_MINUTES,
+    PERCENTAGE,
 )
 
-from ..const import DOMAIN, PELTEC_CLIENT, create_device_info
+from ..const import DOMAIN, PELTEC_CLIENT
+from ..common import formatTime, create_device_info
 
 PELTEC_SENSOR_TEMPERATURES = {
     "B_Tak1_1": [
@@ -112,6 +112,7 @@ PELTEC_SENSOR_MISC = {
         "Outdoor Temperature",
     ],
     "B_cm2k": ["", "mdi:state-machine", None, "CM2K Status"],
+    "B_misP": [PERCENTAGE, "mdi-pipe-valve", None, "Mixing Valve"],
 }
 
 PELTEC_SENSOR_SETTINGS = {
@@ -228,9 +229,7 @@ class PelTecGenericSensor(SensorEntity):
     @property
     def device_state_attributes(self):
         """Return the state attributes of the sensor."""
-        tzinfo = dt_util.get_time_zone(self.hass.config.time_zone)
-        last_updated_dt = datetime.fromtimestamp(int(self.parameter["timestamp"]))
-        last_updated = last_updated_dt.astimezone(tzinfo).strftime("%d.%m.%Y %H:%M:%S")
+        last_updated = formatTime(self.hass, int(self.parameter["timestamp"]))
         attributes = {}
         for key, description in self.attributes.items():
             attributes[description] = self.device["parameters"][key]["value"] or "?"
