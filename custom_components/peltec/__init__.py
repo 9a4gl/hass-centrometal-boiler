@@ -21,14 +21,14 @@ from .const import (
     PELTEC_SYSTEM,
     PELTEC_LOGIN_RETRY_INTERVAL,
     PELTEC_REFRESH_INTERVAL,
+    PELTEC_KNOWN_ITEMS,
 )
 
 from .services import setup_services
 
 _LOGGER = logging.getLogger(__name__)
 
-# PLATFORMS = ("vacuum", "sensor", "switch", "binary_sensor")
-PLATFORMS = ["sensor", "switch"]
+PLATFORMS = ["sensor", "switch", "binary_sensor"]
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=broad-except
@@ -98,7 +98,8 @@ class PelTecSystem:
         serial = device["serial"]
         name = param["name"]
         value = param["value"]
-        _LOGGER.info("%s %s %s = %s", action, serial, name, value)
+        if name not in PELTEC_KNOWN_ITEMS:
+            _LOGGER.info("%s %s %s = %s", action, serial, name, value)
         pass
 
     def start(self):

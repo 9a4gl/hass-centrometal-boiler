@@ -1,31 +1,38 @@
-"""Support for Gardena Smart System websocket connection status."""
+"""Support for Centrometal PelTec System."""
+
 from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_CONNECTIVITY,
     BinarySensorEntity,
 )
 
-from custom_components.gardena_smart_system import GARDENA_SYSTEM
-from .const import DOMAIN
+from .const import DOMAIN, PELTEC_CLIENT
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Perform the setup for Gardena websocket connection status."""
-    async_add_entities([SmartSystemWebsocketStatus(hass.data[DOMAIN][GARDENA_SYSTEM].smart_system)], True)
+    entities = []
+
+    peltec_client = hass.data[DOMAIN][PELTEC_CLIENT]
+    for device in peltec_client.data.values():
+        entities.append(PelTecWebsocketStatus(hass, peltec_client, device))
+    async_add_entities(entities, True)
 
 
-class SmartSystemWebsocketStatus(BinarySensorEntity):
-    """Representation of Gardena Smart System websocket connection status."""
+class PelTecWebsocketStatus(BinarySensorEntity):
+    """Representation of Centrometal PelTec System websocket connection status."""
 
-    def __init__(self, smart_system) -> None:
+    def __init__(self, hass, peltec_client, device) -> None:
         """Initialize the binary sensor."""
         super().__init__()
-        self._unique_id = "smart_gardena_websocket_status"
-        self._name = "Gardena Smart System connection"
-        self._smart_system = smart_system
+        self.hass = hass
+        self.peltec_client = peltec_client
+        self.device = device
+        self._serial = device["serial"]
+        self._unique_id = self._serial + "_peltec_websocket_status"
+        self._name = "Centrometal PelTec System connection"
 
     async def async_added_to_hass(self):
         """Subscribe to events."""
-        self._smart_system.add_ws_status_callback(self.update_callback)
+        self.peltec_client.set_connectivity_callback(self.update_callback)
 
     @property
     def name(self):
@@ -40,7 +47,7 @@ class SmartSystemWebsocketStatus(BinarySensorEntity):
     @property
     def is_on(self) -> bool:
         """Return the status of the sensor."""
-        return self._smart_system.is_ws_connected
+        return self.peltec_client.is_websocket_connected()
 
     @property
     def should_poll(self) -> bool:

@@ -14,10 +14,9 @@
         "description": "Please enter your credentials.",
         "data": {
           "email": "E-mail",
-          "password": "Password",
-          "client_id": "Application Key / Client ID"
+          "password": "Password"
         },
-        "title": "Gardena Smart System"
+        "title": "Centrometal PelTec System"
       }
     }
   },
