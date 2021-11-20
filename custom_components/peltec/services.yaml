@@ -1,7 +1,7 @@
 # Describes the format for available services for peltec
 
 turn:
-  name: Set comfort mode
+  name: Set boiler on or off
   description: >
     Turn boiler on or off
   fields:
@@ -18,3 +18,39 @@ turn:
       default: false
       selector:
         boolean:
+
+turn_on:
+  name: Set boiler on
+  description: >
+    Turn boiler on
+  fields:
+    serial:
+      description: >
+        Serial of device.
+      required: true
+      selector:
+        text:
+
+turn_off:
+  name: Set boiler off
+  description: >
+    Turn boiler off
+  fields:
+    serial:
+      description: >
+        Serial of device.
+      required: true
+      selector:
+        text:
+
+turn_toggle:
+  name: Toggle boiler on/off state
+  description: >
+    Toggle boiler on/off state
+  fields:
+    serial:
+      description: >
+        Serial of device.
+      required: true
+      selector:
+        text:

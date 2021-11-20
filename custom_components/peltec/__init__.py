@@ -23,6 +23,8 @@ from .const import (
     PELTEC_REFRESH_INTERVAL,
 )
 
+from .services import setup_services
+
 _LOGGER = logging.getLogger(__name__)
 
 # PLATFORMS = ("vacuum", "sensor", "switch", "binary_sensor")
@@ -68,20 +70,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             hass.config_entries.async_forward_entry_setup(entry, component)
         )
 
-    async def handle_turn(call):
-        """Handle the service call."""
-        peltec_system = hass.data[DOMAIN][PELTEC_SYSTEM]
-        ATTR_SERIAL = "serial"
-        ATTR_VALUE = "value"
-        if peltec_system.peltec_client.is_websocket_connected():
-            serial = call.data.get(ATTR_SERIAL, "")
-            value = call.data.get(ATTR_VALUE, False)
-            if serial != "":
-                await hass.loop.run_in_executor(
-                    None, peltec_system.peltec_client.turn, serial, value
-                )
-
-    hass.services.async_register(DOMAIN, "turn", handle_turn)
+    setup_services(hass)
 
     _LOGGER.debug("Centrometal PelTec System component setup finished")
     return True
