@@ -6,6 +6,7 @@ import logging
 from .sensors.PelTecGenericSensor import PelTecGenericSensor
 from .sensors.PelTecConfigurationSensor import PelTecConfigurationSensor
 from .sensors.PelTecWorkingTableSensor import PelTecWorkingTableSensor
+from .sensors.PelTecPeletLevelSensor import PelTecPeletLevelSensor
 
 from .const import DOMAIN, PELTEC_CLIENT
 
@@ -26,5 +27,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         entities.extend(
             PelTecWorkingTableSensor.createEntities(parameters, hass, device)
         )
+        entities.extend(PelTecPeletLevelSensor.createEntities(parameters, hass, device))
 
     async_add_entities(entities, True)
