@@ -9,6 +9,8 @@ class PelTecFireGridSensor(PelTecGenericSensor):
         super().__init__(hass, device, sensor_data, param_ind)
         self.param_dir = param_dir
         self.param_max = param_max
+        self.param_dir["used"] = True
+        self.param_max["used"] = True
 
     async def async_added_to_hass(self):
         """Subscribe to sensor events."""

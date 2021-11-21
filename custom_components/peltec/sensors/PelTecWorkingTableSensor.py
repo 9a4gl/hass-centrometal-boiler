@@ -5,6 +5,13 @@ from .PelTecGenericSensor import PelTecGenericSensor
 
 
 class PelTecWorkingTableSensor(PelTecGenericSensor):
+    def __init__(self, hass, device, sensor_data, param):
+        super().__init__(hass, device, sensor_data, param)
+        for tableIndex in range(1, 4):
+            for i in range(0, 42):
+                param = "PVAL_" + str(222 + tableIndex) + "_" + str(i)
+                self.device["parameters"][param]["used"] = True
+
     async def async_added_to_hass(self):
         """Subscribe to sensor events."""
         await super().async_added_to_hass()

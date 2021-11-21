@@ -1,4 +1,5 @@
 from typing import List
+import logging
 
 from homeassistant.components.sensor import SensorEntity
 
@@ -11,6 +12,8 @@ from homeassistant.const import (
 
 from ..const import DOMAIN, PELTEC_CLIENT
 from ..common import formatTime, create_device_info
+
+_LOGGER = logging.getLogger(__name__)
 
 PELTEC_SENSOR_TEMPERATURES = {
     "B_Tak1_1": [
@@ -46,7 +49,7 @@ PELTEC_SENSOR_TEMPERATURES = {
 }
 
 PELTEC_SENSOR_COUNTERS = {
-    "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner work"],
+    "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner Work"],
     "CNT_1": [
         "",
         "mdi:counter",
@@ -113,7 +116,17 @@ PELTEC_SENSOR_MISC = {
     ],
     "B_cm2k": ["", "mdi:state-machine", None, "CM2K Status"],
     "B_misP": [PERCENTAGE, "mdi-pipe-valve", None, "Mixing Valve"],
+    "B_P1": ["", "mdi:pump", None, "Boiler Pump P1"],
+    "B_gri": ["", "mdi:fire-circle", None, "Electric Heater"],
+    "B_puz": ["", "mdi:transfer.up", None, "Pellet Transporter"],
+    "B_BRAND": ["", "mdi:information", None, "Brand"],
+    "B_INST": ["", "mdi:information", None, "Installation"],
+    "B_PRODNAME": ["", "mdi:information", None, "Product Name"],
+    "B_VER": ["", "mdi:information", None, "Firmware Version"],
+    "B_WifiVER": ["", "mdi:information", None, "Wifi Box Version"],
+    "B_sng": ["", "mdi:information", None, "Nominal Power"],
 }
+
 
 PELTEC_SENSOR_SETTINGS = {
     "PVAL_66_0": [
@@ -175,6 +188,9 @@ class PelTecGenericSensor(SensorEntity):
         self._unique_id = f"{self._serial}-{self._parameter_name}"
         #
         self.added_to_hass = False
+        self.parameter["used"] = True
+        for attribute in self._attributes:
+            self.device["parameters"][attribute]["used"] = True
 
     async def async_added_to_hass(self):
         """Subscribe to sensor events."""
@@ -249,4 +265,15 @@ class PelTecGenericSensor(SensorEntity):
                 entities.append(
                     PelTecGenericSensor(hass, device, sensor_data, parameter)
                 )
+        return entities
+
+    @staticmethod
+    def createUnknownEntities(parameters, hass, device) -> List[SensorEntity]:
+        entities = []
+        for param_key, param in device["parameters"].items():
+            if "used" in param.keys():
+                continue
+            _LOGGER.info("Creating unknown entry for " + param_key)
+            sensor_data = ["", "mdi:help", None, "{Unknown} " + param_key, {}]
+            entities.append(PelTecGenericSensor(hass, device, sensor_data, param))
         return entities

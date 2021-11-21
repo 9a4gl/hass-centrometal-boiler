@@ -6,7 +6,7 @@ import logging
 from .sensors.PelTecGenericSensor import PelTecGenericSensor
 from .sensors.PelTecConfigurationSensor import PelTecConfigurationSensor
 from .sensors.PelTecWorkingTableSensor import PelTecWorkingTableSensor
-from .sensors.PelTecPeletLevelSensor import PelTecPeletLevelSensor
+from .sensors.PelTecPelletLevelSensor import PelTecPelletLevelSensor
 from .sensors.PelTecCurrentTimeSensor import PelTecCurrentTimeSensor
 from .sensors.PelTecFireGridSensor import PelTecFireGridSensor
 
@@ -22,17 +22,22 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     peltec_client = hass.data[DOMAIN][PELTEC_CLIENT]
     for device in peltec_client.data.values():
         parameters = device["parameters"]
-        entities.extend(PelTecGenericSensor.createEntities(parameters, hass, device))
         entities.extend(
             PelTecConfigurationSensor.createEntities(parameters, hass, device)
         )
         entities.extend(
             PelTecWorkingTableSensor.createEntities(parameters, hass, device)
         )
-        entities.extend(PelTecPeletLevelSensor.createEntities(parameters, hass, device))
+        entities.extend(
+            PelTecPelletLevelSensor.createEntities(parameters, hass, device)
+        )
         entities.extend(
             PelTecCurrentTimeSensor.createEntities(parameters, hass, device)
         )
         entities.extend(PelTecFireGridSensor.createEntities(parameters, hass, device))
+        entities.extend(PelTecGenericSensor.createEntities(parameters, hass, device))
+        entities.extend(
+            PelTecGenericSensor.createUnknownEntities(parameters, hass, device)
+        )
 
     async_add_entities(entities, True)

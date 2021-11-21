@@ -4,7 +4,7 @@ from homeassistant.components.sensor import SensorEntity
 from .PelTecGenericSensor import PelTecGenericSensor
 
 
-class PelTecPeletLevelSensor(PelTecGenericSensor):
+class PelTecPelletLevelSensor(PelTecGenericSensor):
     @property
     def native_value(self):
         """Return the value of the sensor."""
@@ -15,7 +15,7 @@ class PelTecPeletLevelSensor(PelTecGenericSensor):
     def createEntities(parameters, hass, device) -> List[SensorEntity]:
         entities = []
         entities.append(
-            PelTecPeletLevelSensor(
+            PelTecPelletLevelSensor(
                 hass,
                 device,
                 ["", "mdi:bucket-outline", None, "Tank Level"],

@@ -94,12 +94,12 @@ class PelTecSystem:
         )
 
     def on_parameter_updated(self, device, param, create=False):
-        action = "Create" if create else "update"
-        serial = device["serial"]
-        name = param["name"]
-        value = param["value"]
-        if name not in PELTEC_KNOWN_ITEMS:
-            _LOGGER.info("%s %s %s = %s", action, serial, name, value)
+        # action = "Create" if create else "update"
+        # serial = device["serial"]
+        # name = param["name"]
+        # value = param["value"]
+        # if name not in PELTEC_KNOWN_ITEMS:
+        #    _LOGGER.info("%s %s %s = %s", action, serial, name, value)
         pass
 
     def start(self):
@@ -141,5 +141,3 @@ class PelTecSystem:
                 self.last_refresh_timestamp = timestamp
                 _LOGGER.info("CentrometalPelTecSystem::tick refresh data")
                 self.peltec_client.refresh()
-
-        # TIHOTODO make unavailable if older then refresh interval
