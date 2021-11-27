@@ -46,9 +46,7 @@ class PeltecConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         errors = {}
         try:
-            await self.hass.async_add_executor_job(
-                try_connection, user_input[CONF_EMAIL], user_input[CONF_PASSWORD]
-            )
+            await try_connection(user_input[CONF_EMAIL], user_input[CONF_PASSWORD])
         except Exception:
             _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown"
@@ -69,13 +67,16 @@ class PeltecConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
 
-def try_connection(email, password):
+async def try_connection(email, password):
     _LOGGER.debug("Trying to connect to Centrometal PelTec server during setup")
     peltec_client = PelTecClient()
-    if not peltec_client.login(username=email, password=password):
+    loggedIn = await peltec_client.login(username=email, password=password)
+    if not loggedIn:
         raise Exception("Login to Centrometal PelTec server failed")
-    if not peltec_client.get_configuration():
+    gotConfiguration = await peltec_client.get_configuration()
+    if not gotConfiguration:
         raise Exception("Getting devices from Centrometal PelTec server failed")
     if len(peltec_client.data) == 0:
         raise Exception("No device found on Centrometal PelTec server")
+    await peltec_client.close_websocket()
     _LOGGER.debug("Successfully connected to Centrometal PelTec during setup")

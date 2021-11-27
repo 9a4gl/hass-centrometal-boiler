@@ -203,7 +203,7 @@ class PelTecGenericSensor(SensorEntity):
         """No polling needed for a sensor."""
         return False
 
-    def update_callback(self, parameter):
+    async def update_callback(self, parameter):
         """Call update for Home Assistant when the parameter is updated."""
         self.schedule_update_ha_state(True)
 

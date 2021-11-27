@@ -1,6 +1,7 @@
 """Support for PelTec switch (Power control)."""
 
 import logging
+import asyncio
 
 from homeassistant.components.switch import SwitchEntity
 
@@ -47,7 +48,7 @@ class PelTectPowerSwitch(SwitchEntity):
         """No polling needed for a power socket."""
         return False
 
-    def update_callback(self, device):
+    async def update_callback(self, device):
         """Call update for Home Assistant when the device is updated."""
         self.schedule_update_ha_state(True)
 
@@ -86,10 +87,14 @@ class PelTectPowerSwitch(SwitchEntity):
         return attributes
 
     def turn_on(self, **kwargs):
-        self.peltec_client.turn(self._device["serial"], True)
+        asyncio.run_coroutine_threadsafe(
+            self.peltec_client.turn(self._device["serial"], True), self.hass.loop
+        )
 
     def turn_off(self, **kwargs):
-        self.peltec_client.turn(self._device["serial"], False)
+        asyncio.run_coroutine_threadsafe(
+            self.peltec_client.turn(self._device["serial"], False), self.hass.loop
+        )
 
     @property
     def device_info(self):

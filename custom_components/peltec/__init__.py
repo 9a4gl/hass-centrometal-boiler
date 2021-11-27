@@ -21,7 +21,6 @@ from .const import (
     PELTEC_SYSTEM,
     PELTEC_LOGIN_RETRY_INTERVAL,
     PELTEC_REFRESH_INTERVAL,
-    PELTEC_KNOWN_ITEMS,
 )
 
 from .services import setup_services
@@ -50,7 +49,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     )
 
     try:
-        await hass.async_add_executor_job(peltec_system.start)
+        await peltec_system.start()
     except Exception as ex:
         _LOGGER.error(
             "Got Access Denied Error when setting up Centrometal PelTec System: %s", ex
@@ -93,51 +92,49 @@ class PelTecSystem:
             datetime.datetime.now()
         )
 
-    def on_parameter_updated(self, device, param, create=False):
+    async def on_parameter_updated(self, device, param, create=False):
         # action = "Create" if create else "update"
         # serial = device["serial"]
         # name = param["name"]
         # value = param["value"]
-        # if name not in PELTEC_KNOWN_ITEMS:
-        #    _LOGGER.info("%s %s %s = %s", action, serial, name, value)
+        # _LOGGER.info("%s %s %s = %s", action, serial, name, value)
         pass
 
-    def start(self):
+    async def start(self):
         _LOGGER.debug("Starting Centrometal PelTec System")
         self._hass.data[DOMAIN][PELTEC_CLIENT] = self.peltec_client
 
         try:
-            if not self.peltec_client.login(self.username, self.password):
+            loggedIn = await self.peltec_client.login(self.username, self.password)
+            if not loggedIn:
                 raise Exception("Cannot login to Centrometal PelTec server")
-            if not self.peltec_client.get_configuration():
-                raise Exception(
-                    "Cannot get configuration from Centrometal PelTec server"
-                )
+            gotConfiguration = await self.peltec_client.get_configuration()
+            if not gotConfiguration:
+                raise Exception("Cannot get configuration from Centrometal server")
             if len(self.peltec_client.data) == 0:
                 raise Exception("No device found to Centrometal PelTec server")
-            self.peltec_client.start_websocket(self.on_parameter_updated, False)
+            await self.peltec_client.start_websocket(self.on_parameter_updated)
         except Exception as ex:
             _LOGGER.error("Authentication failed : %s", str(ex))
 
-    def stop(self):
+    async def stop(self):
         _LOGGER.debug("Stopping CentrometalPelTecSystem")
-        self.peltec_client.stop_websocket()
+        await self.peltec_client.close_websocket()
 
-    def tick(self, now):
+    async def tick(self, now):
         timestamp = datetime.datetime.timestamp(now.time_fired)
         if not self.peltec_client.is_websocket_connected():
             if timestamp - self.last_relogin_timestamp > PELTEC_LOGIN_RETRY_INTERVAL:
                 _LOGGER.info("CentrometalPelTecSystem::tick trying to relogin")
                 self.last_relogin_timestamp = timestamp
-                self.peltec_client.relogin()
-                if self.peltec_client.relogin():
-                    self.peltec_client.close_websocket()
-                    self.peltec_client.start_websocket(self.on_parameter_updated, False)
-                    self.last_refresh_timestamp = timestamp
+                await self.peltec_client.close_websocket()
+                reloginSuccessful = await self.peltec_client.relogin()
+                if reloginSuccessful:
+                    await self.peltec_client.start_websocket(self.on_parameter_updated)
                 else:
                     _LOGGER.warning("CentrometalPelTecSystem::tick failed to relogin")
         else:
             if timestamp - self.last_refresh_timestamp > PELTEC_REFRESH_INTERVAL:
                 self.last_refresh_timestamp = timestamp
                 _LOGGER.info("CentrometalPelTecSystem::tick refresh data")
-                self.peltec_client.refresh()
+                await self.peltec_client.refresh()
