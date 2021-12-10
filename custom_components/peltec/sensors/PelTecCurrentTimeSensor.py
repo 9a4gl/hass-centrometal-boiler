@@ -14,14 +14,14 @@ class PelTecCurrentTimeSensor(PelTecGenericSensor):
         return formatTime(self.hass, value, UTC)
 
     @staticmethod
-    def createEntities(parameters, hass, device) -> List[SensorEntity]:
+    def createEntities(hass, device) -> List[SensorEntity]:
         entities = []
         entities.append(
             PelTecCurrentTimeSensor(
                 hass,
                 device,
                 ["", "mdi:clock-outline", None, "Clock"],
-                parameters["B_Time"],
+                device.getOrCreatePelTecParameter("B_Time"),
             )
         )
         return entities

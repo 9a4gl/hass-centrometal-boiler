@@ -58,9 +58,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     hass.data[DOMAIN][PELTEC_SYSTEM] = peltec_system
 
-    hass.bus.async_listen_once(
-        EVENT_HOMEASSISTANT_STOP, lambda event: peltec_system.stop()
-    )
+    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, peltec_system.stop())
 
     hass.bus.async_listen(EVENT_TIME_CHANGED, peltec_system.tick)
 
@@ -93,11 +91,11 @@ class PelTecSystem:
         )
 
     async def on_parameter_updated(self, device, param, create=False):
-        # action = "Create" if create else "update"
-        # serial = device["serial"]
-        # name = param["name"]
-        # value = param["value"]
-        # _LOGGER.info("%s %s %s = %s", action, serial, name, value)
+        action = "Create" if create else "update"
+        serial = device["serial"]
+        name = param["name"]
+        value = param["value"]
+        _LOGGER.info("%s %s %s = %s", action, serial, name, value)
         pass
 
     async def start(self):

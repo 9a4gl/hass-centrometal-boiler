@@ -12,11 +12,15 @@ class PelTecFireGridSensor(PelTecGenericSensor):
         self.param_dir["used"] = True
         self.param_max["used"] = True
 
+    def __del__(self):
+        self.param_dir.set_update_callback(None, "firegrid")
+        self.param_max.set_update_callback(None, "firegrid")
+
     async def async_added_to_hass(self):
         """Subscribe to sensor events."""
         await super().async_added_to_hass()
-        self.param_dir.set_update_callback(self.update_callback)
-        self.param_max.set_update_callback(self.update_callback)
+        self.param_dir.set_update_callback(self.update_callback, "firegrid")
+        self.param_max.set_update_callback(self.update_callback, "firegrid")
 
     @property
     def native_value(self):
@@ -40,16 +44,16 @@ class PelTecFireGridSensor(PelTecGenericSensor):
         attributes["Dir"] = self.param_dir["value"]
         return attributes
 
-    def createEntities(parameters, hass, device) -> List[SensorEntity]:
+    def createEntities(hass, device) -> List[SensorEntity]:
         entities = []
         entities.append(
             PelTecFireGridSensor(
                 hass,
                 device,
                 ["", "mdi:grid", None, "Fire Grid Position"],
-                parameters["B_resInd"],
-                parameters["B_resDir"],
-                parameters["B_resMax"],
+                device.getOrCreatePelTecParameter("B_resInd"),
+                device.getOrCreatePelTecParameter("B_resDir"),
+                device.getOrCreatePelTecParameter("B_resMax"),
             )
         )
         return entities

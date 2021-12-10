@@ -9,23 +9,33 @@ class PelTecWorkingTableSensor(PelTecGenericSensor):
         super().__init__(hass, device, sensor_data, param)
         for tableIndex in range(1, 4):
             for i in range(0, 42):
-                param = "PVAL_" + str(222 + tableIndex) + "_" + str(i)
-                self.device["parameters"][param]["used"] = True
+                name = "PVAL_" + str(222 + tableIndex) + "_" + str(i)
+                parameter = self.device.getOrCreatePelTecParameter(name)
+                parameter["used"] = True
+
+    def __del__(self):
+        for tableIndex in range(1, 4):
+            for i in range(0, 42):
+                name = "PVAL_" + str(222 + tableIndex) + "_" + str(i)
+                parameter = self.device.getOrCreatePelTecParameter(name)
+                parameter.set_update_callback(None, "table")
 
     async def async_added_to_hass(self):
         """Subscribe to sensor events."""
         await super().async_added_to_hass()
         for tableIndex in range(1, 4):
             for i in range(0, 42):
-                param = "PVAL_" + str(222 + tableIndex) + "_" + str(i)
-                self.device["parameters"][param].set_update_callback(
-                    self.update_callback
-                )
+                name = "PVAL_" + str(222 + tableIndex) + "_" + str(i)
+                parameter = self.device.getOrCreatePelTecParameter(name)
+                parameter.set_update_callback(self.update_callback, "table")
 
     def getValue(self, tableIndex, dayIndex, i):
-        param = "PVAL_" + str(222 + tableIndex) + "_" + str(dayIndex * 6 + i)
-        value = self.device["parameters"][param]["value"]
-        return int(value)
+        name = "PVAL_" + str(222 + tableIndex) + "_" + str(dayIndex * 6 + i)
+        parameter = self.device.getOrCreatePelTecParameter(name)
+        if "value" in parameter.keys():
+            value = parameter["value"]
+            return int(value)
+        return 0
 
     def formatTime(self, val):
         return "%02d:%02d" % (int(val / 60), val % 60)
@@ -55,14 +65,14 @@ class PelTecWorkingTableSensor(PelTecGenericSensor):
                 attributes[key] = " / ".join(texts)
         return attributes
 
-    def createEntities(parameters, hass, device) -> List[SensorEntity]:
+    def createEntities(hass, device) -> List[SensorEntity]:
         entities = []
         entities.append(
             PelTecWorkingTableSensor(
                 hass,
                 device,
                 ["", "mdi:state-machine", None, "Working table"],
-                parameters["PVAL_222_0"],
+                device.getOrCreatePelTecParameter("PVAL_222_0"),
             )
         )
         return entities

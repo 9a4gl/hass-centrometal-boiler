@@ -115,10 +115,10 @@ PELTEC_SENSOR_MISC = {
         "Outdoor Temperature",
     ],
     "B_cm2k": ["", "mdi:state-machine", None, "CM2K Status"],
-    "B_misP": [PERCENTAGE, "mdi-pipe-valve", None, "Mixing Valve"],
+    "B_misP": [PERCENTAGE, "mdi:pipe-valve", None, "Mixing Valve"],
     "B_P1": ["", "mdi:pump", None, "Boiler Pump P1"],
     "B_gri": ["", "mdi:fire-circle", None, "Electric Heater"],
-    "B_puz": ["", "mdi:transfer.up", None, "Pellet Transporter"],
+    "B_puz": ["", "mdi:transfer-up", None, "Pellet Transporter"],
     "B_BRAND": ["", "mdi:information", None, "Brand"],
     "B_INST": ["", "mdi:information", None, "Installation"],
     "B_PRODNAME": ["", "mdi:information", None, "Product Name"],
@@ -190,13 +190,17 @@ class PelTecGenericSensor(SensorEntity):
         self.added_to_hass = False
         self.parameter["used"] = True
         for attribute in self._attributes:
-            self.device["parameters"][attribute]["used"] = True
+            attribute_parameter = self.device.getOrCreatePelTecParameter(attribute)
+            attribute_parameter["used"] = True
+
+    def __del__(self):
+        self.parameter.set_update_callback(None, "generic")
 
     async def async_added_to_hass(self):
         """Subscribe to sensor events."""
         self.added_to_hass = True
         self.schedule_update_ha_state(True)
-        self.parameter.set_update_callback(self.update_callback)
+        self.parameter.set_update_callback(self.update_callback, "generic")
 
     @property
     def should_poll(self) -> bool:
@@ -248,7 +252,8 @@ class PelTecGenericSensor(SensorEntity):
         last_updated = formatTime(self.hass, int(self.parameter["timestamp"]))
         attributes = {}
         for key, description in self._attributes.items():
-            attributes[description] = self.device["parameters"][key]["value"] or "?"
+            parameter = self.device.getOrCreatePelTecParameter(key)
+            attributes[description] = parameter["value"] or "?"
         attributes["Last updated"] = last_updated
         return attributes
 
@@ -257,18 +262,15 @@ class PelTecGenericSensor(SensorEntity):
         return create_device_info(self.device)
 
     @staticmethod
-    def createEntities(parameters, hass, device) -> List[SensorEntity]:
+    def createEntities(hass, device) -> List[SensorEntity]:
         entities = []
         for param_id, sensor_data in PELTEC_SENSOR_TYPES.items():
-            if param_id in parameters.keys():
-                parameter = parameters[param_id]
-                entities.append(
-                    PelTecGenericSensor(hass, device, sensor_data, parameter)
-                )
+            parameter = device.getOrCreatePelTecParameter(param_id)
+            entities.append(PelTecGenericSensor(hass, device, sensor_data, parameter))
         return entities
 
     @staticmethod
-    def createUnknownEntities(parameters, hass, device) -> List[SensorEntity]:
+    def createUnknownEntities(hass, device) -> List[SensorEntity]:
         entities = []
         for param_key, param in device["parameters"].items():
             if "used" in param.keys():

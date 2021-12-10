@@ -36,12 +36,15 @@ class PelTectPowerSwitch(SwitchEntity):
         self._unique_id = device["serial"]
         self._state = None
         self._error_message = ""
-        self._param = device["parameters"]["B_STATE"]
+        self._param = device.getOrCreatePelTecParameter("B_STATE")
+
+    def __del__(self):
+        self._param.set_update_callback(None, "switch")
 
     async def async_added_to_hass(self):
         """Subscribe to events."""
         self.schedule_update_ha_state(True)
-        self._param.set_update_callback(self.update_callback)
+        self._param.set_update_callback(self.update_callback, "switch")
 
     @property
     def should_poll(self) -> bool:

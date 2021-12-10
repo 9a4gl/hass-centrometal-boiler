@@ -45,7 +45,7 @@ def setup_services(hass: HomeAssistant):
                 if "B_STATE" in device["parameters"]:
                     param = device["parameters"]["B_STATE"]
                     newvalue = param["value"] == "OFF"
-                await peltec_system.peltec_client.turn(serial, newvalue)
+                    await peltec_system.peltec_client.turn(serial, newvalue)
 
     hass.services.async_register(DOMAIN, "turn", handle_turn)
     hass.services.async_register(DOMAIN, "turn_on", handle_turn_on)
