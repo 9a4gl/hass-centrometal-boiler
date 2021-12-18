@@ -104,6 +104,7 @@ PELTEC_SENSOR_COUNTERS = {
 
 PELTEC_SENSOR_MISC = {
     "B_STATE": ["", "mdi:state-machine", None, "State"],
+    "B_CMD": ["", "mdi:state-machine", None, "Active command"],
     "B_fan": ["rpm", "mdi:fan", None, "Fan"],
     "B_fanB": ["rpm", "mdi:fan", None, "Fan B"],
     "B_Oxy1": ["% O2", "mdi:gas-cylinder", None, "Lambda Sensor"],
@@ -116,7 +117,8 @@ PELTEC_SENSOR_MISC = {
     ],
     "B_cm2k": ["", "mdi:state-machine", None, "CM2K Status"],
     "B_misP": [PERCENTAGE, "mdi:pipe-valve", None, "Mixing Valve"],
-    "B_P1": ["", "mdi:pump", None, "Boiler Pump P1"],
+    "B_P1": ["", "mdi:pump", None, "Boiler Pump"],
+    "B_zahP1": ["", "mdi:pump", None, "Boiler Pump Demand"],
     "B_gri": ["", "mdi:fire-circle", None, "Electric Heater"],
     "B_puz": ["", "mdi:transfer-up", None, "Pellet Transporter"],
     "B_BRAND": ["", "mdi:information", None, "Brand"],
@@ -199,7 +201,7 @@ class PelTecGenericSensor(SensorEntity):
     async def async_added_to_hass(self):
         """Subscribe to sensor events."""
         self.added_to_hass = True
-        self.schedule_update_ha_state(True)
+        self.async_schedule_update_ha_state(False)
         self.parameter.set_update_callback(self.update_callback, "generic")
 
     @property
@@ -209,7 +211,7 @@ class PelTecGenericSensor(SensorEntity):
 
     async def update_callback(self, parameter):
         """Call update for Home Assistant when the parameter is updated."""
-        self.schedule_update_ha_state(True)
+        self.async_write_ha_state()
 
     @property
     def name(self):

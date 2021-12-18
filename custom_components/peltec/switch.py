@@ -43,7 +43,7 @@ class PelTectPowerSwitch(SwitchEntity):
 
     async def async_added_to_hass(self):
         """Subscribe to events."""
-        self.schedule_update_ha_state(True)
+        self.async_schedule_update_ha_state(False)
         self._param.set_update_callback(self.update_callback, "switch")
 
     @property
@@ -53,7 +53,7 @@ class PelTectPowerSwitch(SwitchEntity):
 
     async def update_callback(self, device):
         """Call update for Home Assistant when the device is updated."""
-        self.schedule_update_ha_state(True)
+        self.async_write_ha_state()
 
     @property
     def name(self):

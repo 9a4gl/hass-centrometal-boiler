@@ -7,6 +7,6 @@
   "issue_tracker": "https://github.com/9a4gl/hass-peltec/issues",
   "dependencies": [],
   "codeowners": ["@9a4gl"],
-  "requirements": ["py-peltec==0.0.28"],
+  "requirements": ["py-peltec==0.0.29"],
   "iot_class": "cloud_push"
 }
