@@ -251,12 +251,13 @@ class PelTecGenericSensor(SensorEntity):
     @property
     def device_state_attributes(self):
         """Return the state attributes of the sensor."""
-        last_updated = formatTime(self.hass, int(self.parameter["timestamp"]))
         attributes = {}
-        for key, description in self._attributes.items():
-            parameter = self.device.getOrCreatePelTecParameter(key)
-            attributes[description] = parameter["value"] or "?"
-        attributes["Last updated"] = last_updated
+        if "timestamp" in self.parameter:
+            last_updated = formatTime(self.hass, int(self.parameter["timestamp"]))
+            for key, description in self._attributes.items():
+                parameter = self.device.getOrCreatePelTecParameter(key)
+                attributes[description] = parameter["value"] or "?"
+            attributes["Last updated"] = last_updated
         return attributes
 
     @property
