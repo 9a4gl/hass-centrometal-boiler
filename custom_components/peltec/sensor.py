@@ -21,12 +21,17 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     peltec_client = hass.data[DOMAIN][PELTEC_CLIENT]
     for device in peltec_client.data.values():
+        entities.extend(PelTecGenericSensor.createCommonEntities(hass, device))
         entities.extend(PelTecConfigurationSensor.createEntities(hass, device))
-        entities.extend(PelTecWorkingTableSensor.createEntities(hass, device))
-        entities.extend(PelTecPelletLevelSensor.createEntities(hass, device))
-        entities.extend(PelTecCurrentTimeSensor.createEntities(hass, device))
-        entities.extend(PelTecFireGridSensor.createEntities(hass, device))
-        entities.extend(PelTecGenericSensor.createEntities(hass, device))
-        entities.extend(PelTecGenericSensor.createUnknownEntities(hass, device))
+        confParameter = device.getPelTecParameter("B_KONF")
+        if confParameter is not None:
+            conf = confParameter["value"]
+            if conf == "3":  # "4. BUF"
+                entities.extend(PelTecPelletLevelSensor.createEntities(hass, device))
+                entities.extend(PelTecCurrentTimeSensor.createEntities(hass, device))
+                entities.extend(PelTecFireGridSensor.createEntities(hass, device))
+            entities.extend(PelTecGenericSensor.createConfEntities(hass, device, conf))
+            entities.extend(PelTecWorkingTableSensor.createEntities(hass, device))
+            entities.extend(PelTecGenericSensor.createUnknownEntities(hass, device))
 
     async_add_entities(entities, True)

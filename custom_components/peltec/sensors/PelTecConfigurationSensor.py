@@ -35,7 +35,7 @@ class PelTecConfigurationSensor(PelTecGenericSensor):
                 hass,
                 device,
                 ["", "mdi:state-machine", None, "Configuration"],
-                device.getOrCreatePelTecParameter("B_KONF"),
+                device.getPelTecParameter("B_KONF"),
             )
         )
         return entities

@@ -21,7 +21,7 @@ class PelTecCurrentTimeSensor(PelTecGenericSensor):
                 hass,
                 device,
                 ["", "mdi:clock-outline", None, "Clock"],
-                device.getOrCreatePelTecParameter("B_Time"),
+                device.getPelTecParameter("B_Time"),
             )
         )
         return entities

@@ -19,7 +19,7 @@ class PelTecPelletLevelSensor(PelTecGenericSensor):
                 hass,
                 device,
                 ["", "mdi:bucket-outline", None, "Tank Level"],
-                device.getOrCreatePelTecParameter("B_razina"),
+                device.getPelTecParameter("B_razina"),
             )
         )
         return entities

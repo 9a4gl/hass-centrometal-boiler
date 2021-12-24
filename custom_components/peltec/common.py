@@ -5,9 +5,9 @@ from datetime import datetime
 
 
 def create_device_info(device):
-    param_power = device.getOrCreatePelTecParameter("B_sng")
-    param_fw_ver = device.getOrCreatePelTecParameter("B_VER")
-    param_wifi_ver = device.getOrCreatePelTecParameter("B_WifiVER")
+    param_power = device.getPelTecParameter("B_sng")
+    param_fw_ver = device.getPelTecParameter("B_VER")
+    param_wifi_ver = device.getPelTecParameter("B_WifiVER")
     power = param_power["value"] or "?"
     firmware_ver = param_fw_ver["value"] or "?"
     wifi_ver = param_wifi_ver["value"] or "?"

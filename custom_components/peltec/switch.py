@@ -36,7 +36,7 @@ class PelTectPowerSwitch(SwitchEntity):
         self._unique_id = device["serial"]
         self._state = None
         self._error_message = ""
-        self._param = device.getOrCreatePelTecParameter("B_STATE")
+        self._param = device.getPelTecParameter("B_STATE")
 
     def __del__(self):
         self._param.set_update_callback(None, "switch")

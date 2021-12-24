@@ -1,37 +1,40 @@
+import collections
+
 from typing import List
 from homeassistant.components.sensor import SensorEntity
 
 from .PelTecGenericSensor import PelTecGenericSensor
+from peltec.PelTecDeviceCollection import PelTecParameter
 
 
 class PelTecWorkingTableSensor(PelTecGenericSensor):
-    def __init__(self, hass, device, sensor_data, param):
-        super().__init__(hass, device, sensor_data, param)
-        for tableIndex in range(1, 4):
-            for i in range(0, 42):
-                name = "PVAL_" + str(222 + tableIndex) + "_" + str(i)
-                parameter = self.device.getOrCreatePelTecParameter(name)
+    def __init__(self, hass, device, sensor_data, param_status, param_tables):
+        super().__init__(hass, device, sensor_data, param_status)
+        self.param_tables = param_tables
+        for key in self.param_tables:
+            for val in self.param_tables[key]:
+                name = f"PVAL_{key}_{val}"
+                parameter = self.device.getPelTecParameter(name)
                 parameter["used"] = True
 
     def __del__(self):
-        for tableIndex in range(1, 4):
-            for i in range(0, 42):
-                name = "PVAL_" + str(222 + tableIndex) + "_" + str(i)
-                parameter = self.device.getOrCreatePelTecParameter(name)
-                parameter.set_update_callback(None, "table")
+        self.set_callback_to_all_table_parameters(None)
+
+    def set_callback_to_all_table_parameters(self, callback):
+        for key in self.param_tables:
+            for val in self.param_tables[key]:
+                name = f"PVAL_{key}_{val}"
+                parameter = self.device.getPelTecParameter(name)
+                parameter.set_update_callback(callback, f"table_{key}")
 
     async def async_added_to_hass(self):
         """Subscribe to sensor events."""
         await super().async_added_to_hass()
-        for tableIndex in range(1, 4):
-            for i in range(0, 42):
-                name = "PVAL_" + str(222 + tableIndex) + "_" + str(i)
-                parameter = self.device.getOrCreatePelTecParameter(name)
-                parameter.set_update_callback(self.update_callback, "table")
+        self.set_callback_to_all_table_parameters(self.update_callback)
 
-    def getValue(self, tableIndex, dayIndex, i):
-        name = "PVAL_" + str(222 + tableIndex) + "_" + str(dayIndex * 6 + i)
-        parameter = self.device.getOrCreatePelTecParameter(name)
+    def getValue(self, table_key, dayIndex, i):
+        name = "PVAL_" + table_key + "_" + str(dayIndex * 6 + i)
+        parameter = self.device.getPelTecParameter(name)
         if "value" in parameter.keys():
             value = parameter["value"]
             return int(value)
@@ -52,27 +55,48 @@ class PelTecWorkingTableSensor(PelTecGenericSensor):
         """Return the state attributes of the sensor."""
         attributes = super().device_state_attributes
         days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-        tables = [1, 2, 3]
-        for tableIndex in tables:
-            for i in range(0, 7):
+        tableIndex = 1
+        for key in self.param_tables:
+            for i in range(0, 7):  # iterate over days
                 day = days[i]
                 texts = [
-                    self.getRange(tableIndex, i, 0, 1),
-                    self.getRange(tableIndex, i, 2, 3),
-                    self.getRange(tableIndex, i, 4, 5),
+                    self.getRange(key, i, 0, 1),
+                    self.getRange(key, i, 2, 3),
+                    self.getRange(key, i, 4, 5),
                 ]
-                key = "Table" + str(tableIndex) + " " + day
-                attributes[key] = " / ".join(texts)
+                attributes["Table" + str(tableIndex) + " " + day] = " / ".join(texts)
         return attributes
 
+    @staticmethod
+    def get_pval_data(device):
+        pval = {}
+        for key in device["parameters"].keys():
+            if key.startswith("PVAL_"):
+                data = key[5:].split("_")
+                if len(data) == 2:
+                    if data[0] not in pval:
+                        pval[data[0]] = []
+                    pval[data[0]].append(data[1])
+                    pval[data[0]].sort(key=int)
+        return collections.OrderedDict(sorted(pval.items()))
+
+    @staticmethod
     def createEntities(hass, device) -> List[SensorEntity]:
+        pval_data = PelTecWorkingTableSensor.get_pval_data(device)
         entities = []
-        entities.append(
-            PelTecWorkingTableSensor(
-                hass,
-                device,
-                ["", "mdi:state-machine", None, "Working table"],
-                device.getOrCreatePelTecParameter("PVAL_222_0"),
-            )
-        )
+        for key in pval_data.keys():
+            value = pval_data[key]
+            if len(value) == 42:
+                parameter = PelTecParameter()
+                parameter["name"] = "Table " + key
+                parameter["value"] = "See attributes"
+                entities.append(
+                    PelTecWorkingTableSensor(
+                        hass,
+                        device,
+                        ["", "mdi:state-machine", None, "Table " + key],
+                        parameter,
+                        {key: value},
+                    )
+                )
         return entities

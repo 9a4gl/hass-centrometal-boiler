@@ -51,9 +51,9 @@ class PelTecFireGridSensor(PelTecGenericSensor):
                 hass,
                 device,
                 ["", "mdi:grid", None, "Fire Grid Position"],
-                device.getOrCreatePelTecParameter("B_resInd"),
-                device.getOrCreatePelTecParameter("B_resDir"),
-                device.getOrCreatePelTecParameter("B_resMax"),
+                device.getPelTecParameter("B_resInd"),
+                device.getPelTecParameter("B_resDir"),
+                device.getPelTecParameter("B_resMax"),
             )
         )
         return entities
