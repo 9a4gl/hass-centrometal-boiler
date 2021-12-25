@@ -5,7 +5,7 @@ from homeassistant.const import (
     PERCENTAGE,
 )
 
-PELTEC_4BUF_SENSOR_TEMPERATURES = {
+PELTEC_SENSOR_TEMPERATURES = {
     "B_Tak1_1": [
         TEMP_CELSIUS,
         "mdi:thermometer",
@@ -38,7 +38,7 @@ PELTEC_4BUF_SENSOR_TEMPERATURES = {
     ],
 }
 
-PELTEC_4BUF_SENSOR_COUNTERS = {
+PELTEC_SENSOR_COUNTERS = {
     "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner Work"],
     "CNT_1": [
         "",
@@ -92,7 +92,7 @@ PELTEC_4BUF_SENSOR_COUNTERS = {
     "CNT_15": ["", "mdi:counter", None, "Reserve Counter"],
 }
 
-PELTEC_4BUF_SENSOR_MISC = {
+PELTEC_SENSOR_MISC = {
     "B_fan": ["rpm", "mdi:fan", None, "Fan"],
     "B_fanB": ["rpm", "mdi:fan", None, "Fan B"],
     "B_Oxy1": ["% O2", "mdi:gas-cylinder", None, "Lambda Sensor"],
@@ -111,8 +111,8 @@ PELTEC_4BUF_SENSOR_MISC = {
     "B_puz": ["", "mdi:transfer-up", None, "Pellet Transporter"],
 }
 
-PELTEC_4BUF_SENSOR_TYPES = {
-    **PELTEC_4BUF_SENSOR_TEMPERATURES,
-    **PELTEC_4BUF_SENSOR_COUNTERS,
-    **PELTEC_4BUF_SENSOR_MISC,
+PELTEC_GENERIC_SENSORS = {
+    **PELTEC_SENSOR_TEMPERATURES,
+    **PELTEC_SENSOR_COUNTERS,
+    **PELTEC_SENSOR_MISC,
 }

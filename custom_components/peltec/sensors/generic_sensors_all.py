@@ -2,7 +2,7 @@ from homeassistant.const import (
     DEVICE_CLASS_TEMPERATURE,
 )
 
-PELTEC_SENSOR_GENERIC_COMMON = {
+GENERIC_SENSORS_COMMON = {
     "B_STATE": ["", "mdi:state-machine", None, "State"],
     "B_CMD": ["", "mdi:state-machine", None, "Command Active"],
     "B_BRAND": ["", "mdi:information", None, "Brand"],
@@ -14,7 +14,7 @@ PELTEC_SENSOR_GENERIC_COMMON = {
 }
 
 
-def get_peltec_temperature_settings(device):
+def get_generic_temperature_settings_sensors(device):
     PELTEC_TEMPERATURE_SETTINGS = dict()
     for key, value in device["temperatures"].items():
         dbindex = value["dbindex"]

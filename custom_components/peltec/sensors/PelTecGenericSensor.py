@@ -7,8 +7,11 @@ from homeassistant.components.sensor import SensorEntity
 from ..const import DOMAIN, PELTEC_CLIENT
 from ..common import format_time, create_device_info
 
-from .generic_all import PELTEC_SENSOR_GENERIC_COMMON, get_peltec_temperature_settings
-from .generic_4buf import PELTEC_4BUF_SENSOR_TYPES
+from .generic_sensors_all import (
+    GENERIC_SENSORS_COMMON,
+    get_generic_temperature_settings_sensors,
+)
+from .generic_sensors_peltec import PELTEC_GENERIC_SENSORS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -111,19 +114,21 @@ class PelTecGenericSensor(SensorEntity):
     @staticmethod
     def create_common_entities(hass, device) -> List[SensorEntity]:
         entities = []
-        for param_id, sensor_data in PELTEC_SENSOR_GENERIC_COMMON.items():
+        for param_id, sensor_data in GENERIC_SENSORS_COMMON.items():
             parameter = device.get_parameter(param_id)
             entities.append(PelTecGenericSensor(hass, device, sensor_data, parameter))
-        for param_id, sensor_data in get_peltec_temperature_settings(device).items():
+        for param_id, sensor_data in get_generic_temperature_settings_sensors(
+            device
+        ).items():
             parameter = device.get_parameter(param_id)
             entities.append(PelTecGenericSensor(hass, device, sensor_data, parameter))
         return entities
 
     @staticmethod
-    def create_conf_entities(hass, device, conf) -> List[SensorEntity]:
+    def create_conf_entities(hass, device, product_name) -> List[SensorEntity]:
         entities = []
-        if conf == "3":  # "4. BUF":
-            for param_id, sensor_data in PELTEC_4BUF_SENSOR_TYPES.items():
+        if product_name.startswith("PelTec"):
+            for param_id, sensor_data in PELTEC_GENERIC_SENSORS.items():
                 parameter = device.get_parameter(param_id)
                 entities.append(
                     PelTecGenericSensor(hass, device, sensor_data, parameter)
