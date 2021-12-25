@@ -45,8 +45,11 @@ class PeltecConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             return await self._show_setup_form()
 
         errors = {}
+        pelTecDeviceCollection = None
         try:
-            await try_connection(user_input[CONF_EMAIL], user_input[CONF_PASSWORD])
+            pelTecDeviceCollection = await try_connection(
+                user_input[CONF_EMAIL], user_input[CONF_PASSWORD]
+            )
         except Exception:
             _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown"
@@ -57,8 +60,11 @@ class PeltecConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(unique_id)
         self._abort_if_unique_id_configured()
 
+        device = list(pelTecDeviceCollection.values())[0]
+        title = device["product"] + ": " + device["address"] + ", " + device["place"]
+
         return self.async_create_entry(
-            title="",
+            title=title,
             data={
                 CONF_ID: unique_id,
                 CONF_EMAIL: user_input[CONF_EMAIL],
@@ -80,3 +86,4 @@ async def try_connection(email, password):
         raise Exception("No device found on Centrometal PelTec server")
     await peltec_client.close_websocket()
     _LOGGER.debug("Successfully connected to Centrometal PelTec during setup")
+    return peltec_client.data
