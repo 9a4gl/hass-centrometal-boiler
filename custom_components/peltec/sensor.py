@@ -24,16 +24,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         entities.extend(PelTecGenericSensor.create_common_entities(hass, device))
         entities.extend(PelTecConfigurationSensor.create_entities(hass, device))
         entities.extend(PelTecCurrentTimeSensor.create_entities(hass, device))
-        product_name_parameter = device.get_parameter("B_PRODNAME")
-        if product_name_parameter:
-            product_name = product_name_parameter["value"]
-            if product_name.startswith("PelTec"):
-                entities.extend(PelTecPelletLevelSensor.create_entities(hass, device))
-                entities.extend(PelTecFireGridSensor.create_entities(hass, device))
-            entities.extend(
-                PelTecGenericSensor.create_conf_entities(hass, device, product_name)
-            )
-            entities.extend(PelTecWorkingTableSensor.create_entities(hass, device))
-            entities.extend(PelTecGenericSensor.create_unknown_entities(hass, device))
+        entities.extend(PelTecWorkingTableSensor.create_entities(hass, device))
+        if device["type"] == "peltec":
+            entities.extend(PelTecPelletLevelSensor.create_entities(hass, device))
+            entities.extend(PelTecFireGridSensor.create_entities(hass, device))
+        entities.extend(PelTecGenericSensor.create_conf_entities(hass, device))
+        entities.extend(PelTecGenericSensor.create_unknown_entities(hass, device))
 
     async_add_entities(entities, True)

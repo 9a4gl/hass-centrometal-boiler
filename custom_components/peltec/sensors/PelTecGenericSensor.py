@@ -127,12 +127,12 @@ class PelTecGenericSensor(SensorEntity):
         return entities
 
     @staticmethod
-    def create_conf_entities(hass, device, product_name) -> List[SensorEntity]:
+    def create_conf_entities(hass, device) -> List[SensorEntity]:
         entities = []
         generic_sensors = dict()
-        if product_name.startswith("PelTec"):
+        if device["type"] == "peltec":
             generic_sensors = PELTEC_GENERIC_SENSORS
-        elif product_name == "Cm Pelet-set":
+        elif device["type"] == "cmpelet":
             generic_sensors = CM_PELET_SET_GENERIC_SENSORS
         for param_id, sensor_data in generic_sensors.items():
             parameter = device.get_parameter(param_id)
