@@ -12,6 +12,7 @@ from .generic_sensors_all import (
     get_generic_temperature_settings_sensors,
 )
 from .generic_sensors_peltec import PELTEC_GENERIC_SENSORS
+from .generic_sensors_cm_pelet_set import CM_PELET_SET_GENERIC_SENSORS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,7 +34,8 @@ class PelTecGenericSensor(SensorEntity):
         self._attributes = sensor_data[4] if len(sensor_data) == 5 else {}
         self._serial = device["serial"]
         self._parameter_name = parameter["name"]
-        self._name = f"PelTec {self._description}"
+        self._product = device["product"]
+        self._name = f"{self._product} {self._description}"
         self._unique_id = f"{self._serial}-{self._parameter_name}"
         #
         self.added_to_hass = False
@@ -127,12 +129,14 @@ class PelTecGenericSensor(SensorEntity):
     @staticmethod
     def create_conf_entities(hass, device, product_name) -> List[SensorEntity]:
         entities = []
+        generic_sensors = dict()
         if product_name.startswith("PelTec"):
-            for param_id, sensor_data in PELTEC_GENERIC_SENSORS.items():
-                parameter = device.get_parameter(param_id)
-                entities.append(
-                    PelTecGenericSensor(hass, device, sensor_data, parameter)
-                )
+            generic_sensors = PELTEC_GENERIC_SENSORS
+        elif product_name == "Cm Pelet-set":
+            generic_sensors = CM_PELET_SET_GENERIC_SENSORS
+        for param_id, sensor_data in PELTEC_GENERIC_SENSORS.items():
+            parameter = device.get_parameter(param_id)
+            entities.append(PelTecGenericSensor(hass, device, sensor_data, parameter))
         return entities
 
     @staticmethod
