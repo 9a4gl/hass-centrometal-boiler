@@ -134,7 +134,7 @@ class PelTecGenericSensor(SensorEntity):
             generic_sensors = PELTEC_GENERIC_SENSORS
         elif product_name == "Cm Pelet-set":
             generic_sensors = CM_PELET_SET_GENERIC_SENSORS
-        for param_id, sensor_data in PELTEC_GENERIC_SENSORS.items():
+        for param_id, sensor_data in generic_sensors.items():
             parameter = device.get_parameter(param_id)
             entities.append(PelTecGenericSensor(hass, device, sensor_data, parameter))
         return entities

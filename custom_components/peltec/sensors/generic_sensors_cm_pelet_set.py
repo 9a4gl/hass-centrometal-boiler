@@ -1,8 +1,6 @@
 from homeassistant.const import (
     DEVICE_CLASS_TEMPERATURE,
     TEMP_CELSIUS,
-    TIME_MINUTES,
-    PERCENTAGE,
 )
 
 CM_PELET_SET_SENSOR_TEMPERATURES = {
@@ -34,7 +32,7 @@ CM_PELET_SET_SENSOR_TEMPERATURES = {
 
 
 CM_PELET_SET_SENSOR_MISC = {
-    "B_KONF_STR": ["", "mdi:information", None, "Configuration"],
+    "B_KONF_STR": ["", "mdi:information", None, "Setup"],
     "C1B_CircType": ["", "mdi:information", None, "Heating type"],
     "B_Pk": ["", "mdi:pump", None, "Boiler Pump"],
 }

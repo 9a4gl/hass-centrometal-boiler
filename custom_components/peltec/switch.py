@@ -34,7 +34,8 @@ class PelTectPowerSwitch(SwitchEntity):
         self.hass = hass
         self.peltec_client = hass.data[DOMAIN][PELTEC_CLIENT]
         self._device = device
-        self._name = "PelTec Boiler"
+        self._product = device["product"]
+        self._name = f"{self._product} Boiler Switch"
         self._unique_id = device["serial"]
         self._state = None
         self._error_message = ""
