@@ -20,7 +20,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     peltec_client = hass.data[DOMAIN][PELTEC_CLIENT]
     for device in peltec_client.data.values():
         entities.append(PelTectPowerSwitch(hass, device))
-    _LOGGER.debug("Adding PelTec control as switch: %s", entities)
+    _LOGGER.debug(
+        "Adding PelTec control as switch: %s (%s)", entities, peltec_client.username
+    )
     async_add_entities(entities, True)
 
 
