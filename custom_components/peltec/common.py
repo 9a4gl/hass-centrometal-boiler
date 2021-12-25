@@ -5,9 +5,9 @@ from datetime import datetime
 
 
 def create_device_info(device):
-    param_power = device.getPelTecParameter("B_sng")
-    param_fw_ver = device.getPelTecParameter("B_VER")
-    param_wifi_ver = device.getPelTecParameter("B_WifiVER")
+    param_power = device.get_parameter("B_sng")
+    param_fw_ver = device.get_parameter("B_VER")
+    param_wifi_ver = device.get_parameter("B_WifiVER")
     power = param_power["value"] or "?"
     firmware_ver = param_fw_ver["value"] or "?"
     wifi_ver = param_wifi_ver["value"] or "?"
@@ -26,7 +26,7 @@ def create_device_info(device):
     }
 
 
-def formatTime(hass, timestamp, tzinfo=None):
+def format_time(hass, timestamp, tzinfo=None):
     if tzinfo is None:
         tzinfo = dt_util.get_time_zone(hass.config.time_zone)
     dt = datetime.fromtimestamp(timestamp)

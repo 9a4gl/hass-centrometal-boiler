@@ -12,14 +12,14 @@ class PelTecPelletLevelSensor(PelTecGenericSensor):
         return configurations[int(self.parameter["value"])]
 
     @staticmethod
-    def createEntities(hass, device) -> List[SensorEntity]:
+    def create_entities(hass, device) -> List[SensorEntity]:
         entities = []
         entities.append(
             PelTecPelletLevelSensor(
                 hass,
                 device,
                 ["", "mdi:bucket-outline", None, "Tank Level"],
-                device.getPelTecParameter("B_razina"),
+                device.get_parameter("B_razina"),
             )
         )
         return entities

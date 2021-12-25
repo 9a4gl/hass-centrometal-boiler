@@ -44,16 +44,16 @@ class PelTecFireGridSensor(PelTecGenericSensor):
         attributes["Dir"] = self.param_dir["value"]
         return attributes
 
-    def createEntities(hass, device) -> List[SensorEntity]:
+    def create_entities(hass, device) -> List[SensorEntity]:
         entities = []
         entities.append(
             PelTecFireGridSensor(
                 hass,
                 device,
                 ["", "mdi:grid", None, "Fire Grid Position"],
-                device.getPelTecParameter("B_resInd"),
-                device.getPelTecParameter("B_resDir"),
-                device.getPelTecParameter("B_resMax"),
+                device.get_parameter("B_resInd"),
+                device.get_parameter("B_resDir"),
+                device.get_parameter("B_resMax"),
             )
         )
         return entities

@@ -5,9 +5,9 @@ from homeassistant.components.sensor import SensorEntity
 
 
 from ..const import DOMAIN, PELTEC_CLIENT
-from ..common import formatTime, create_device_info
+from ..common import format_time, create_device_info
 
-from .generic_all import PELTEC_SENSOR_GENERIC_COMMON
+from .generic_all import PELTEC_SENSOR_GENERIC_COMMON, get_peltec_temperature_settings
 from .generic_4buf import PELTEC_4BUF_SENSOR_TYPES
 
 _LOGGER = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ class PelTecGenericSensor(SensorEntity):
         self.added_to_hass = False
         self.parameter["used"] = True
         for attribute in self._attributes:
-            attribute_parameter = self.device.getPelTecParameter(attribute)
+            attribute_parameter = self.device.get_parameter(attribute)
             attribute_parameter["used"] = True
 
     def __del__(self):
@@ -97,9 +97,9 @@ class PelTecGenericSensor(SensorEntity):
         """Return the state attributes of the sensor."""
         attributes = {}
         if "timestamp" in self.parameter:
-            last_updated = formatTime(self.hass, int(self.parameter["timestamp"]))
+            last_updated = format_time(self.hass, int(self.parameter["timestamp"]))
             for key, description in self._attributes.items():
-                parameter = self.device.getPelTecParameter(key)
+                parameter = self.device.get_parameter(key)
                 attributes[description] = parameter["value"] or "?"
             attributes["Last updated"] = last_updated
         return attributes
@@ -109,26 +109,29 @@ class PelTecGenericSensor(SensorEntity):
         return create_device_info(self.device)
 
     @staticmethod
-    def createCommonEntities(hass, device) -> List[SensorEntity]:
+    def create_common_entities(hass, device) -> List[SensorEntity]:
         entities = []
         for param_id, sensor_data in PELTEC_SENSOR_GENERIC_COMMON.items():
-            parameter = device.getPelTecParameter(param_id)
+            parameter = device.get_parameter(param_id)
+            entities.append(PelTecGenericSensor(hass, device, sensor_data, parameter))
+        for param_id, sensor_data in get_peltec_temperature_settings(device).items():
+            parameter = device.get_parameter(param_id)
             entities.append(PelTecGenericSensor(hass, device, sensor_data, parameter))
         return entities
 
     @staticmethod
-    def createConfEntities(hass, device, conf) -> List[SensorEntity]:
+    def create_conf_entities(hass, device, conf) -> List[SensorEntity]:
         entities = []
         if conf == "3":  # "4. BUF":
             for param_id, sensor_data in PELTEC_4BUF_SENSOR_TYPES.items():
-                parameter = device.getPelTecParameter(param_id)
+                parameter = device.get_parameter(param_id)
                 entities.append(
                     PelTecGenericSensor(hass, device, sensor_data, parameter)
                 )
         return entities
 
     @staticmethod
-    def createUnknownEntities(hass, device) -> List[SensorEntity]:
+    def create_unknown_entities(hass, device) -> List[SensorEntity]:
         entities = []
         for param_key, param in device["parameters"].items():
             if "used" in param.keys():

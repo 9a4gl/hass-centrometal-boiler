@@ -28,14 +28,14 @@ class PelTecConfigurationSensor(PelTecGenericSensor):
         return configurations[int(self.parameter["value"])]
 
     @staticmethod
-    def createEntities(hass, device) -> List[SensorEntity]:
+    def create_entities(hass, device) -> List[SensorEntity]:
         entities = []
         entities.append(
             PelTecConfigurationSensor(
                 hass,
                 device,
                 ["", "mdi:state-machine", None, "Configuration"],
-                device.getPelTecParameter("B_KONF"),
+                device.get_parameter("B_KONF"),
             )
         )
         return entities

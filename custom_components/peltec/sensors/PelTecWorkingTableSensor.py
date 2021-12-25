@@ -14,7 +14,7 @@ class PelTecWorkingTableSensor(PelTecGenericSensor):
         for key in self.param_tables:
             for val in self.param_tables[key]:
                 name = f"PVAL_{key}_{val}"
-                parameter = self.device.getPelTecParameter(name)
+                parameter = self.device.get_parameter(name)
                 parameter["used"] = True
 
     def __del__(self):
@@ -24,7 +24,7 @@ class PelTecWorkingTableSensor(PelTecGenericSensor):
         for key in self.param_tables:
             for val in self.param_tables[key]:
                 name = f"PVAL_{key}_{val}"
-                parameter = self.device.getPelTecParameter(name)
+                parameter = self.device.get_parameter(name)
                 parameter.set_update_callback(callback, f"table_{key}")
 
     async def async_added_to_hass(self):
@@ -34,21 +34,21 @@ class PelTecWorkingTableSensor(PelTecGenericSensor):
 
     def getValue(self, table_key, dayIndex, i):
         name = "PVAL_" + table_key + "_" + str(dayIndex * 6 + i)
-        parameter = self.device.getPelTecParameter(name)
+        parameter = self.device.get_parameter(name)
         if "value" in parameter.keys():
             value = parameter["value"]
             return int(value)
         return 0
 
-    def formatTime(self, val):
+    def format_time(self, val):
         return "%02d:%02d" % (int(val / 60), val % 60)
 
-    def getRange(self, tableIndex, dayIndex, i, j):
+    def get_range(self, tableIndex, dayIndex, i, j):
         val1 = self.getValue(tableIndex, dayIndex, i)
         val2 = self.getValue(tableIndex, dayIndex, j)
         if val1 == 1440 and val2 == 1440:
             return " - "
-        return self.formatTime(val1) + "-" + self.formatTime(val2)
+        return self.format_time(val1) + "-" + self.format_time(val2)
 
     @property
     def device_state_attributes(self):
@@ -60,9 +60,9 @@ class PelTecWorkingTableSensor(PelTecGenericSensor):
             for i in range(0, 7):  # iterate over days
                 day = days[i]
                 texts = [
-                    self.getRange(key, i, 0, 1),
-                    self.getRange(key, i, 2, 3),
-                    self.getRange(key, i, 4, 5),
+                    self.get_range(key, i, 0, 1),
+                    self.get_range(key, i, 2, 3),
+                    self.get_range(key, i, 4, 5),
                 ]
                 attributes["Table" + str(tableIndex) + " " + day] = " / ".join(texts)
         return attributes
@@ -81,7 +81,7 @@ class PelTecWorkingTableSensor(PelTecGenericSensor):
         return collections.OrderedDict(sorted(pval.items()))
 
     @staticmethod
-    def createEntities(hass, device) -> List[SensorEntity]:
+    def create_entities(hass, device) -> List[SensorEntity]:
         pval_data = PelTecWorkingTableSensor.get_pval_data(device)
         entities = []
         for key in pval_data.keys():

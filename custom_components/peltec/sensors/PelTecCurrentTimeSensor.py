@@ -3,7 +3,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.util.dt import UTC
 
 from .PelTecGenericSensor import PelTecGenericSensor
-from ..common import formatTime
+from ..common import format_time
 
 
 class PelTecCurrentTimeSensor(PelTecGenericSensor):
@@ -11,17 +11,17 @@ class PelTecCurrentTimeSensor(PelTecGenericSensor):
     def native_value(self):
         """Return the value of the sensor."""
         value = int(self.parameter["value"], 16)
-        return formatTime(self.hass, value, UTC)
+        return format_time(self.hass, value, UTC)
 
     @staticmethod
-    def createEntities(hass, device) -> List[SensorEntity]:
+    def create_entities(hass, device) -> List[SensorEntity]:
         entities = []
         entities.append(
             PelTecCurrentTimeSensor(
                 hass,
                 device,
                 ["", "mdi:clock-outline", None, "Clock"],
-                device.getPelTecParameter("B_Time"),
+                device.get_parameter("B_Time"),
             )
         )
         return entities

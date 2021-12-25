@@ -111,41 +111,8 @@ PELTEC_4BUF_SENSOR_MISC = {
     "B_puz": ["", "mdi:transfer-up", None, "Pellet Transporter"],
 }
 
-
-PELTEC_4BUF_SENSOR_SETTINGS = {
-    "PVAL_66_0": [
-        "",
-        "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
-        "Setting Buffer Tank Temperatures",
-        {"PDEF_66_0": "Default", "PMIN_66_0": "Min", "PMAX_66_0": "Max"},
-    ],
-    "PVAL_67_0": [
-        "",
-        "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
-        "Setting Differential of Buffer Tank Temperature",
-        {"PDEF_67_0": "Default", "PMIN_67_0": "Min", "PMAX_67_0": "Max"},
-    ],
-    "PVAL_69_0": [
-        "",
-        "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
-        "Setting Minimal Buffer Tank Temperature",
-        {"PDEF_69_0": "Default", "PMIN_69_0": "Min", "PMAX_69_0": "Max"},
-    ],
-    "PVAL_70_0": [
-        "",
-        "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
-        "Setting Minimal Buffer Tank Temperature-off",
-        {"PDEF_70_0": "Default", "PMIN_70_0": "Min", "PMAX_70_0": "Max"},
-    ],
-}
-
 PELTEC_4BUF_SENSOR_TYPES = {
     **PELTEC_4BUF_SENSOR_TEMPERATURES,
     **PELTEC_4BUF_SENSOR_COUNTERS,
-    **PELTEC_4BUF_SENSOR_SETTINGS,
     **PELTEC_4BUF_SENSOR_MISC,
 }
