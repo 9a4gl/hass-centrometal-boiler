@@ -1,7 +1,7 @@
 {
   "domain": "peltec",
   "name": "Centrometal Boiler System integration",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "config_flow": true,
   "documentation": "https://github.com/9a4gl/hass-peltec",
   "issue_tracker": "https://github.com/9a4gl/hass-peltec/issues",

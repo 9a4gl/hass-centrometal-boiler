@@ -57,13 +57,55 @@ CM_PELET_SET_SENSOR_MISC = {
     "C2B_onOff": ["", "mdi:information", None, "Circuit 2 State"],
     "B_fan": ["", "mdi:fan", None, "Heater Fan State"],
     "B_gri": ["", "mdi:fire", None, "Heater State"],
-    "CNT_0": [TIME_MINUTES, "mdi:fire", None, "Heater State Counter"],
-    "CNT_3": ["", "mdi:fire", None, "Heater Start Counter (?)"],
-    "CNT_4": [TIME_MINUTES, "mdi:fan", None, "Heater Fan Counter"],
-    "CNT_5": [TIME_MINUTES, "mdi:fire", None, "Heater State Counter"],
-    "CNT_6": ["", "mdi:fire", None, "Heater ukljuèenje (?)"],
-    "CNT_7": [TIME_MINUTES, "mdi:information", None, "Pellet Transporter Counter"],
-    "CNT_8": [TIME_MINUTES, "mdi:pump", None, "Boiler Pump Counter"],
+    "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner Work"],
+    "CNT_1": [
+        TIME_MINUTES,
+        "mdi:timer",
+        None,
+        "Working DHW only",
+    ],
+    "CNT_2": [
+        TIME_MINUTES,
+        "mdi:timer",
+        None,
+        "Freez protection",
+    ],
+    "CNT_3": [
+        "",
+        "mdi:counter",
+        None,
+        "Number of Burner Start",
+    ],
+    "CNT_4": [
+        TIME_MINUTES,
+        "mdi:timer",
+        None,
+        "Fan Working Time",
+    ],
+    "CNT_5": [
+        TIME_MINUTES,
+        "mdi:timer",
+        None,
+        "Electric Heater Working Time",
+    ],
+    "CNT_6": [
+        "",
+        "mdi:counter",
+        None,
+        "Number of Electric Heater Start",
+    ],
+    "CNT_7": [
+        TIME_MINUTES,
+        "mdi:timer",
+        None,
+        "Vacuum Turbine Working Time",
+    ],
+    "CNT_8": [
+        TIME_MINUTES,
+        "mdi:timer",
+        None,
+        "Boiler pump",
+    ],
 }
 
 CM_PELET_SET_GENERIC_SENSORS = {
