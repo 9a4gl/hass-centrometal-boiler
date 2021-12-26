@@ -2,7 +2,7 @@
 from collections import OrderedDict
 import logging
 
-from peltec import WebBoilerClient
+from centrometal_web_boiler import WebBoilerClient
 
 import voluptuous as vol
 
@@ -21,7 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 # pylint: disable=broad-except
 
 
-class PeltecConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+class CentrometalBoilerConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Centrometal boiler."""
 
     VERSION = 1
@@ -45,9 +45,9 @@ class PeltecConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             return await self._show_setup_form()
 
         errors = {}
-        pelTecDeviceCollection = None
+        deviceCollection = None
         try:
-            pelTecDeviceCollection = await try_connection(
+            deviceCollection = await try_connection(
                 user_input[CONF_EMAIL], user_input[CONF_PASSWORD]
             )
         except Exception:
@@ -60,7 +60,7 @@ class PeltecConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(unique_id)
         self._abort_if_unique_id_configured()
 
-        device = list(pelTecDeviceCollection.values())[0]
+        device = list(deviceCollection.values())[0]
         title = device["product"] + ": " + device["address"] + ", " + device["place"]
 
         return self.async_create_entry(

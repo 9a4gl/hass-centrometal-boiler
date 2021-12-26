@@ -2,7 +2,7 @@
 import logging
 import datetime
 
-from peltec import WebBoilerClient
+from centrometal_web_boiler import WebBoilerClient
 
 from homeassistant.config_entries import ConfigEntry
 

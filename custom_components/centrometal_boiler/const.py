@@ -1,4 +1,4 @@
-DOMAIN = "peltec"
+DOMAIN = "centrometal_boiler"
 WEB_BOILER_CLIENT = "web_boiler_client"
 WEB_BOILER_SYSTEM = "web_boiler_system"
 

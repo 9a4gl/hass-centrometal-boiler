@@ -4,7 +4,7 @@ from typing import List
 from homeassistant.components.sensor import SensorEntity
 
 from .WebBoilerGenericSensor import WebBoilerGenericSensor
-from peltec.WebBoilerDeviceCollection import WebBoilerParameter
+from centrometal_web_boiler.WebBoilerDeviceCollection import WebBoilerParameter
 
 
 class WebBoilerWorkingTableSensor(WebBoilerGenericSensor):
