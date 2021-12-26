@@ -12,6 +12,8 @@ To visualize boiler display as card use https://github.com/9a4gl/lovelace-centro
 This component is based on https://github.com/9a4gl/py-centrometal-web-boiler library to connect to Centrometal web boiler system.
 The integration is created to support Centrometal Boiler System with CM WiFi-Box in Home Assistant.
 
+This is based on analysis of Centrometal's web application. I have asked Centrometal for specification and support for integrating their boilers into Home Assistant. They have not replied to any of my 5 emails sent during March, April and May of 2021. After calling them by phone, they comfirmed receiving of my emails and promised to contact me back on Friday 16-Apr-2021, but that have not happened on 16-Apr-2021 or any date later so far. What a pity.
+
 ## Installation
 
 Requires Home Assistant core-2021.11.3 or newer.
