@@ -2,11 +2,11 @@ from typing import List
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.util.dt import UTC
 
-from .PelTecGenericSensor import PelTecGenericSensor
+from .WebBoilerGenericSensor import WebBoilerGenericSensor
 from ..common import format_time
 
 
-class PelTecCurrentTimeSensor(PelTecGenericSensor):
+class WebBoilerCurrentTimeSensor(WebBoilerGenericSensor):
     @property
     def native_value(self):
         """Return the value of the sensor."""
@@ -17,7 +17,7 @@ class PelTecCurrentTimeSensor(PelTecGenericSensor):
     def create_entities(hass, device) -> List[SensorEntity]:
         entities = []
         entities.append(
-            PelTecCurrentTimeSensor(
+            WebBoilerCurrentTimeSensor(
                 hass,
                 device,
                 ["", "mdi:clock-outline", None, "Clock"],

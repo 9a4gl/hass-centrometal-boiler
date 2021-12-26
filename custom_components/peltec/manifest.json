@@ -1,12 +1,12 @@
 {
   "domain": "peltec",
-  "name": "Centrometal PelTec System integration",
-  "version": "0.0.3",
+  "name": "Centrometal Boiler System integration",
+  "version": "0.0.4",
   "config_flow": true,
   "documentation": "https://github.com/9a4gl/hass-peltec",
   "issue_tracker": "https://github.com/9a4gl/hass-peltec/issues",
   "dependencies": [],
   "codeowners": ["@9a4gl"],
-  "requirements": ["py-peltec==0.0.35"],
+  "requirements": ["py-peltec==0.0.36"],
   "iot_class": "cloud_push"
 }

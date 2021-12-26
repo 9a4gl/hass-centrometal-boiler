@@ -1,8 +1,8 @@
-"""Support for Centrometa PelTec System devices."""
+"""Support for Centrometa Boiler devices."""
 import logging
 import datetime
 
-from peltec import PelTecClient
+from peltec import WebBoilerClient
 
 from homeassistant.config_entries import ConfigEntry
 
@@ -17,10 +17,10 @@ from homeassistant.core import HomeAssistant
 
 from .const import (
     DOMAIN,
-    PELTEC_CLIENT,
-    PELTEC_SYSTEM,
-    PELTEC_LOGIN_RETRY_INTERVAL,
-    PELTEC_REFRESH_INTERVAL,
+    WEB_BOILER_CLIENT,
+    WEB_BOILER_SYSTEM,
+    WEB_BOILER_LOGIN_RETRY_INTERVAL,
+    WEB_BOILER_REFRESH_INTERVAL,
 )
 
 from .services import setup_services
@@ -34,7 +34,7 @@ PLATFORMS = ["sensor", "switch", "binary_sensor"]
 
 
 async def async_setup(hass: HomeAssistant, config: dict):
-    """Set up the Centrometal PelTec System integration."""
+    """Set up the Centrometal Boiler System integration."""
 
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
@@ -42,25 +42,25 @@ async def async_setup(hass: HomeAssistant, config: dict):
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    _LOGGER.debug("Setting up Centrometal PelTec System component")
+    _LOGGER.debug("Setting up Centrometal Boiler System component")
 
-    peltec_system = PelTecSystem(
+    web_boiler_system = WebBoilerSystem(
         hass, username=entry.data[CONF_EMAIL], password=entry.data[CONF_PASSWORD]
     )
 
     try:
-        await peltec_system.start()
+        await web_boiler_system.start()
     except Exception as ex:
         _LOGGER.error(
-            "Got Access Denied Error when setting up Centrometal PelTec System: %s", ex
+            "Got Access Denied Error when setting up Centrometal Boiler System: %s", ex
         )
         return False
 
-    hass.data[DOMAIN][PELTEC_SYSTEM] = peltec_system
+    hass.data[DOMAIN][WEB_BOILER_SYSTEM] = web_boiler_system
 
-    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, peltec_system.stop())
+    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, web_boiler_system.stop())
 
-    hass.bus.async_listen(EVENT_TIME_CHANGED, peltec_system.tick)
+    hass.bus.async_listen(EVENT_TIME_CHANGED, web_boiler_system.tick)
 
     for component in PLATFORMS:
         hass.async_create_task(
@@ -70,21 +70,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     setup_services(hass)
 
     _LOGGER.debug(
-        "Centrometal PelTec System component setup finished " + peltec_system.username
+        "Centrometal Boiler System component setup finished "
+        + web_boiler_system.username
     )
     return True
 
 
-class PelTecSystem:
-    """A Centrometal PelTec System class."""
+class WebBoilerSystem:
+    """A Centrometal Boiler System class."""
 
     def __init__(self, hass, *, username, password):
-        """Initialize the Centrometal PelTec System."""
+        """Initialize the Centrometal Boiler System."""
         self._hass = hass
         self.username = username
         self.password = password
-        self.peltec_client = None
-        self.peltec_client = PelTecClient()
+        self.web_boiler_client = None
+        self.web_boiler_client = WebBoilerClient()
         self.last_relogin_timestamp = datetime.datetime.timestamp(
             datetime.datetime.now()
         )
@@ -103,57 +104,64 @@ class PelTecSystem:
             serial,
             name,
             value,
-            self.peltec_client.username,
+            self.web_boiler_client.username,
         )
         pass
 
     async def start(self):
-        _LOGGER.debug(f"Starting Centrometal PelTec System {self.username}")
-        self._hass.data[DOMAIN][PELTEC_CLIENT] = self.peltec_client
+        _LOGGER.debug(f"Starting Centrometal Boiler System {self.username}")
+        self._hass.data[DOMAIN][WEB_BOILER_CLIENT] = self.web_boiler_client
 
         try:
-            loggedIn = await self.peltec_client.login(self.username, self.password)
+            loggedIn = await self.web_boiler_client.login(self.username, self.password)
             if not loggedIn:
                 raise Exception(
-                    f"Cannot login to Centrometal PelTec server {self.username}"
+                    f"Cannot login to Centrometal web boiler server {self.username}"
                 )
-            gotConfiguration = await self.peltec_client.get_configuration()
+            gotConfiguration = await self.web_boiler_client.get_configuration()
             if not gotConfiguration:
                 raise Exception(
                     f"Cannot get configuration from Centrometal server {self.username}"
                 )
-            if len(self.peltec_client.data) == 0:
+            if len(self.web_boiler_client.data) == 0:
                 raise Exception(
-                    f"No device found to Centrometal PelTec server {self.username}"
+                    f"No device found to Centrometal web boiler server {self.username}"
                 )
-            await self.peltec_client.start_websocket(self.on_parameter_updated)
+            await self.web_boiler_client.start_websocket(self.on_parameter_updated)
         except Exception as ex:
             _LOGGER.error("Authentication failed : %s", str(ex))
 
     async def stop(self):
-        _LOGGER.debug(f"Stopping CentrometalPelTecSystem {self.peltec_client.username}")
-        await self.peltec_client.close_websocket()
+        _LOGGER.debug(
+            f"Stopping Centrometal WebBoilerSystem {self.web_boiler_client.username}"
+        )
+        await self.web_boiler_client.close_websocket()
 
     async def tick(self, now):
         timestamp = datetime.datetime.timestamp(now.time_fired)
-        if not self.peltec_client.is_websocket_connected():
-            if timestamp - self.last_relogin_timestamp > PELTEC_LOGIN_RETRY_INTERVAL:
+        if not self.web_boiler_client.is_websocket_connected():
+            if (
+                timestamp - self.last_relogin_timestamp
+                > WEB_BOILER_LOGIN_RETRY_INTERVAL
+            ):
                 _LOGGER.info(
-                    f"CentrometalPelTecSystem::tick trying to relogin {self.peltec_client.username}"
+                    f"Centrometal WebBoilerSystem::tick trying to relogin {self.web_boiler_client.username}"
                 )
                 self.last_relogin_timestamp = timestamp
-                await self.peltec_client.close_websocket()
-                reloginSuccessful = await self.peltec_client.relogin()
+                await self.web_boiler_client.close_websocket()
+                reloginSuccessful = await self.web_boiler_client.relogin()
                 if reloginSuccessful:
-                    await self.peltec_client.start_websocket(self.on_parameter_updated)
+                    await self.web_boiler_client.start_websocket(
+                        self.on_parameter_updated
+                    )
                 else:
                     _LOGGER.warning(
-                        f"CentrometalPelTecSystem::tick failed to relogin {self.peltec_client.username}"
+                        f"WebBoilerSystem::tick failed to relogin {self.web_boiler_client.username}"
                     )
         else:
-            if timestamp - self.last_refresh_timestamp > PELTEC_REFRESH_INTERVAL:
+            if timestamp - self.last_refresh_timestamp > WEB_BOILER_REFRESH_INTERVAL:
                 self.last_refresh_timestamp = timestamp
                 _LOGGER.info(
-                    f"CentrometalPelTecSystem::tick refresh data {self.peltec_client.username}"
+                    f"WebBoilerSystem::tick refresh data {self.web_boiler_client.username}"
                 )
-                await self.peltec_client.refresh()
+                await self.web_boiler_client.refresh()

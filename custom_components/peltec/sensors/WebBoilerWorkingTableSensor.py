@@ -3,11 +3,11 @@ import collections
 from typing import List
 from homeassistant.components.sensor import SensorEntity
 
-from .PelTecGenericSensor import PelTecGenericSensor
-from peltec.PelTecDeviceCollection import PelTecParameter
+from .WebBoilerGenericSensor import WebBoilerGenericSensor
+from peltec.WebBoilerDeviceCollection import WebBoilerParameter
 
 
-class PelTecWorkingTableSensor(PelTecGenericSensor):
+class WebBoilerWorkingTableSensor(WebBoilerGenericSensor):
     def __init__(self, hass, device, sensor_data, param_status, param_tables):
         super().__init__(hass, device, sensor_data, param_status)
         self.param_tables = param_tables
@@ -82,16 +82,16 @@ class PelTecWorkingTableSensor(PelTecGenericSensor):
 
     @staticmethod
     def create_entities(hass, device) -> List[SensorEntity]:
-        pval_data = PelTecWorkingTableSensor.get_pval_data(device)
+        pval_data = WebBoilerWorkingTableSensor.get_pval_data(device)
         entities = []
         for key in pval_data.keys():
             value = pval_data[key]
             if len(value) == 42:
-                parameter = PelTecParameter()
+                parameter = WebBoilerParameter()
                 parameter["name"] = "Table " + key
                 parameter["value"] = "See attributes"
                 entities.append(
-                    PelTecWorkingTableSensor(
+                    WebBoilerWorkingTableSensor(
                         hass,
                         device,
                         ["", "mdi:state-machine", None, "Table " + key],

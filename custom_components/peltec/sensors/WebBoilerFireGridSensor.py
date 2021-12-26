@@ -1,10 +1,10 @@
 from typing import List
 from homeassistant.components.sensor import SensorEntity
 
-from .PelTecGenericSensor import PelTecGenericSensor
+from .WebBoilerGenericSensor import WebBoilerGenericSensor
 
 
-class PelTecFireGridSensor(PelTecGenericSensor):
+class WebBoilerFireGridSensor(WebBoilerGenericSensor):
     def __init__(self, hass, device, sensor_data, param_ind, param_dir, param_max):
         super().__init__(hass, device, sensor_data, param_ind)
         self.param_dir = param_dir
@@ -47,7 +47,7 @@ class PelTecFireGridSensor(PelTecGenericSensor):
     def create_entities(hass, device) -> List[SensorEntity]:
         entities = []
         entities.append(
-            PelTecFireGridSensor(
+            WebBoilerFireGridSensor(
                 hass,
                 device,
                 ["", "mdi:grid", None, "Fire Grid Position"],

@@ -1,4 +1,4 @@
-# Describes the format for available services for peltec
+# Describes the format for available services for web bolier
 
 turn:
   name: Set boiler on or off

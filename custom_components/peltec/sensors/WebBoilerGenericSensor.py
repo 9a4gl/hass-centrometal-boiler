@@ -4,7 +4,7 @@ import logging
 from homeassistant.components.sensor import SensorEntity
 
 
-from ..const import DOMAIN, PELTEC_CLIENT
+from ..const import DOMAIN, WEB_BOILER_CLIENT
 from ..common import format_time, create_device_info
 
 from .generic_sensors_all import (
@@ -17,13 +17,13 @@ from .generic_sensors_cm_pelet_set import CM_PELET_SET_GENERIC_SENSORS
 _LOGGER = logging.getLogger(__name__)
 
 
-class PelTecGenericSensor(SensorEntity):
-    """Representation of a Centrometal PelTec Sensor."""
+class WebBoilerGenericSensor(SensorEntity):
+    """Representation of a Centrometal Boiler Sensor."""
 
     def __init__(self, hass, device, sensor_data, parameter):
-        """Initialize the Centrometarl PelTec Sensor."""
+        """Initialize the Centrometarl Boiler Sensor."""
         self.hass = hass
-        self.peltec_client = hass.data[DOMAIN][PELTEC_CLIENT]
+        self.web_boiler_client = hass.data[DOMAIN][WEB_BOILER_CLIENT]
         self.parameter = parameter
         self.device = device
         #
@@ -95,7 +95,7 @@ class PelTecGenericSensor(SensorEntity):
     @property
     def available(self):
         """Return the availablity of the sensor."""
-        return self.peltec_client.is_websocket_connected()
+        return self.web_boiler_client.is_websocket_connected()
 
     @property
     def device_state_attributes(self):
@@ -118,12 +118,16 @@ class PelTecGenericSensor(SensorEntity):
         entities = []
         for param_id, sensor_data in GENERIC_SENSORS_COMMON.items():
             parameter = device.get_parameter(param_id)
-            entities.append(PelTecGenericSensor(hass, device, sensor_data, parameter))
+            entities.append(
+                WebBoilerGenericSensor(hass, device, sensor_data, parameter)
+            )
         for param_id, sensor_data in get_generic_temperature_settings_sensors(
             device
         ).items():
             parameter = device.get_parameter(param_id)
-            entities.append(PelTecGenericSensor(hass, device, sensor_data, parameter))
+            entities.append(
+                WebBoilerGenericSensor(hass, device, sensor_data, parameter)
+            )
         return entities
 
     @staticmethod
@@ -136,7 +140,9 @@ class PelTecGenericSensor(SensorEntity):
             generic_sensors = CM_PELET_SET_GENERIC_SENSORS
         for param_id, sensor_data in generic_sensors.items():
             parameter = device.get_parameter(param_id)
-            entities.append(PelTecGenericSensor(hass, device, sensor_data, parameter))
+            entities.append(
+                WebBoilerGenericSensor(hass, device, sensor_data, parameter)
+            )
         return entities
 
     @staticmethod
@@ -147,5 +153,5 @@ class PelTecGenericSensor(SensorEntity):
                 continue
             _LOGGER.info("Creating unknown entry for " + param_key)
             sensor_data = ["", "mdi:help", None, "{?} " + param_key, {}]
-            entities.append(PelTecGenericSensor(hass, device, sensor_data, param))
+            entities.append(WebBoilerGenericSensor(hass, device, sensor_data, param))
         return entities

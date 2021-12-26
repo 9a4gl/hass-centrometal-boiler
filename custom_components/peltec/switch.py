@@ -1,4 +1,4 @@
-"""Support for PelTec switch (Power control)."""
+"""Support for boiler switch (Power control)."""
 
 import logging
 import asyncio
@@ -8,7 +8,7 @@ from homeassistant.components.switch import SwitchEntity
 import homeassistant.util.dt as dt_util
 from datetime import datetime
 
-from .const import DOMAIN, PELTEC_CLIENT
+from .const import DOMAIN, WEB_BOILER_CLIENT
 from .common import create_device_info
 
 _LOGGER = logging.getLogger(__name__)
@@ -17,22 +17,22 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the switches platform."""
     entities = []
-    peltec_client = hass.data[DOMAIN][PELTEC_CLIENT]
-    for device in peltec_client.data.values():
-        entities.append(PelTectPowerSwitch(hass, device))
+    web_boiler_client = hass.data[DOMAIN][WEB_BOILER_CLIENT]
+    for device in web_boiler_client.data.values():
+        entities.append(WebBoilerPowerSwitch(hass, device))
     _LOGGER.debug(
-        "Adding PelTec control as switch: %s (%s)", entities, peltec_client.username
+        "Adding boiler control as switch: %s (%s)", entities, web_boiler_client.username
     )
     async_add_entities(entities, True)
 
 
-class PelTectPowerSwitch(SwitchEntity):
-    """Representation of a PelTec Power Switch."""
+class WebBoilerPowerSwitch(SwitchEntity):
+    """Representation of a boiler Power Switch."""
 
     def __init__(self, hass, device):
-        """Initialize the PelTec Power Switch."""
+        """Initialize the Boiler Power Switch."""
         self.hass = hass
-        self.peltec_client = hass.data[DOMAIN][PELTEC_CLIENT]
+        self.web_boiler_client = hass.data[DOMAIN][WEB_BOILER_CLIENT]
         self._device = device
         self._product = device["product"]
         self._name = f"{self._product} Boiler Switch"
@@ -76,7 +76,7 @@ class PelTectPowerSwitch(SwitchEntity):
     @property
     def available(self):
         """Return True if the device is available."""
-        return self.peltec_client.is_websocket_connected()
+        return self.web_boiler_client.is_websocket_connected()
 
     def error(self):
         """Return the error message."""
@@ -94,12 +94,12 @@ class PelTectPowerSwitch(SwitchEntity):
 
     def turn_on(self, **kwargs):
         asyncio.run_coroutine_threadsafe(
-            self.peltec_client.turn(self._device["serial"], True), self.hass.loop
+            self.web_boiler_client.turn(self._device["serial"], True), self.hass.loop
         )
 
     def turn_off(self, **kwargs):
         asyncio.run_coroutine_threadsafe(
-            self.peltec_client.turn(self._device["serial"], False), self.hass.loop
+            self.web_boiler_client.turn(self._device["serial"], False), self.hass.loop
         )
 
     @property

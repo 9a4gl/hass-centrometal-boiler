@@ -1,8 +1,8 @@
-"""Config flow for Centrometal PelTec integration."""
+"""Config flow for Centrometal boiler integration."""
 from collections import OrderedDict
 import logging
 
-from peltec import PelTecClient
+from peltec import WebBoilerClient
 
 import voluptuous as vol
 
@@ -22,7 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class PeltecConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Centrometal PelTec."""
+    """Handle a config flow for Centrometal boiler."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_PUSH
@@ -75,19 +75,19 @@ class PeltecConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
 async def try_connection(email, password):
     _LOGGER.debug(
-        f"Trying to connect to Centrometal PelTec server during setup {email}"
+        f"Trying to connect to Centrometal boiler server during setup {email}"
     )
-    peltec_client = PelTecClient()
-    loggedIn = await peltec_client.login(username=email, password=password)
+    web_boiler_client = WebBoilerClient()
+    loggedIn = await web_boiler_client.login(username=email, password=password)
     if not loggedIn:
-        raise Exception(f"Login to Centrometal PelTec server failed {email}")
-    gotConfiguration = await peltec_client.get_configuration()
+        raise Exception(f"Login to Centrometal boiler server failed {email}")
+    gotConfiguration = await web_boiler_client.get_configuration()
     if not gotConfiguration:
         raise Exception(
-            f"Getting devices from Centrometal PelTec server failed {email}"
+            f"Getting devices from Centrometal boiler server failed {email}"
         )
-    if len(peltec_client.data) == 0:
-        raise Exception(f"No device found on Centrometal PelTec server {email}")
-    await peltec_client.close_websocket()
-    _LOGGER.debug(f"Successfully connected to Centrometal PelTec during setup {email}")
-    return peltec_client.data
+    if len(web_boiler_client.data) == 0:
+        raise Exception(f"No device found on Centrometal boiler server {email}")
+    await web_boiler_client.close_websocket()
+    _LOGGER.debug(f"Successfully connected to Centrometal boiler during setup {email}")
+    return web_boiler_client.data

@@ -1,10 +1,10 @@
 from typing import List
 from homeassistant.components.sensor import SensorEntity
 
-from .PelTecGenericSensor import PelTecGenericSensor
+from .WebBoilerGenericSensor import WebBoilerGenericSensor
 
 
-class PelTecConfigurationSensor(PelTecGenericSensor):
+class WebBoilerConfigurationSensor(WebBoilerGenericSensor):
     @property
     def native_value(self):
         """Return the value of the sensor."""
@@ -31,7 +31,7 @@ class PelTecConfigurationSensor(PelTecGenericSensor):
     def create_entities(hass, device) -> List[SensorEntity]:
         entities = []
         entities.append(
-            PelTecConfigurationSensor(
+            WebBoilerConfigurationSensor(
                 hass,
                 device,
                 ["", "mdi:state-machine", None, "Configuration"],

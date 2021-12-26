@@ -16,7 +16,7 @@
           "email": "[%key:common::config_flow::data::email%]",
           "password": "[%key:common::config_flow::data::password%]"
         },
-        "title": "Centrometal PelTec System"
+        "title": "Centrometal Boiler System"
       }
     }
   }

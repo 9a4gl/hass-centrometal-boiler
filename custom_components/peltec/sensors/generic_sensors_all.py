@@ -15,7 +15,7 @@ GENERIC_SENSORS_COMMON = {
 
 
 def get_generic_temperature_settings_sensors(device):
-    PELTEC_TEMPERATURE_SETTINGS = dict()
+    TEMPERATURE_SETTINGS = dict()
     for key, value in device["temperatures"].items():
         dbindex = value["dbindex"]
         value_param_name = f"PVAL_{dbindex}_0"
@@ -35,11 +35,11 @@ def get_generic_temperature_settings_sensors(device):
                 attributes[min_param_name] = "Minimum"
             if device.has_parameter(max_param_name):
                 attributes[max_param_name] = "Maximum"
-            PELTEC_TEMPERATURE_SETTINGS[value_param_name] = [
+            TEMPERATURE_SETTINGS[value_param_name] = [
                 "",
                 "mdi:thermometer",
                 DEVICE_CLASS_TEMPERATURE,
                 value["naslov"],
                 attributes,
             ]
-    return PELTEC_TEMPERATURE_SETTINGS
+    return TEMPERATURE_SETTINGS

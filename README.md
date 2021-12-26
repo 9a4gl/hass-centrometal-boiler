@@ -3,7 +3,7 @@
 
 # hass-peltec
 
-Home Assistant custom component integration for Centrometal PelTec System with CM WiFi-Box.
+Home Assistant custom component integration for Centrometal Boiler System with CM WiFi-Box.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -15,7 +15,7 @@ Home Assistant custom component integration for Centrometal PelTec System with C
 This component is originally based on
 https://github.com/9a4gl/py-peltec
 
-The integration / component is created to support Centrometal PelTec System with CM WiFi-Box in Home Assistant.
+The integration / component is created to support Centrometal Boiler System with CM WiFi-Box in Home Assistant.
 
 ## Installation
 
@@ -27,7 +27,7 @@ If you have not yet installed HACS, go get it at https://hacs.xyz/ and walk thro
 
 Use "https://github.com/9a4gl/hass-peltec" as URL for a new HACS custom repository.
 
-Then find the Centrometal PelTec System integration in HACS and install it.
+Then find the Centrometal Boiler System integration in HACS and install it.
 
 Install the new integration through *Configuration -> Integrations* in HA (see below).
 
@@ -52,7 +52,7 @@ ln -s ../hass-peltec/custom_components/peltec
 
 ### Home Assistant
 
-Setup under Integrations in Home Assistant, search for "Centrometal PelTec System". You need to enter e-mail and password.
+Setup under Integrations in Home Assistant, search for "Centrometal Boiler System". You need to enter e-mail and password.
 
 Even though this integration can be installed and configured via the Home Assistant GUI (uses config flow), you might have to restart Home Assistant to get it working.
 
@@ -60,17 +60,18 @@ Even though this integration can be installed and configured via the Home Assist
 
 The following devices are supported, other may work with CM WiFi-Box.
 
-* Pel-Tec (12–96 kW) (lambda)
+* peltec (PelTec)
+* peltec-lambda (PelTec-lambda)
+* cmpelet (Cm Pelet-set Touch)
+* BioTec-L ?
+* BioTec-Plus ?
+* EKO-CSK P Unit ?
+* EKO-CKS Multi Plus ?
 
 ## Services
 
 `paltec.turn`
 Start or stop the bolier..
-
-## Changelog
-
-### 0.0.1
-- TODO
 
 ## Development
 
