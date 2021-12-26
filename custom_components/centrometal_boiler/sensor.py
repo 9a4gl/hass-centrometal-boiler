@@ -3,6 +3,7 @@
 """Support for Centrometal Boiler System sensors."""
 import logging
 
+from .sensors.WebBoilerDeviceTypeSensor import WebBoilerDeviceTypeSensor
 from .sensors.WebBoilerGenericSensor import WebBoilerGenericSensor
 from .sensors.WebBoilerConfigurationSensor import WebBoilerConfigurationSensor
 from .sensors.WebBoilerWorkingTableSensor import WebBoilerWorkingTableSensor
@@ -25,6 +26,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         entities.extend(WebBoilerConfigurationSensor.create_entities(hass, device))
         entities.extend(WebBoilerCurrentTimeSensor.create_entities(hass, device))
         entities.extend(WebBoilerWorkingTableSensor.create_entities(hass, device))
+        entities.extend(WebBoilerDeviceTypeSensor.create_entities(hass, device))
         if device["type"] == "peltec":
             entities.extend(WebBoilerPelletLevelSensor.create_entities(hass, device))
             entities.extend(WebBoilerFireGridSensor.create_entities(hass, device))
