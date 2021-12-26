@@ -70,7 +70,7 @@ The following devices are supported, other may work with CM WiFi-Box.
 
 ## Services
 
-`paltec.turn`
+`peltec.turn`
 Start or stop the bolier..
 
 ## Development
