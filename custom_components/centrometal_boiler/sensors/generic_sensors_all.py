@@ -3,7 +3,7 @@ from homeassistant.const import (
 )
 
 GENERIC_SENSORS_COMMON = {
-    "B_STATE": ["", "mdi:state-machine", None, "State"],
+    "B_STATE": ["", "mdi:state-machine", None, "Boiler State"],
     "B_CMD": ["", "mdi:state-machine", None, "Command Active"],
     "B_BRAND": ["", "mdi:information", None, "Brand"],
     "B_INST": ["", "mdi:information", None, "Installation"],
