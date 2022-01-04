@@ -97,7 +97,7 @@ PELTEC_SENSOR_MISC = {
     "B_fanB": ["rpm", "mdi:fan", None, "Fan B"],
     "B_Oxy1": ["% O2", "mdi:gas-cylinder", None, "Lambda Sensor"],
     "B_FotV": ["kOhm", "mdi:fire", None, "Fire Sensor"],
-    "B_vanjS": [
+    "B_Tva1": [
         TEMP_CELSIUS,
         "mdi:thermometer",
         DEVICE_CLASS_TEMPERATURE,
@@ -109,6 +109,9 @@ PELTEC_SENSOR_MISC = {
     "B_zahP1": ["", "mdi:pump", None, "Boiler Pump Demand"],
     "B_gri": ["", "mdi:fire-circle", None, "Electric Heater"],
     "B_puz": ["", "mdi:transfer-up", None, "Pellet Transporter"],
+    "B_addConf": ["", "mdi:note-plus", None, "Accessories"],
+    "B_korNum": [TEMP_CELSIUS, "mdi:thermometer", None, "Accessories Value"],
+    "B_zlj": ["", "mdi:book-open", None, "Operation Mode"],
 }
 
 PELTEC_GENERIC_SENSORS = {

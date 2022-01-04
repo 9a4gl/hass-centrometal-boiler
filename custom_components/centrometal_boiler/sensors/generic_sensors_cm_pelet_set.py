@@ -57,6 +57,7 @@ CM_PELET_SET_SENSOR_MISC = {
     "C2B_onOff": ["", "mdi:information", None, "Circuit 2 State"],
     "B_fan": ["", "mdi:fan", None, "Heater Fan State"],
     "B_gri": ["", "mdi:fire", None, "Heater State"],
+    "B_addConf": ["", "mdi:note-plus", None, "Accessories"],
     "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner Work"],
     "CNT_1": [
         TIME_MINUTES,
