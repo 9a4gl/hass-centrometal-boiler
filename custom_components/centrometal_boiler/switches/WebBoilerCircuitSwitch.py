@@ -24,17 +24,21 @@ class WebBoilerCircuitSwitch(SwitchEntity):
         self._error_message = ""
         self._dbindex = dbindex
         self._table_key = f"table_{dbindex}_switch"
+        self._param_name_def = f"PDEF_{dbindex}_0"
         self._param_name_state = f"PVAL_{dbindex}_0"
         self._param_name_off = f"PMIN_{dbindex}_0"
         self._param_name_on = f"PMAX_{dbindex}_0"
+        self._param_def = self._device.get_parameter(self._param_name_def)
         self._param_state = self._device.get_parameter(self._param_name_state)
         self._param_off = self._device.get_parameter(self._param_name_off)
         self._param_on = self._device.get_parameter(self._param_name_on)
+        self._param_def["used"] = True
         self._param_state["used"] = True
         self._param_off["used"] = True
         self._param_on["used"] = True
 
     def __del__(self):
+        self._param_def.set_update_callback(None, self._table_key)
         self._param_state.set_update_callback(None, self._table_key)
         self._param_off.set_update_callback(None, self._table_key)
         self._param_on.set_update_callback(None, self._table_key)
@@ -42,6 +46,7 @@ class WebBoilerCircuitSwitch(SwitchEntity):
     async def async_added_to_hass(self):
         """Subscribe to events."""
         self.async_schedule_update_ha_state(False)
+        self._param_def.set_update_callback(self.update_callback, self._table_key)
         self._param_state.set_update_callback(self.update_callback, self._table_key)
         self._param_off.set_update_callback(self.update_callback, self._table_key)
         self._param_on.set_update_callback(self.update_callback, self._table_key)
