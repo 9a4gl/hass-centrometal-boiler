@@ -39,7 +39,6 @@ CM_PELET_SET_SENSOR_TEMPERATURES = {
     ],
 }
 
-
 CM_PELET_SET_SENSOR_MISC = {
     "B_KONF_STR": ["", "mdi:information", None, "Setup"],
     "B_netMon": ["", "mdi:remote", None, "Remote Start Enabled"],
@@ -57,6 +56,7 @@ CM_PELET_SET_SENSOR_MISC = {
     "C2B_onOff": ["", "mdi:information", None, "Circuit 2 State"],
     "B_fan": ["", "mdi:fan", None, "Heater Fan State"],
     "B_gri": ["", "mdi:fire", None, "Heater State"],
+    "B_FotV": ["kOhm", "mdi:fire", None, "Fire Sensor"],
     "B_addConf": ["", "mdi:note-plus", None, "Accessories"],
     "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner Work"],
     "CNT_1": [

@@ -1,12 +1,12 @@
 {
   "domain": "centrometal_boiler",
   "name": "Centrometal Boiler System integration",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "config_flow": true,
   "documentation": "https://github.com/9a4gl/hass-centrometal-boiler",
   "issue_tracker": "https://github.com/9a4gl/hass-centrometal-boiler/issues",
   "dependencies": [],
   "codeowners": ["@9a4gl"],
-  "requirements": ["py-centrometal-web-boiler==0.0.40"],
+  "requirements": ["py-centrometal-web-boiler==0.0.41"],
   "iot_class": "cloud_push"
 }

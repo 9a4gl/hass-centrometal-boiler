@@ -107,6 +107,7 @@ class WebBoilerGenericSensor(SensorEntity):
                 parameter = self.device.get_parameter(key)
                 attributes[description] = parameter["value"] or "?"
             attributes["Last updated"] = last_updated
+            attributes["Original name"] = self.parameter["name"]
         return attributes
 
     @property
@@ -121,6 +122,11 @@ class WebBoilerGenericSensor(SensorEntity):
             entities.append(
                 WebBoilerGenericSensor(hass, device, sensor_data, parameter)
             )
+        return entities
+
+    @staticmethod
+    def create_temperatures_entities(hass, device) -> List[SensorEntity]:
+        entities = []
         for param_id, sensor_data in get_generic_temperature_settings_sensors(
             device
         ).items():

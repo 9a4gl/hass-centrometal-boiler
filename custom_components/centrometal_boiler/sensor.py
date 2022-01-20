@@ -31,6 +31,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             entities.extend(WebBoilerPelletLevelSensor.create_entities(hass, device))
             entities.extend(WebBoilerFireGridSensor.create_entities(hass, device))
         entities.extend(WebBoilerGenericSensor.create_conf_entities(hass, device))
+        entities.extend(
+            WebBoilerGenericSensor.create_temperatures_entities(hass, device)
+        )
         entities.extend(WebBoilerGenericSensor.create_unknown_entities(hass, device))
 
     async_add_entities(entities, True)
