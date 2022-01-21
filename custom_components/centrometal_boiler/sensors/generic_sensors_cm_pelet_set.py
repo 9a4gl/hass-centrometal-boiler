@@ -57,7 +57,8 @@ CM_PELET_SET_SENSOR_MISC = {
     "B_fan": ["", "mdi:fan", None, "Heater Fan State"],
     "B_gri": ["", "mdi:fire", None, "Heater State"],
     "B_FotV": ["kOhm", "mdi:fire", None, "Fire Sensor"],
-    "B_addConf": ["", "mdi:note-plus", None, "Accessories"],
+    "B_Add": ["", "mdi:note-plus", None, "Additional features"],
+    "B_uklKot": ["", "mdi:information", None, "Boiler Operational"],
     "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner Work"],
     "CNT_1": [
         TIME_MINUTES,
