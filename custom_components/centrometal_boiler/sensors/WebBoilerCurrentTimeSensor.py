@@ -10,6 +10,8 @@ class WebBoilerCurrentTimeSensor(WebBoilerGenericSensor):
     @property
     def native_value(self):
         """Return the value of the sensor."""
+        if self.parameter["value"] == "?":
+            return self.parameter["value"]
         value = int(self.parameter["value"], 16)
         return format_time(self.hass, value, UTC)
 

@@ -15,7 +15,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     entities = []
     web_boiler_client = hass.data[DOMAIN][WEB_BOILER_CLIENT]
     for device in web_boiler_client.data.values():
-        entities.append(WebBoilerPowerSwitch(hass, device))
+        if device["type"] == "peltec" or device["type"] == "cmpelet":
+            entities.append(WebBoilerPowerSwitch(hass, device))
         for circuit in device["circuits"].values():
             entities.append(
                 WebBoilerCircuitSwitch(
@@ -26,4 +27,5 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     _LOGGER.debug(
         "Adding boiler control as switch: %s (%s)", entities, web_boiler_client.username
     )
-    async_add_entities(entities, True)
+    if len(entities) > 0:
+        async_add_entities(entities, True)

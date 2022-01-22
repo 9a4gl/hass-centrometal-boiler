@@ -110,7 +110,7 @@ PELTEC_SENSOR_MISC = {
     "B_gri": ["", "mdi:fire-circle", None, "Electric Heater"],
     "B_puz": ["", "mdi:transfer-up", None, "Pellet Transporter"],
     "B_addConf": ["", "mdi:note-plus", None, "Accessories"],
-    "B_korNum": [TEMP_CELSIUS, "mdi:thermometer", None, "Accessories Value"],
+    "B_korNum": ["", "mdi:counter", None, "Accessories Value"],
     "B_zlj": ["", "mdi:book-open", None, "Operation Mode"],
 }
 

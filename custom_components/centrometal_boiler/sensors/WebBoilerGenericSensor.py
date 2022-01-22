@@ -13,6 +13,7 @@ from .generic_sensors_all import (
 )
 from .generic_sensors_peltec import PELTEC_GENERIC_SENSORS
 from .generic_sensors_cm_pelet_set import CM_PELET_SET_GENERIC_SENSORS
+from .generic_sensors_biotec import BIOTEC_GENERIC_SENSORS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -144,6 +145,8 @@ class WebBoilerGenericSensor(SensorEntity):
             generic_sensors = PELTEC_GENERIC_SENSORS
         elif device["type"] == "cmpelet":
             generic_sensors = CM_PELET_SET_GENERIC_SENSORS
+        elif device["type"] == "biotec":
+            generic_sensors = BIOTEC_GENERIC_SENSORS
         for param_id, sensor_data in generic_sensors.items():
             parameter = device.get_parameter(param_id)
             entities.append(
