@@ -59,8 +59,8 @@ The following devices are supported, other may work with CM WiFi-Box.
 
 * peltec-lambda (PelTec-lambda)
 * cmpelet (Cm Pelet-set Touch)
+* BioTec-L
 * peltec ? (need tester) ?
-* BioTec-L ? (need tester) ?
 * BioTec-Plus ? (need tester) ?
 * EKO-CSK P Unit ? (need tester) ?
 * EKO-CKS Multi Plus ? (need tester) ?
