@@ -59,6 +59,7 @@ CM_PELET_SET_SENSOR_MISC = {
     "B_FotV": ["kOhm", "mdi:fire", None, "Fire Sensor"],
     "B_Add": ["", "mdi:note-plus", None, "Additional features"],
     "B_uklKot": ["", "mdi:information", None, "Boiler Operational"],
+    "B_cp": ["", "mdi:information", None, "CentroPlus"],
     "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner Work"],
     "CNT_1": [
         TIME_MINUTES,
