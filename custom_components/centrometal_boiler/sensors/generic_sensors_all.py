@@ -3,14 +3,14 @@ from homeassistant.const import (
 )
 
 GENERIC_SENSORS_COMMON = {
-    "B_STATE": ["", "mdi:state-machine", None, "Boiler State"],
-    "B_CMD": ["", "mdi:state-machine", None, "Command Active"],
-    "B_BRAND": ["", "mdi:information", None, "Brand"],
-    "B_INST": ["", "mdi:information", None, "Installation"],
-    "B_PRODNAME": ["", "mdi:information", None, "Product Name"],
-    "B_VER": ["", "mdi:information", None, "Firmware Version"],
-    "B_WifiVER": ["", "mdi:information", None, "Wifi Box Version"],
-    "B_sng": ["", "mdi:information", None, "Nominal Power"],
+    "B_STATE": [None, "mdi:state-machine", None, "Boiler State"],
+    "B_CMD": [None, "mdi:state-machine", None, "Command Active"],
+    "B_BRAND": [None, "mdi:information", None, "Brand"],
+    "B_INST": [None, "mdi:information", None, "Installation"],
+    "B_PRODNAME": [None, "mdi:information", None, "Product Name"],
+    "B_VER": [None, "mdi:information", None, "Firmware Version"],
+    "B_WifiVER": [None, "mdi:information", None, "Wifi Box Version"],
+    "B_sng": [None, "mdi:information", None, "Nominal Power"],
 }
 
 

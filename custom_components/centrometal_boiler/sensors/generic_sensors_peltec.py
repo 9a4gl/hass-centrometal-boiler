@@ -89,7 +89,7 @@ PELTEC_SENSOR_COUNTERS = {
     "CNT_12": [TIME_MINUTES, "mdi:timer", None, "Time on D2"],
     "CNT_13": [TIME_MINUTES, "mdi:timer", None, "Time on D1"],
     "CNT_14": [TIME_MINUTES, "mdi:timer", None, "Time on D0"],
-    "CNT_15": ["", "mdi:counter", None, "Reserve Counter"],
+    "CNT_15": [None, "mdi:counter", None, "Reserve Counter"],
 }
 
 PELTEC_SENSOR_MISC = {
@@ -103,15 +103,15 @@ PELTEC_SENSOR_MISC = {
         DEVICE_CLASS_TEMPERATURE,
         "Outdoor Temperature",
     ],
-    "B_cm2k": ["", "mdi:state-machine", None, "CM2K Status"],
+    "B_cm2k": [None, "mdi:state-machine", None, "CM2K Status"],
     "B_misP": [PERCENTAGE, "mdi:pipe-valve", None, "Mixing Valve"],
-    "B_P1": ["", "mdi:pump", None, "Boiler Pump"],
-    "B_zahP1": ["", "mdi:pump", None, "Boiler Pump Demand"],
-    "B_gri": ["", "mdi:fire-circle", None, "Electric Heater"],
-    "B_puz": ["", "mdi:transfer-up", None, "Pellet Transporter"],
-    "B_addConf": ["", "mdi:note-plus", None, "Accessories"],
-    "B_korNum": ["", "mdi:counter", None, "Accessories Value"],
-    "B_zlj": ["", "mdi:book-open", None, "Operation Mode"],
+    "B_P1": [None, "mdi:pump", None, "Boiler Pump"],
+    "B_zahP1": [None, "mdi:pump", None, "Boiler Pump Demand"],
+    "B_gri": [None, "mdi:fire-circle", None, "Electric Heater"],
+    "B_puz": [None, "mdi:transfer-up", None, "Pellet Transporter"],
+    "B_addConf": [None, "mdi:note-plus", None, "Accessories"],
+    "B_korNum": [None, "mdi:counter", None, "Accessories Value"],
+    "B_zlj": [None, "mdi:book-open", None, "Operation Mode"],
 }
 
 PELTEC_GENERIC_SENSORS = {
