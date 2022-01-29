@@ -73,7 +73,10 @@ class WebBoilerCircuitSwitch(SwitchEntity):
     @property
     def is_on(self):
         """Return true if it is on."""
-        return int(self._param_state["value"]) == int(self._param_on["value"])
+        try:
+            return int(self._param_state["value"]) == int(self._param_on["value"])
+        except ValueError:
+            return False
 
     @property
     def available(self):
