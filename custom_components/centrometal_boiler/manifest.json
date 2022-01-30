@@ -1,6 +1,6 @@
 {
   "domain": "centrometal_boiler",
-  "name": "Centrometal Boiler System integration",
+  "name": "Centrometal Boiler System",
   "version": "0.0.20",
   "config_flow": true,
   "documentation": "https://github.com/9a4gl/hass-centrometal-boiler",
