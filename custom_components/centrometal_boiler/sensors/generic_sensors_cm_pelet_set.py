@@ -61,6 +61,8 @@ CM_PELET_SET_SENSOR_MISC = {
     "B_uklKot": [None, "mdi:information", None, "Boiler Operational"],
     "B_CP": [None, "mdi:information", None, "CentroPlus"],
     "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner Work"],
+    "B_freezEn": [None, "mdi:snowflake", None, "Freeze Guard"],
+    "B_freezMon": [None, "mdi:snowflake", None, "Freeze Monitor"],
     "CNT_1": [
         TIME_MINUTES,
         "mdi:timer",
@@ -71,7 +73,7 @@ CM_PELET_SET_SENSOR_MISC = {
         TIME_MINUTES,
         "mdi:timer",
         None,
-        "Freez protection",
+        "Freeze protection",
     ],
     "CNT_3": [
         "",
