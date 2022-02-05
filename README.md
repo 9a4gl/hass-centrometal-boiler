@@ -57,12 +57,12 @@ Even though this integration can be installed and configured via the Home Assist
 
 The following devices are supported, other may work with CM WiFi-Box.
 
-* peltec-lambda (PelTec-lambda)
-* cmpelet (Cm Pelet-set Touch)
+* PelTec-lambda
+* CentroPlus + Cm Pelet-set
 * BioTec-L
+* EKO-CK P + Cm Pelet-set
 * peltec ? (need tester) ?
 * BioTec-Plus ? (need tester) ?
-* EKO-CSK P Unit ? (need tester) ?
 * EKO-CKS Multi Plus ? (need tester) ?
 
 ## Services
