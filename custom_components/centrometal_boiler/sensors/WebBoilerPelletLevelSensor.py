@@ -18,7 +18,7 @@ class WebBoilerPelletLevelSensor(WebBoilerGenericSensor):
             WebBoilerPelletLevelSensor(
                 hass,
                 device,
-                ["", "mdi:bucket-outline", None, "Tank Level"],
+                [None, "mdi:bucket-outline", None, "Tank Level"],
                 device.get_parameter("B_razina"),
             )
         )

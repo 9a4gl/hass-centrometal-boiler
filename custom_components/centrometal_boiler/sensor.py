@@ -27,8 +27,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         entities.extend(WebBoilerCurrentTimeSensor.create_entities(hass, device))
         entities.extend(WebBoilerWorkingTableSensor.create_entities(hass, device))
         entities.extend(WebBoilerDeviceTypeSensor.create_entities(hass, device))
-        if device["type"] == "peltec":
+        if device["type"] == "peltec" or device["type"] == "biopl":
             entities.extend(WebBoilerPelletLevelSensor.create_entities(hass, device))
+        if device["type"] == "peltec":
             entities.extend(WebBoilerFireGridSensor.create_entities(hass, device))
         entities.extend(WebBoilerGenericSensor.create_conf_entities(hass, device))
         entities.extend(
