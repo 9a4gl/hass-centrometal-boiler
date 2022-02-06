@@ -115,6 +115,7 @@ BIOTEC_SENSOR_MISC = {
     "C1B_korType": [None, "mdi:view-list", None, "Circuit 1 Correction Type"],
     "C1B_dayNight": [None, "mdi:view-list", None, "Circuit 1 Day Night Mode"],
     "B_korNum": [None, "mdi:counter", None, "Accessories Value"],
+    "B_zlj": [None, "mdi:book-open", None, "Operation Mode"],
 }
 
 BIOTEC_GENERIC_SENSORS = {

@@ -63,6 +63,7 @@ CM_PELET_SET_SENSOR_MISC = {
     "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner Work"],
     "B_freezEn": [None, "mdi:snowflake", None, "Freeze Guard"],
     "B_freezMon": [None, "mdi:snowflake", None, "Freeze Monitor"],
+    "B_zlj": [None, "mdi:book-open", None, "Operation Mode"],
     "CNT_1": [
         TIME_MINUTES,
         "mdi:timer",
