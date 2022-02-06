@@ -58,7 +58,7 @@ BIOTEC_PLUS_SENSOR_TEMPERATURES = {
         TEMP_CELSIUS,
         "mdi:thermometer",
         DEVICE_CLASS_TEMPERATURE,
-        "Hydraulic crossover temperature",
+        "Hydraulic Crossover Temperature",
     ],
 }
 
