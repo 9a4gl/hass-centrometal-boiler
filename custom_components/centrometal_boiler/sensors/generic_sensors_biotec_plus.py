@@ -140,6 +140,7 @@ BIOTEC_PLUS_SENSOR_MISC = {
     "B_gri": [None, "mdi:fire-circle", None, "Electric Heater"],
     "B_puz": [None, "mdi:transfer-up", None, "Pellet Transporter"],
     "B_doz": [None, "mdi:transfer-up", None, "Pellet Dispenzer"],
+    "B_pbs": [None, "mdi:pine-tree", "None", "Wood Pellet Mode"],
 }
 
 BIOTEC_PLUS_GENERIC_SENSORS = {
