@@ -40,7 +40,7 @@ BIOTEC_PLUS_SENSOR_TEMPERATURES = {
         TEMP_CELSIUS,
         "mdi:thermometer",
         DEVICE_CLASS_TEMPERATURE,
-        "Boiler Temperature Pelet",
+        "Boiler Temperature Pellet",
     ],
     "B_Tlo1": [
         TEMP_CELSIUS,
@@ -139,6 +139,7 @@ BIOTEC_PLUS_SENSOR_MISC = {
     "B_zlj": [None, "mdi:book-open", None, "Operation Mode"],
     "B_gri": [None, "mdi:fire-circle", None, "Electric Heater"],
     "B_puz": [None, "mdi:transfer-up", None, "Pellet Transporter"],
+    "B_doz": [None, "mdi:transfer-up", None, "Pellet Dispenzer"],
 }
 
 BIOTEC_PLUS_GENERIC_SENSORS = {
