@@ -15,7 +15,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     entities = []
     web_boiler_client = hass.data[DOMAIN][WEB_BOILER_CLIENT]
     for device in web_boiler_client.data.values():
-        if device["type"] == "peltec" or device["type"] == "cmpelet":
+        if (
+            device["type"] == "peltec"
+            or device["type"] == "cmpelet"
+            or device["type"] == "biopl"
+        ):
             entities.append(WebBoilerPowerSwitch(hass, device))
         for circuit in device["circuits"].values():
             entities.append(
