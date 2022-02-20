@@ -100,7 +100,7 @@ class WebBoilerGenericSensor(SensorEntity):
         return self.web_boiler_client.is_websocket_connected()
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         """Return the state attributes of the sensor."""
         attributes = {}
         if "timestamp" in self.parameter:
