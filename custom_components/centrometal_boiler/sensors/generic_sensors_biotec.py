@@ -48,36 +48,6 @@ BIOTEC_SENSOR_TEMPERATURES = {
         DEVICE_CLASS_TEMPERATURE,
         "Domestic Hot Water",
     ],
-    "C1B_Tpol": [
-        TEMP_CELSIUS,
-        "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
-        "Circuit 1 Target Temperature",
-    ],
-    "C1B_Tpol1": [
-        TEMP_CELSIUS,
-        "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
-        "Circuit 1 Measured Temperature",
-    ],
-    "C1B_Tsob": [
-        TEMP_CELSIUS,
-        "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
-        "Room Target Temperature",
-    ],
-    "C1B_Tsob1": [
-        TEMP_CELSIUS,
-        "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
-        "Room Measured Temperature",
-    ],
-    "C1B_kor": [
-        TEMP_CELSIUS,
-        "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
-        "Room Target Correction",
-    ],
 }
 
 BIOTEC_SENSOR_COUNTERS = {
@@ -106,14 +76,9 @@ BIOTEC_SENSOR_MISC = {
     "B_zahP2": [None, "mdi:pump", None, "Second Pump Demand"],
     "B_P3": [None, "mdi:pump", None, "Third Pump"],
     "B_zahP3": [None, "mdi:pump", None, "Third Pump Demand"],
-    "C1B_P": [None, "mdi:pump", None, "Circuit 1 Pump"],
-    "C1B_onOff": [None, "mdi:pump", None, "Circuit 1 Pump Demand"],
     "B_priS": [PERCENTAGE, "mdi:air-filter", None, "Air Flow Engine Primary"],
     "B_secS": [PERCENTAGE, "mdi:air-filter", None, "Air Flow Engine Secondary"],
     "B_zar": [None, "mdi:campfire", None, "Glow"],
-    "C1B_CircType": [None, "mdi:view-list", None, "Circuit 1 Type"],
-    "C1B_korType": [None, "mdi:view-list", None, "Circuit 1 Correction Type"],
-    "C1B_dayNight": [None, "mdi:view-list", None, "Circuit 1 Day Night Mode"],
     "B_korNum": [None, "mdi:counter", None, "Accessories Value"],
     "B_zlj": [None, "mdi:book-open", None, "Operation Mode"],
 }

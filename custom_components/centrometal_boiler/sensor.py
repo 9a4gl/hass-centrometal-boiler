@@ -10,6 +10,7 @@ from .sensors.WebBoilerWorkingTableSensor import WebBoilerWorkingTableSensor
 from .sensors.WebBoilerPelletLevelSensor import WebBoilerPelletLevelSensor
 from .sensors.WebBoilerCurrentTimeSensor import WebBoilerCurrentTimeSensor
 from .sensors.WebBoilerFireGridSensor import WebBoilerFireGridSensor
+from .sensors.WebBoilerHeatingCircuitSensor import WebBoilerHeatingCircuitSensor
 
 from .const import DOMAIN, WEB_BOILER_CLIENT
 
@@ -27,6 +28,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         entities.extend(WebBoilerCurrentTimeSensor.create_entities(hass, device))
         entities.extend(WebBoilerWorkingTableSensor.create_entities(hass, device))
         entities.extend(WebBoilerDeviceTypeSensor.create_entities(hass, device))
+        entities.extend(
+            WebBoilerHeatingCircuitSensor.create_heating_circuits_entities(hass, device)
+        )
         if device["type"] == "peltec" or device["type"] == "biopl":
             entities.extend(WebBoilerPelletLevelSensor.create_entities(hass, device))
         if device["type"] == "peltec":
