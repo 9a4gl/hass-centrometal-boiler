@@ -142,6 +142,7 @@ BIOTEC_PLUS_SENSOR_MISC = {
     "B_doz": [None, "mdi:transfer-up", None, "Pellet Dispenzer"],
     "B_pbs": [None, "mdi:pine-tree", None, "Wood Pellet Mode"],
     "B_scs": [None, "mdi:controller-classic", None, "Control Mode"],
+    "B_preuz": [None, "mdi:abacus", None, "Take Over"],
 }
 
 BIOTEC_PLUS_GENERIC_SENSORS = {
