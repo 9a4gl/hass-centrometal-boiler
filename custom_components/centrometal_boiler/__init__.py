@@ -147,17 +147,7 @@ class WebBoilerSystem:
                 _LOGGER.info(
                     f"Centrometal WebBoilerSystem::tick trying to relogin {self.web_boiler_client.username}"
                 )
-                self.last_relogin_timestamp = timestamp
-                await self.web_boiler_client.close_websocket()
-                reloginSuccessful = await self.web_boiler_client.relogin()
-                if reloginSuccessful:
-                    await self.web_boiler_client.start_websocket(
-                        self.on_parameter_updated
-                    )
-                else:
-                    _LOGGER.warning(
-                        f"WebBoilerSystem::tick failed to relogin {self.web_boiler_client.username}"
-                    )
+                self.relogin()
         else:
             if timestamp - self.last_refresh_timestamp > WEB_BOILER_REFRESH_INTERVAL:
                 self.last_refresh_timestamp = timestamp
@@ -165,3 +155,14 @@ class WebBoilerSystem:
                     f"WebBoilerSystem::tick refresh data {self.web_boiler_client.username}"
                 )
                 await self.web_boiler_client.refresh()
+
+    async def relogin(self):
+        self.last_relogin_timestamp = datetime.datetime.timestamp()
+        await self.web_boiler_client.close_websocket()
+        relogin_successful = await self.web_boiler_client.relogin()
+        if relogin_successful:
+            await self.web_boiler_client.start_websocket(self.on_parameter_updated)
+        else:
+            _LOGGER.warning(
+                f"WebBoilerSystem::tick failed to relogin {self.web_boiler_client.username}"
+            )

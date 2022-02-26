@@ -97,19 +97,26 @@ class WebBoilerCircuitSwitch(SwitchEntity):
         attributes["Last updated"] = last_updated
         return attributes
 
+    async def turn_circuit_on_off(self, value):
+        if not await self.web_boiler_client.turn_circuit(
+            self._device["serial"], self._dbindex, value
+        ):
+            self.web_boiler_client.relogin()
+
+    async def turn_circuit_off(self):
+        await self.web_boiler_client.turn_circuit(
+            self._device["serial"], self._dbindex, False
+        )
+
     def turn_on(self, **kwargs):
         asyncio.run_coroutine_threadsafe(
-            self.web_boiler_client.turn_circuit(
-                self._device["serial"], self._dbindex, True
-            ),
+            self.turn_circuit_on_off(True),
             self.hass.loop,
         )
 
     def turn_off(self, **kwargs):
         asyncio.run_coroutine_threadsafe(
-            self.web_boiler_client.turn_circuit(
-                self._device["serial"], self._dbindex, False
-            ),
+            self.turn_circuit_on_off(False),
             self.hass.loop,
         )
 
