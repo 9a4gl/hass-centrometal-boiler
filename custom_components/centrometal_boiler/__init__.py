@@ -128,6 +128,7 @@ class WebBoilerSystem:
                     f"No device found to Centrometal web boiler server {self.username}"
                 )
             await self.web_boiler_client.start_websocket(self.on_parameter_updated)
+            await self.web_boiler_client.refresh()
         except Exception as ex:
             _LOGGER.error("Authentication failed : %s", str(ex))
 
@@ -162,6 +163,7 @@ class WebBoilerSystem:
         relogin_successful = await self.web_boiler_client.relogin()
         if relogin_successful:
             await self.web_boiler_client.start_websocket(self.on_parameter_updated)
+            await self.web_boiler_client.refresh()
         else:
             _LOGGER.warning(
                 f"WebBoilerSystem::tick failed to relogin {self.web_boiler_client.username}"
