@@ -4,7 +4,7 @@ import logging
 from homeassistant.components.sensor import SensorEntity
 
 
-from ..const import DOMAIN, WEB_BOILER_CLIENT
+from ..const import DOMAIN, WEB_BOILER_CLIENT, WEB_BOILER_SYSTEM
 from ..common import format_time, create_device_info
 
 from .generic_sensors_all import (
@@ -26,6 +26,7 @@ class WebBoilerGenericSensor(SensorEntity):
         """Initialize the Centrometarl Boiler Sensor."""
         self.hass = hass
         self.web_boiler_client = hass.data[DOMAIN][WEB_BOILER_CLIENT]
+        self.web_boiler_system = hass.data[DOMAIN][WEB_BOILER_SYSTEM]
         self.parameter = parameter
         self.device = device
         #
@@ -37,7 +38,9 @@ class WebBoilerGenericSensor(SensorEntity):
         self._serial = device["serial"]
         self._parameter_name = parameter["name"]
         self._product = device["product"]
-        self._name = f"{self._product} {self._description}"
+        self._name = (
+            f"{self.web_boiler_system.prefix} {self._product} {self._description}"
+        )
         self._unique_id = f"{self._serial}-{self._parameter_name}"
         #
         self.added_to_hass = False

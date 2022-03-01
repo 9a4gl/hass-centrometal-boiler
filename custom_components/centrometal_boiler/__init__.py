@@ -1,6 +1,7 @@
 """Support for Centrometa Boiler devices."""
 import logging
 import datetime
+import time
 
 from centrometal_web_boiler import WebBoilerClient
 
@@ -9,6 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_EMAIL,
     CONF_PASSWORD,
+    CONF_PREFIX,
     EVENT_HOMEASSISTANT_STOP,
     EVENT_TIME_CHANGED,
 )
@@ -44,8 +46,12 @@ async def async_setup(hass: HomeAssistant, config: dict):
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     _LOGGER.debug("Setting up Centrometal Boiler System component")
 
+    prefix = entry.data[CONF_PREFIX] if (CONF_PREFIX in entry.data) else ""
     web_boiler_system = WebBoilerSystem(
-        hass, username=entry.data[CONF_EMAIL], password=entry.data[CONF_PASSWORD]
+        hass,
+        username=entry.data[CONF_EMAIL],
+        password=entry.data[CONF_PASSWORD],
+        prefix=prefix,
     )
 
     try:
@@ -79,12 +85,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 class WebBoilerSystem:
     """A Centrometal Boiler System class."""
 
-    def __init__(self, hass, *, username, password):
+    def __init__(self, hass, *, username, password, prefix):
         """Initialize the Centrometal Boiler System."""
         self._hass = hass
         self.username = username
         self.password = password
-        self.web_boiler_client = None
+        self.prefix = prefix.rstrip()
+        if len(self.prefix) > 0:
+            self.prefix = self.prefix + " "
         self.web_boiler_client = WebBoilerClient()
         self.last_relogin_timestamp = datetime.datetime.timestamp(
             datetime.datetime.now()
@@ -148,7 +156,7 @@ class WebBoilerSystem:
                 _LOGGER.info(
                     f"Centrometal WebBoilerSystem::tick trying to relogin {self.web_boiler_client.username}"
                 )
-                self.relogin()
+                await self.relogin()
         else:
             if timestamp - self.last_refresh_timestamp > WEB_BOILER_REFRESH_INTERVAL:
                 self.last_refresh_timestamp = timestamp
@@ -158,7 +166,7 @@ class WebBoilerSystem:
                 await self.web_boiler_client.refresh()
 
     async def relogin(self):
-        self.last_relogin_timestamp = datetime.datetime.timestamp()
+        self.last_relogin_timestamp = time.time()
         await self.web_boiler_client.close_websocket()
         relogin_successful = await self.web_boiler_client.relogin()
         if relogin_successful:

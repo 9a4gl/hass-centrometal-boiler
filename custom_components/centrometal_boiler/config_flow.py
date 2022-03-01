@@ -7,11 +7,7 @@ from centrometal_web_boiler import WebBoilerClient
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.const import (
-    CONF_EMAIL,
-    CONF_ID,
-    CONF_PASSWORD,
-)
+from homeassistant.const import CONF_EMAIL, CONF_ID, CONF_PASSWORD, CONF_PREFIX
 
 from .const import DOMAIN
 
@@ -34,6 +30,7 @@ class CentrometalBoilerConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAI
         fields = OrderedDict()
         fields[vol.Required(CONF_EMAIL)] = str
         fields[vol.Required(CONF_PASSWORD)] = str
+        fields[vol.Optional(CONF_PREFIX)] = str
 
         return self.async_show_form(
             step_id="user", data_schema=vol.Schema(fields), errors=errors
@@ -69,6 +66,7 @@ class CentrometalBoilerConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAI
                 CONF_ID: unique_id,
                 CONF_EMAIL: user_input[CONF_EMAIL],
                 CONF_PASSWORD: user_input[CONF_PASSWORD],
+                CONF_PREFIX: user_input[CONF_PREFIX],
             },
         )
 

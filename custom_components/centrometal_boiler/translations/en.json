@@ -11,10 +11,11 @@
     },
     "step": {
       "user": {
-        "description": "Please enter your credentials.",
+        "description": "Please enter your credentials. If prefix is defined all created entities will be prefixed (usefull to work with multiple boilers).",
         "data": {
           "email": "E-mail",
-          "password": "Password"
+          "password": "Password",
+          "prefix": "Prefix (leave empty if not needed to prefix all entities)"
         },
         "title": "Centrometal Boiler System"
       }

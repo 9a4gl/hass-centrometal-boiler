@@ -14,7 +14,8 @@
         "description": "Please enter your credentials.",
         "data": {
           "email": "[%key:common::config_flow::data::email%]",
-          "password": "[%key:common::config_flow::data::password%]"
+          "password": "[%key:common::config_flow::data::password%]",
+          "prefix": "[%key:common::config_flow::data::prefix%]"
         },
         "title": "Centrometal Boiler System"
       }
