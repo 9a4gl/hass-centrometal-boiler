@@ -15,7 +15,7 @@ class WebBoilerCircuitSwitch(SwitchEntity):
     def __init__(self, hass, device, naslov, dbindex):
         """Initialize the Boiler Power Switch."""
         self.hass = hass
-        self.web_boiler_client = hass.data[DOMAIN][WEB_BOILER_CLIENT]
+        self.web_boiler_client = hass.data[DOMAIN][device.username][WEB_BOILER_CLIENT]
         self._device = device
         self._product = device["product"]
         self._name = naslov
@@ -91,8 +91,14 @@ class WebBoilerCircuitSwitch(SwitchEntity):
     def device_state_attributes(self):
         """Return the state attributes of the power switch."""
         tzinfo = dt_util.get_time_zone(self.hass.config.time_zone)
-        last_updated_dt = datetime.fromtimestamp(int(self._param_state["timestamp"]))
-        last_updated = last_updated_dt.astimezone(tzinfo).strftime("%d.%m.%Y %H:%M:%S")
+        last_updated = "?"
+        if "timestamp" in self._param_state.keys():
+            last_updated_dt = datetime.fromtimestamp(
+                int(self._param_state["timestamp"])
+            )
+            last_updated = last_updated_dt.astimezone(tzinfo).strftime(
+                "%d.%m.%Y %H:%M:%S"
+            )
         attributes = {}
         attributes["Last updated"] = last_updated
         return attributes

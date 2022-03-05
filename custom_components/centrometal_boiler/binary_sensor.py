@@ -5,13 +5,18 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 
+from homeassistant.const import (
+    CONF_EMAIL,
+)
+
 from .const import DOMAIN, WEB_BOILER_CLIENT
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     entities = []
 
-    web_boiler_client = hass.data[DOMAIN][WEB_BOILER_CLIENT]
+    unique_id = config_entry.data[CONF_EMAIL]
+    web_boiler_client = hass.data[DOMAIN][unique_id][WEB_BOILER_CLIENT]
     for device in web_boiler_client.data.values():
         entities.append(WebBoilerWebsocketStatus(hass, web_boiler_client, device))
     async_add_entities(entities, True)

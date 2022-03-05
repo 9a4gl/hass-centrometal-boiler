@@ -1,5 +1,9 @@
 """Support for boiler switch (Power control)."""
 
+from homeassistant.const import (
+    CONF_EMAIL,
+)
+
 import logging
 
 from .switches.WebBoilerPowerSwitch import WebBoilerPowerSwitch
@@ -13,7 +17,8 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the switches platform."""
     entities = []
-    web_boiler_client = hass.data[DOMAIN][WEB_BOILER_CLIENT]
+    unique_id = config_entry.data[CONF_EMAIL]
+    web_boiler_client = hass.data[DOMAIN][unique_id][WEB_BOILER_CLIENT]
     for device in web_boiler_client.data.values():
         if (
             device["type"] == "peltec"

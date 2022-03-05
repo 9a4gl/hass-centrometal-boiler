@@ -15,8 +15,8 @@ class WebBoilerPowerSwitch(SwitchEntity):
     def __init__(self, hass, device):
         """Initialize the Boiler Power Switch."""
         self.hass = hass
-        self.web_boiler_client = hass.data[DOMAIN][WEB_BOILER_CLIENT]
-        self.web_boiler_system = hass.data[DOMAIN][WEB_BOILER_SYSTEM]
+        self.web_boiler_client = hass.data[DOMAIN][device.username][WEB_BOILER_CLIENT]
+        self.web_boiler_system = hass.data[DOMAIN][device.username][WEB_BOILER_SYSTEM]
         self._device = device
         self._product = device["product"]
         self._name = f"{self.web_boiler_system.prefix} {self._product} Boiler Switch"

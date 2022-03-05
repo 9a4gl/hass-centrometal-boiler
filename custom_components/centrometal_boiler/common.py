@@ -11,8 +11,8 @@ def create_device_info(device):
     power = param_power["value"] or "?"
     firmware_ver = param_fw_ver["value"] or "?"
     wifi_ver = param_wifi_ver["value"] or "?"
-    name = "Centrometal Boiler"
     model = device["product"] + " " + power
+    name = "Centrometal Boiler " + model
     sw_version = firmware_ver + " Wifi:" + wifi_ver
     return {
         "identifiers": {

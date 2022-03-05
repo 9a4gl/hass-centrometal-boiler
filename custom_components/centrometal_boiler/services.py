@@ -1,18 +1,24 @@
 from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 
 from .const import (
     DOMAIN,
     WEB_BOILER_SYSTEM,
 )
 
+from homeassistant.const import (
+    CONF_EMAIL,
+)
+
 ATTR_SERIAL = "serial"
 ATTR_VALUE = "value"
 
 
-def setup_services(hass: HomeAssistant):
+def setup_services(hass: HomeAssistant, entry: ConfigEntry):
     async def handle_turn(call):
         """Handle the service call."""
-        web_boiler_system = hass.data[DOMAIN][WEB_BOILER_SYSTEM]
+        unique_id = entry.data[CONF_EMAIL]
+        web_boiler_system = hass.data[DOMAIN][unique_id][WEB_BOILER_SYSTEM]
         if web_boiler_system.web_boiler_client.is_websocket_connected():
             serial = call.data.get(ATTR_SERIAL, "")
             value = call.data.get(ATTR_VALUE, False)
@@ -22,7 +28,8 @@ def setup_services(hass: HomeAssistant):
 
     async def handle_turn_on(call):
         """Handle the service call."""
-        web_boiler_system = hass.data[DOMAIN][WEB_BOILER_SYSTEM]
+        unique_id = entry.data[CONF_EMAIL]
+        web_boiler_system = hass.data[DOMAIN][unique_id][WEB_BOILER_SYSTEM]
         if web_boiler_system.web_boiler_client.is_websocket_connected():
             serial = call.data.get(ATTR_SERIAL, "")
             if serial != "":
@@ -31,7 +38,8 @@ def setup_services(hass: HomeAssistant):
 
     async def handle_turn_off(call):
         """Handle the service call."""
-        web_boiler_system = hass.data[DOMAIN][WEB_BOILER_SYSTEM]
+        unique_id = entry.data[CONF_EMAIL]
+        web_boiler_system = hass.data[DOMAIN][unique_id][WEB_BOILER_SYSTEM]
         if web_boiler_system.web_boiler_client.is_websocket_connected():
             serial = call.data.get(ATTR_SERIAL, "")
             if serial != "":
@@ -40,7 +48,8 @@ def setup_services(hass: HomeAssistant):
 
     async def handle_turn_toggle(call):
         """Handle the service call."""
-        web_boiler_system = hass.data[DOMAIN][WEB_BOILER_SYSTEM]
+        unique_id = entry.data[CONF_EMAIL]
+        web_boiler_system = hass.data[DOMAIN][unique_id][WEB_BOILER_SYSTEM]
         if web_boiler_system.web_boiler_client.is_websocket_connected():
             serial = call.data.get(ATTR_SERIAL, "")
             if serial != "":

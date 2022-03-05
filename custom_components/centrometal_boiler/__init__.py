@@ -54,15 +54,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         prefix=prefix,
     )
 
-    try:
-        await web_boiler_system.start()
-    except Exception as ex:
-        _LOGGER.error(
-            "Got Access Denied Error when setting up Centrometal Boiler System: %s", ex
-        )
-        return False
+    unique_id = entry.data[CONF_EMAIL]
+    hass.data[DOMAIN][unique_id] = {}
+    hass.data[DOMAIN][unique_id][WEB_BOILER_SYSTEM] = web_boiler_system
 
-    hass.data[DOMAIN][WEB_BOILER_SYSTEM] = web_boiler_system
+    if not await web_boiler_system.start():
+        _LOGGER.error(
+            "Got Access Denied Error when setting up Centrometal Boiler System: %s",
+            entry.data[CONF_EMAIL],
+        )
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, web_boiler_system.stop())
 
@@ -73,7 +73,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             hass.config_entries.async_forward_entry_setup(entry, component)
         )
 
-    setup_services(hass)
+    setup_services(hass, entry)
 
     _LOGGER.debug(
         "Centrometal Boiler System component setup finished "
@@ -106,10 +106,13 @@ class WebBoilerSystem:
         serial = device["serial"]
         name = param["name"]
         value = param["value"]
+        web_boiler_client = self._hass.data[DOMAIN][device.username][WEB_BOILER_CLIENT]
+        connection_serial = list(web_boiler_client.data.keys())[0]
         _LOGGER.info(
-            "%s %s %s = %s (%s)",
+            "%s %s=%s %s = %s (%s)",
             action,
             serial,
+            connection_serial,
             name,
             value,
             self.web_boiler_client.username,
@@ -118,7 +121,9 @@ class WebBoilerSystem:
 
     async def start(self):
         _LOGGER.debug(f"Starting Centrometal Boiler System {self.username}")
-        self._hass.data[DOMAIN][WEB_BOILER_CLIENT] = self.web_boiler_client
+        self._hass.data[DOMAIN][self.username][
+            WEB_BOILER_CLIENT
+        ] = self.web_boiler_client
 
         try:
             loggedIn = await self.web_boiler_client.login(self.username, self.password)
@@ -137,14 +142,16 @@ class WebBoilerSystem:
                 )
             await self.web_boiler_client.start_websocket(self.on_parameter_updated)
             await self.web_boiler_client.refresh()
+            return True
         except Exception as ex:
             _LOGGER.error("Authentication failed : %s", str(ex))
+            return False
 
     async def stop(self):
         _LOGGER.debug(
             f"Stopping Centrometal WebBoilerSystem {self.web_boiler_client.username}"
         )
-        await self.web_boiler_client.close_websocket()
+        return await self.web_boiler_client.close_websocket()
 
     async def tick(self, now):
         timestamp = datetime.datetime.timestamp(now.time_fired)

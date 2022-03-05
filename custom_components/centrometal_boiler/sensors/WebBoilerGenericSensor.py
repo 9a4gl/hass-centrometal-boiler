@@ -25,8 +25,8 @@ class WebBoilerGenericSensor(SensorEntity):
     def __init__(self, hass, device, sensor_data, parameter):
         """Initialize the Centrometarl Boiler Sensor."""
         self.hass = hass
-        self.web_boiler_client = hass.data[DOMAIN][WEB_BOILER_CLIENT]
-        self.web_boiler_system = hass.data[DOMAIN][WEB_BOILER_SYSTEM]
+        self.web_boiler_client = hass.data[DOMAIN][device.username][WEB_BOILER_CLIENT]
+        self.web_boiler_system = hass.data[DOMAIN][device.username][WEB_BOILER_SYSTEM]
         self.parameter = parameter
         self.device = device
         #
