@@ -25,8 +25,6 @@ from .const import (
     WEB_BOILER_REFRESH_INTERVAL,
 )
 
-from .services import setup_services
-
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["sensor", "switch", "binary_sensor"]
@@ -72,8 +70,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.async_create_task(
             hass.config_entries.async_forward_entry_setup(entry, component)
         )
-
-    setup_services(hass, entry)
 
     _LOGGER.debug(
         "Centrometal Boiler System component setup finished "
