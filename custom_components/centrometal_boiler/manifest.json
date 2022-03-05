@@ -7,6 +7,6 @@
   "issue_tracker": "https://github.com/9a4gl/hass-centrometal-boiler/issues",
   "dependencies": [],
   "codeowners": ["@9a4gl"],
-  "requirements": ["py-centrometal-web-boiler==0.0.44"],
+  "requirements": ["py-centrometal-web-boiler==0.0.45"],
   "iot_class": "cloud_push"
 }

@@ -102,13 +102,10 @@ class WebBoilerSystem:
         serial = device["serial"]
         name = param["name"]
         value = param["value"]
-        web_boiler_client = self._hass.data[DOMAIN][device.username][WEB_BOILER_CLIENT]
-        connection_serial = list(web_boiler_client.data.keys())[0]
         _LOGGER.info(
-            "%s %s=%s %s = %s (%s)",
+            "%s %s %s = %s (%s)",
             action,
             serial,
-            connection_serial,
             name,
             value,
             self.web_boiler_client.username,
@@ -171,6 +168,7 @@ class WebBoilerSystem:
     async def relogin(self):
         self.last_relogin_timestamp = time.time()
         await self.web_boiler_client.close_websocket()
+        await self.web_boiler_client.http_client.close_session()
         relogin_successful = await self.web_boiler_client.relogin()
         if relogin_successful:
             await self.web_boiler_client.start_websocket(self.on_parameter_updated)

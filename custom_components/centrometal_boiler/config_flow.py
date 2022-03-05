@@ -87,5 +87,6 @@ async def try_connection(email, password):
     if len(web_boiler_client.data) == 0:
         raise Exception(f"No device found on Centrometal boiler server {email}")
     await web_boiler_client.close_websocket()
+    await web_boiler_client.http_client.close_session()
     _LOGGER.debug(f"Successfully connected to Centrometal boiler during setup {email}")
     return web_boiler_client.data
