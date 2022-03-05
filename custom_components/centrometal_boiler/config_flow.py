@@ -66,7 +66,7 @@ class CentrometalBoilerConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAI
                 CONF_ID: unique_id,
                 CONF_EMAIL: user_input[CONF_EMAIL],
                 CONF_PASSWORD: user_input[CONF_PASSWORD],
-                CONF_PREFIX: user_input[CONF_PREFIX],
+                CONF_PREFIX: user_input.get(CONF_PREFIX, ""),
             },
         )
 
