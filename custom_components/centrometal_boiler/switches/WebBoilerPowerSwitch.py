@@ -1,5 +1,5 @@
 from ..const import DOMAIN, WEB_BOILER_CLIENT, WEB_BOILER_SYSTEM
-from ..common import create_device_info
+from ..common import create_device_info, format_name
 
 from homeassistant.components.switch import SwitchEntity
 
@@ -19,7 +19,7 @@ class WebBoilerPowerSwitch(SwitchEntity):
         self.web_boiler_system = hass.data[DOMAIN][device.username][WEB_BOILER_SYSTEM]
         self._device = device
         self._product = device["product"]
-        self._name = f"{self.web_boiler_system.prefix} {self._product} Boiler Switch"
+        self._name = format_name(hass, device, f"{self._product} Boiler Switch")
         self._unique_id = device["serial"]
         self._state = None
         self._error_message = ""

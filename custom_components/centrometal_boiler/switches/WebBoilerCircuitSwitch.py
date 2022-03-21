@@ -1,5 +1,5 @@
 from ..const import DOMAIN, WEB_BOILER_CLIENT
-from ..common import create_device_info
+from ..common import create_device_info, format_name
 
 from homeassistant.components.switch import SwitchEntity
 
@@ -18,7 +18,8 @@ class WebBoilerCircuitSwitch(SwitchEntity):
         self.web_boiler_client = hass.data[DOMAIN][device.username][WEB_BOILER_CLIENT]
         self._device = device
         self._product = device["product"]
-        self._name = naslov
+        self._serial = device["serial"]
+        self._name = format_name(hass, device, naslov)
         self._unique_id = device["serial"] + "_switch_" + str(dbindex)
         self._state = None
         self._error_message = ""

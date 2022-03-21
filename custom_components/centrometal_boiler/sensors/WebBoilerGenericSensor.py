@@ -5,7 +5,7 @@ from homeassistant.components.sensor import SensorEntity
 
 
 from ..const import DOMAIN, WEB_BOILER_CLIENT, WEB_BOILER_SYSTEM
-from ..common import format_time, create_device_info
+from ..common import format_name, format_time, create_device_info
 
 from .generic_sensors_all import (
     GENERIC_SENSORS_COMMON,
@@ -38,9 +38,7 @@ class WebBoilerGenericSensor(SensorEntity):
         self._serial = device["serial"]
         self._parameter_name = parameter["name"]
         self._product = device["product"]
-        self._name = (
-            f"{self.web_boiler_system.prefix} {self._product} {self._description}"
-        )
+        self._name = format_name(hass, device, f"{self._product} {self._description}")
         self._unique_id = f"{self._serial}-{self._parameter_name}"
         #
         self.added_to_hass = False

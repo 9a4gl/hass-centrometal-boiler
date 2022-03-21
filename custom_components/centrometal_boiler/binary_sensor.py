@@ -1,5 +1,6 @@
 """Support for Centrometal Boiler System."""
 
+from .common import format_name
 from homeassistant.components.binary_sensor import (
     DEVICE_CLASS_CONNECTIVITY,
     BinarySensorEntity,
@@ -33,7 +34,7 @@ class WebBoilerWebsocketStatus(BinarySensorEntity):
         self.device = device
         self._serial = device["serial"]
         self._unique_id = self._serial + "_websocket_status"
-        self._name = "Centrometal Boiler System connection"
+        self._name = format_name(hass, device, "Centrometal Boiler System connection")
 
     async def async_added_to_hass(self):
         """Subscribe to events."""
