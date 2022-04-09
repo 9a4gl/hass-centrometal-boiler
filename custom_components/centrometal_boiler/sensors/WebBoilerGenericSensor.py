@@ -86,6 +86,11 @@ class WebBoilerGenericSensor(SensorEntity):
         return self._unit
 
     @property
+    def native_unit_of_measurement(self):
+        """Return the unit this state is expressed in."""
+        return self._unit
+
+    @property
     def device_class(self):
         """Return the device class of this entity."""
         return self._device_class
