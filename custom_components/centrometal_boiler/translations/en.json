@@ -16,8 +16,7 @@
           "email": "E-mail",
           "password": "Password",
           "prefix": "Prefix (leave empty if not needed to prefix all entities)"
-        },
-        "title": "Centrometal Boiler System"
+        }
       }
     }
   }
