@@ -12,10 +12,10 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_PREFIX,
     EVENT_HOMEASSISTANT_STOP,
-    EVENT_TIME_CHANGED,
 )
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.event import async_call_later
 
 from .const import (
     DOMAIN,
@@ -64,7 +64,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, web_boiler_system.stop())
 
-    hass.bus.async_listen(EVENT_TIME_CHANGED, web_boiler_system.tick)
+    async def schedule_tick() -> None:
+        async_call_later(hass, 1.0, fire_time_event)
+
+    async def fire_time_event(target: float) -> None:
+        await web_boiler_system.tick()
+        await schedule_tick()
+
+    await schedule_tick()
 
     for component in PLATFORMS:
         hass.async_create_task(
@@ -146,8 +153,9 @@ class WebBoilerSystem:
         )
         return await self.web_boiler_client.close_websocket()
 
-    async def tick(self, now):
-        timestamp = datetime.datetime.timestamp(now.time_fired)
+    async def tick(self):
+        datenow = datetime.datetime.now()
+        timestamp = datetime.datetime.timestamp(datenow)
         if not self.web_boiler_client.is_websocket_connected():
             if (
                 timestamp - self.last_relogin_timestamp
