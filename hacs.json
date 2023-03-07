@@ -1,7 +1,6 @@
 {
     "name": "Centrometal Boiler System",
-    "domains": ["sensor", "switch", "binary_sensor"],
     "render_readme": true,
-    "homeassistant": "2021.11.3",
+    "homeassistant": "2023.3.1",
     "iot_class": "Cloud Push"
   }
