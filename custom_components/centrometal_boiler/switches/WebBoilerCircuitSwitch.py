@@ -1,4 +1,8 @@
+import asyncio
+
 from homeassistant.core import HomeAssistant
+
+# pylint: disable=relative-beyond-top-level
 from ..const import DOMAIN, WEB_BOILER_CLIENT
 from ..common import create_device_info, format_name
 
@@ -6,8 +10,6 @@ from homeassistant.components.switch import SwitchEntity
 
 import homeassistant.util.dt as dt_util
 from datetime import datetime
-
-import asyncio
 
 
 class WebBoilerCircuitSwitch(SwitchEntity):
