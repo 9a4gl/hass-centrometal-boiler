@@ -37,7 +37,7 @@ class WebBoilerConfigurationSensor(WebBoilerGenericSensor):
             WebBoilerConfigurationSensor(
                 hass,
                 device,
-                ["", "mdi:state-machine", None, "Configuration"],
+                [None, "mdi:state-machine", None, "Configuration"],
                 device.get_parameter("B_KONF"),
             )
         )

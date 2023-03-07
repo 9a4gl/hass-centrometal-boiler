@@ -21,7 +21,7 @@ class WebBoilerDeviceTypeSensor(WebBoilerGenericSensor):
             WebBoilerDeviceTypeSensor(
                 hass,
                 device,
-                ["", "mdi:star-circle", None, "Device Type"],
+                [None, "mdi:star-circle", None, "Device Type"],
                 parameter,
             )
         )

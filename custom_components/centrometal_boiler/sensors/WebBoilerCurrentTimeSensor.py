@@ -22,7 +22,7 @@ class WebBoilerCurrentTimeSensor(WebBoilerGenericSensor):
             WebBoilerCurrentTimeSensor(
                 hass,
                 device,
-                ["", "mdi:clock-outline", None, "Clock"],
+                [None, "mdi:clock-outline", None, "Clock"],
                 device.get_parameter("B_Time"),
             )
         )

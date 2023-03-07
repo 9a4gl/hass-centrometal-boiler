@@ -164,6 +164,6 @@ class WebBoilerGenericSensor(SensorEntity):
             if "used" in param.keys():
                 continue
             _LOGGER.info("Creating unknown entry for %s", param_key)
-            sensor_data = ["", "mdi:help", None, "{?} " + param_key, {}]
+            sensor_data = [None, "mdi:help", None, "{?} " + param_key, {}]
             entities.append(WebBoilerGenericSensor(hass, device, sensor_data, param))
         return entities

@@ -1,4 +1,5 @@
 from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.const import UnitOfTemperature
 
 GENERIC_SENSORS_COMMON = {
     "B_STATE": [None, "mdi:state-machine", None, "Boiler State"],
@@ -35,7 +36,7 @@ def get_generic_temperature_settings_sensors(device):
             if device.has_parameter(max_param_name):
                 attributes[max_param_name] = "Maximum"
             temperature_settings[value_param_name] = [
-                "",
+                UnitOfTemperature.CELSIUS,
                 "mdi:thermometer",
                 SensorDeviceClass.TEMPERATURE,
                 value["naslov"],

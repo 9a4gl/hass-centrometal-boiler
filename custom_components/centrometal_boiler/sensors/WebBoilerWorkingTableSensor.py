@@ -86,8 +86,7 @@ class WebBoilerWorkingTableSensor(WebBoilerGenericSensor):
     def create_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
         pval_data = WebBoilerWorkingTableSensor.get_pval_data(device)
         entities = []
-        for key in pval_data.keys():
-            value = pval_data[key]
+        for key, value in pval_data.items():
             if len(value) == 42:
                 parameter = WebBoilerParameter()
                 parameter["name"] = "Table " + key
@@ -96,7 +95,7 @@ class WebBoilerWorkingTableSensor(WebBoilerGenericSensor):
                     WebBoilerWorkingTableSensor(
                         hass,
                         device,
-                        ["", "mdi:state-machine", None, "Table " + key],
+                        [None, "mdi:state-machine", None, "Table " + key],
                         parameter,
                         {key: value},
                     )
