@@ -1,5 +1,5 @@
-from typing import List
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.core import HomeAssistant
 
 from .WebBoilerGenericSensor import WebBoilerGenericSensor
 from centrometal_web_boiler.WebBoilerDeviceCollection import WebBoilerParameter
@@ -12,7 +12,7 @@ class WebBoilerDeviceTypeSensor(WebBoilerGenericSensor):
         return True
 
     @staticmethod
-    def create_entities(hass, device) -> List[SensorEntity]:
+    def create_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
         parameter = WebBoilerParameter()
         parameter["name"] = "Device_Type"
         parameter["value"] = device["type"]

@@ -1,5 +1,5 @@
-from typing import List
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.core import HomeAssistant
 
 from .WebBoilerGenericSensor import WebBoilerGenericSensor
 
@@ -12,7 +12,7 @@ class WebBoilerPelletLevelSensor(WebBoilerGenericSensor):
         return configurations[int(self.parameter["value"])]
 
     @staticmethod
-    def create_entities(hass, device) -> List[SensorEntity]:
+    def create_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
         entities = []
         entities.append(
             WebBoilerPelletLevelSensor(

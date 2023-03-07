@@ -1,28 +1,29 @@
-from homeassistant.const import DEVICE_CLASS_TEMPERATURE, TEMP_CELSIUS, TIME_MINUTES
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.const import UnitOfTemperature, UnitOfTime
 
 CM_PELET_SET_SENSOR_TEMPERATURES = {
     "B_Tk1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Boiler Temperature",
     ],
     "B_Tak1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Buffer Tank Up",
     ],
     "B_Tak2": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Buffer Tank Down",
     ],
     "B_Tva1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Outdoor Temperature",
     ],
 }
@@ -38,18 +39,18 @@ CM_PELET_SET_SENSOR_MISC = {
     "B_Add": [None, "mdi:note-plus", None, "Additional features"],
     "B_uklKot": [None, "mdi:information", None, "Boiler Operational"],
     "B_CP": [None, "mdi:information", None, "CentroPlus"],
-    "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner Work"],
+    "CNT_0": [UnitOfTime.MINUTES, "mdi:timer", None, "Burner Work"],
     "B_freezEn": [None, "mdi:snowflake", None, "Freeze Guard"],
     "B_freezMon": [None, "mdi:snowflake", None, "Freeze Monitor"],
     "B_zlj": [None, "mdi:book-open", None, "Operation Mode"],
     "CNT_1": [
-        TIME_MINUTES,
+        UnitOfTime.MINUTES,
         "mdi:timer",
         None,
         "Working DHW only",
     ],
     "CNT_2": [
-        TIME_MINUTES,
+        UnitOfTime.MINUTES,
         "mdi:timer",
         None,
         "Freeze protection",
@@ -61,13 +62,13 @@ CM_PELET_SET_SENSOR_MISC = {
         "Number of Burner Start",
     ],
     "CNT_4": [
-        TIME_MINUTES,
+        UnitOfTime.MINUTES,
         "mdi:timer",
         None,
         "Fan Working Time",
     ],
     "CNT_5": [
-        TIME_MINUTES,
+        UnitOfTime.MINUTES,
         "mdi:timer",
         None,
         "Electric Heater Working Time",
@@ -79,13 +80,13 @@ CM_PELET_SET_SENSOR_MISC = {
         "Number of Electric Heater Start",
     ],
     "CNT_7": [
-        TIME_MINUTES,
+        UnitOfTime.MINUTES,
         "mdi:timer",
         None,
         "Vacuum Turbine Working Time",
     ],
     "CNT_8": [
-        TIME_MINUTES,
+        UnitOfTime.MINUTES,
         "mdi:timer",
         None,
         "Boiler pump",

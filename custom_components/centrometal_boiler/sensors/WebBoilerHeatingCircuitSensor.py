@@ -1,13 +1,10 @@
-from homeassistant.const import DEVICE_CLASS_TEMPERATURE, TEMP_CELSIUS
-
-from typing import List
 import logging
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
+from homeassistant.const import UnitOfTemperature
+from homeassistant.core import HomeAssistant
 
 from .WebBoilerGenericSensor import WebBoilerGenericSensor
-
-from ..const import DOMAIN, WEB_BOILER_CLIENT
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -16,7 +13,10 @@ class WebBoilerHeatingCircuitSensor:
     """Representation of a Centrometal Boiler Sensor."""
 
     @staticmethod
-    def create_heating_circuits_entities(hass, device) -> List[SensorEntity]:
+    def create_heating_circuits_entities(
+        hass: HomeAssistant, device
+    ) -> list[SensorEntity]:
+        """Creates heating circuits entities."""
         entities = []
         for i in range(1, 5):
             prefix = f"C{i}B"
@@ -40,6 +40,7 @@ class WebBoilerHeatingCircuitSensor:
 
     @staticmethod
     def device_has_prefix(device, prefix):
+        """Returns if device has prefix."""
         for param in device["parameters"].keys():
             if param.startswith(prefix):
                 return True
@@ -47,8 +48,9 @@ class WebBoilerHeatingCircuitSensor:
 
     @staticmethod
     def create_heating_circuit_entities(
-        hass, device, prefix, name
-    ) -> List[SensorEntity]:
+        hass: HomeAssistant, device, prefix, name
+    ) -> list[SensorEntity]:
+        """Creates entities for heating circuit."""
         entities = []
         items = {}
         items[prefix + "_CircType"] = [
@@ -64,9 +66,9 @@ class WebBoilerHeatingCircuitSensor:
             name + " Day Night Mode",
         ]
         items[prefix + "_kor"] = [
-            TEMP_CELSIUS,
+            UnitOfTemperature.CELSIUS,
             "mdi:thermometer",
-            DEVICE_CLASS_TEMPERATURE,
+            SensorDeviceClass.TEMPERATURE,
             name + " Room Target Correction",
         ]
         items[prefix + "_korType"] = [
@@ -78,27 +80,27 @@ class WebBoilerHeatingCircuitSensor:
         items[prefix + "_onOff"] = [None, "mdi:pump", None, name + " Pump Demand"]
         items[prefix + "_P"] = [None, "mdi:pump", None, name + " Pump"]
         items[prefix + "_Tpol"] = [
-            TEMP_CELSIUS,
+            UnitOfTemperature.CELSIUS,
             "mdi:thermometer",
-            DEVICE_CLASS_TEMPERATURE,
+            SensorDeviceClass.TEMPERATURE,
             name + " Flow Target Temperature",
         ]
         items[prefix + "_Tpol1"] = [
-            TEMP_CELSIUS,
+            UnitOfTemperature.CELSIUS,
             "mdi:thermometer",
-            DEVICE_CLASS_TEMPERATURE,
+            SensorDeviceClass.TEMPERATURE,
             name + " Flow Measured Temperature",
         ]
         items[prefix + "_Tsob"] = [
-            TEMP_CELSIUS,
+            UnitOfTemperature.CELSIUS,
             "mdi:thermometer",
-            DEVICE_CLASS_TEMPERATURE,
+            SensorDeviceClass.TEMPERATURE,
             name + " Room Target Temperature",
         ]
         items[prefix + "_Tsob1"] = [
-            TEMP_CELSIUS,
+            UnitOfTemperature.CELSIUS,
             "mdi:thermometer",
-            DEVICE_CLASS_TEMPERATURE,
+            SensorDeviceClass.TEMPERATURE,
             name + " Room Measured Temperature",
         ]
         items[prefix + "_misC"] = [

@@ -1,5 +1,5 @@
-from typing import List
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.core import HomeAssistant
 from homeassistant.util.dt import UTC
 
 from .WebBoilerGenericSensor import WebBoilerGenericSensor
@@ -16,7 +16,7 @@ class WebBoilerCurrentTimeSensor(WebBoilerGenericSensor):
         return format_time(self.hass, value, UTC)
 
     @staticmethod
-    def create_entities(hass, device) -> List[SensorEntity]:
+    def create_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
         entities = []
         entities.append(
             WebBoilerCurrentTimeSensor(

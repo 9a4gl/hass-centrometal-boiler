@@ -1,6 +1,4 @@
-from homeassistant.const import (
-    DEVICE_CLASS_TEMPERATURE,
-)
+from homeassistant.components.sensor import SensorDeviceClass
 
 GENERIC_SENSORS_COMMON = {
     "B_STATE": [None, "mdi:state-machine", None, "Boiler State"],
@@ -15,8 +13,9 @@ GENERIC_SENSORS_COMMON = {
 
 
 def get_generic_temperature_settings_sensors(device):
-    TEMPERATURE_SETTINGS = dict()
-    for key, value in device["temperatures"].items():
+    """Returns generic sensors"""
+    temperature_settings = dict()
+    for value in device["temperatures"].values():
         dbindex = value["dbindex"]
         value_param_name = f"PVAL_{dbindex}_0"
         default_param_name = f"PDEF_{dbindex}_0"
@@ -35,11 +34,11 @@ def get_generic_temperature_settings_sensors(device):
                 attributes[min_param_name] = "Minimum"
             if device.has_parameter(max_param_name):
                 attributes[max_param_name] = "Maximum"
-            TEMPERATURE_SETTINGS[value_param_name] = [
+            temperature_settings[value_param_name] = [
                 "",
                 "mdi:thermometer",
-                DEVICE_CLASS_TEMPERATURE,
+                SensorDeviceClass.TEMPERATURE,
                 value["naslov"],
                 attributes,
             ]
-    return TEMPERATURE_SETTINGS
+    return temperature_settings

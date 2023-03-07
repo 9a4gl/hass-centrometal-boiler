@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+"""Support for Centrometal Boiler System sensors."""
 
 from homeassistant.const import (
     CONF_EMAIL,
 )
+from homeassistant.core import HomeAssistant
 
-"""Support for Centrometal Boiler System sensors."""
 import logging
 
 from .sensors.WebBoilerDeviceTypeSensor import WebBoilerDeviceTypeSensor
@@ -21,7 +22,7 @@ from .const import DOMAIN, WEB_BOILER_CLIENT
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass: HomeAssistant, config_entry, async_add_entities):
     """Perform the setup for Centrometal boiler sensor devices."""
     entities = []
 

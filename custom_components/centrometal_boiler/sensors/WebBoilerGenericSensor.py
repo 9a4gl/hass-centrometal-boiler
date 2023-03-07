@@ -1,8 +1,7 @@
-from typing import List
 import logging
 
 from homeassistant.components.sensor import SensorEntity
-
+from homeassistant.core import HomeAssistant
 
 from ..const import DOMAIN, WEB_BOILER_CLIENT, WEB_BOILER_SYSTEM
 from ..common import format_name, format_time, create_device_info
@@ -22,7 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 class WebBoilerGenericSensor(SensorEntity):
     """Representation of a Centrometal Boiler Sensor."""
 
-    def __init__(self, hass, device, sensor_data, parameter):
+    def __init__(self, hass: HomeAssistant, device, sensor_data, parameter) -> None:
         """Initialize the Centrometarl Boiler Sensor."""
         self.hass = hass
         self.web_boiler_client = hass.data[DOMAIN][device.username][WEB_BOILER_CLIENT]
@@ -81,11 +80,6 @@ class WebBoilerGenericSensor(SensorEntity):
         return self._icon
 
     @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit
-
-    @property
     def native_unit_of_measurement(self):
         """Return the unit this state is expressed in."""
         return self._unit
@@ -123,7 +117,7 @@ class WebBoilerGenericSensor(SensorEntity):
         return create_device_info(self.device)
 
     @staticmethod
-    def create_common_entities(hass, device) -> List[SensorEntity]:
+    def create_common_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
         entities = []
         for param_id, sensor_data in GENERIC_SENSORS_COMMON.items():
             parameter = device.get_parameter(param_id)
@@ -133,7 +127,7 @@ class WebBoilerGenericSensor(SensorEntity):
         return entities
 
     @staticmethod
-    def create_temperatures_entities(hass, device) -> List[SensorEntity]:
+    def create_temperatures_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
         entities = []
         for param_id, sensor_data in get_generic_temperature_settings_sensors(
             device
@@ -145,7 +139,7 @@ class WebBoilerGenericSensor(SensorEntity):
         return entities
 
     @staticmethod
-    def create_conf_entities(hass, device) -> List[SensorEntity]:
+    def create_conf_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
         entities = []
         generic_sensors = dict()
         if device["type"] == "peltec":
@@ -164,12 +158,12 @@ class WebBoilerGenericSensor(SensorEntity):
         return entities
 
     @staticmethod
-    def create_unknown_entities(hass, device) -> List[SensorEntity]:
+    def create_unknown_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
         entities = []
         for param_key, param in device["parameters"].items():
             if "used" in param.keys():
                 continue
-            _LOGGER.info("Creating unknown entry for " + param_key)
+            _LOGGER.info("Creating unknown entry for %s", param_key)
             sensor_data = ["", "mdi:help", None, "{?} " + param_key, {}]
             entities.append(WebBoilerGenericSensor(hass, device, sensor_data, param))
         return entities

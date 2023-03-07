@@ -1,57 +1,53 @@
-from homeassistant.const import (
-    DEVICE_CLASS_TEMPERATURE,
-    TEMP_CELSIUS,
-    TIME_MINUTES,
-    PERCENTAGE,
-)
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.const import UnitOfTemperature, PERCENTAGE, UnitOfTime
 
 PELTEC_SENSOR_TEMPERATURES = {
     "B_Tak1_1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Buffer Tank Temparature Up",
     ],
     "B_Tak2_1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Buffer Tank Temparature Down",
     ],
     "B_Tdpl1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Flue Gas",
     ],
     "B_Tpov1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Mixer Temperature",
     ],
     "B_Tk1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Boiler Temperature",
     ],
     "B_Tptv1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Domestic Hot Water",
     ],
     "B_Ths1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Hydraulic Crossover Temperature",
     ],
 }
 
 PELTEC_SENSOR_COUNTERS = {
-    "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner Work"],
+    "CNT_0": [UnitOfTime.MINUTES, "mdi:timer", None, "Burner Work"],
     "CNT_1": [
         "",
         "mdi:counter",
@@ -59,31 +55,31 @@ PELTEC_SENSOR_COUNTERS = {
         "Number of Burner Start",
     ],
     "CNT_2": [
-        TIME_MINUTES,
+        UnitOfTime.MINUTES,
         "mdi:timer",
         None,
         "Feeder Screw Work",
     ],
     "CNT_3": [
-        TIME_MINUTES,
+        UnitOfTime.MINUTES,
         "mdi:timer",
         None,
         "Flame Duration",
     ],
     "CNT_4": [
-        TIME_MINUTES,
+        UnitOfTime.MINUTES,
         "mdi:timer",
         None,
         "Fan Working Time",
     ],
     "CNT_5": [
-        TIME_MINUTES,
+        UnitOfTime.MINUTES,
         "mdi:timer",
         None,
         "Electric Heater Working Time",
     ],
     "CNT_6": [
-        TIME_MINUTES,
+        UnitOfTime.MINUTES,
         "mdi:timer",
         None,
         "Vacuum Turbine Working Time",
@@ -94,13 +90,13 @@ PELTEC_SENSOR_COUNTERS = {
         None,
         "Vacuum Turbine Cycles Number",
     ],
-    "CNT_8": [TIME_MINUTES, "mdi:timer", None, "Time on D6"],
-    "CNT_9": [TIME_MINUTES, "mdi:timer", None, "Time on D5"],
-    "CNT_10": [TIME_MINUTES, "mdi:timer", None, "Time on D4"],
-    "CNT_11": [TIME_MINUTES, "mdi:timer", None, "Time on D3"],
-    "CNT_12": [TIME_MINUTES, "mdi:timer", None, "Time on D2"],
-    "CNT_13": [TIME_MINUTES, "mdi:timer", None, "Time on D1"],
-    "CNT_14": [TIME_MINUTES, "mdi:timer", None, "Time on D0"],
+    "CNT_8": [UnitOfTime.MINUTES, "mdi:timer", None, "Time on D6"],
+    "CNT_9": [UnitOfTime.MINUTES, "mdi:timer", None, "Time on D5"],
+    "CNT_10": [UnitOfTime.MINUTES, "mdi:timer", None, "Time on D4"],
+    "CNT_11": [UnitOfTime.MINUTES, "mdi:timer", None, "Time on D3"],
+    "CNT_12": [UnitOfTime.MINUTES, "mdi:timer", None, "Time on D2"],
+    "CNT_13": [UnitOfTime.MINUTES, "mdi:timer", None, "Time on D1"],
+    "CNT_14": [UnitOfTime.MINUTES, "mdi:timer", None, "Time on D0"],
     "CNT_15": [None, "mdi:counter", None, "Reserve Counter"],
 }
 
@@ -110,9 +106,9 @@ PELTEC_SENSOR_MISC = {
     "B_Oxy1": ["% O2", "mdi:gas-cylinder", None, "Lambda Sensor"],
     "B_FotV": ["kOhm", "mdi:fire", None, "Fire Sensor"],
     "B_Tva1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Outdoor Temperature",
     ],
     "B_cm2k": [None, "mdi:state-machine", None, "CM2K Status"],

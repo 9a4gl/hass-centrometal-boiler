@@ -1,59 +1,55 @@
-from homeassistant.const import (
-    DEVICE_CLASS_TEMPERATURE,
-    TEMP_CELSIUS,
-    TIME_MINUTES,
-    PERCENTAGE,
-)
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.const import UnitOfTemperature, UnitOfTime, PERCENTAGE
 
 BIOTEC_SENSOR_TEMPERATURES = {
     "B_Tak1_1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Buffer Tank Temparature Up",
     ],
     "B_Tak2_1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Buffer Tank Temparature Down",
     ],
     "B_Tdpl1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Flue Gas",
     ],
     "B_Tpov1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Mixer Temperature",
     ],
     "B_Tk1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Boiler Temperature",
     ],
     "B_Tlo1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Firebox Temperature",
     ],
     "B_Tptv1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Domestic Hot Water",
     ],
 }
 
 BIOTEC_SENSOR_COUNTERS = {
-    "CNT_0": [TIME_MINUTES, "mdi:timer", None, "Burner Work"],
+    "CNT_0": [UnitOfTime.MINUTES, "mdi:timer", None, "Burner Work"],
     "CNT_4": [
-        TIME_MINUTES,
+        UnitOfTime.MINUTES,
         "mdi:timer",
         None,
         "Fan Working Time",
@@ -64,9 +60,9 @@ BIOTEC_SENSOR_MISC = {
     "B_fan": ["rpm", "mdi:fan", None, "Fan"],
     "B_Oxy1": ["% O2", "mdi:gas-cylinder", None, "Lambda Sensor"],
     "B_Tva1": [
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
         "Outdoor Temperature",
     ],
     "B_cm2k": [None, "mdi:state-machine", None, "CM2K Status"],

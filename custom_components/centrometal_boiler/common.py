@@ -1,10 +1,11 @@
+from homeassistant.core import HomeAssistant
 from .const import DOMAIN, WEB_BOILER_CLIENT, WEB_BOILER_SYSTEM
 
 import homeassistant.util.dt as dt_util
 from datetime import datetime
 
 
-def create_device_info(device):
+def create_device_info(device) -> dict:
     param_power = device.get_parameter("B_sng")
     param_fw_ver = device.get_parameter("B_VER")
     param_wifi_ver = device.get_parameter("B_WifiVER")
@@ -27,14 +28,14 @@ def create_device_info(device):
     }
 
 
-def format_time(hass, timestamp, tzinfo=None):
+def format_time(hass: HomeAssistant, timestamp, tzinfo=None):
     if tzinfo is None:
         tzinfo = dt_util.get_time_zone(hass.config.time_zone)
     dt = datetime.fromtimestamp(timestamp)
     return dt.astimezone(tzinfo).strftime("%d.%m.%Y %H:%M:%S")
 
 
-def format_name(hass, device, name):
+def format_name(hass: HomeAssistant, device, name) -> str:
     username = device.username
     serial = device["serial"]
     web_boiler_client = hass.data[DOMAIN][username][WEB_BOILER_CLIENT]

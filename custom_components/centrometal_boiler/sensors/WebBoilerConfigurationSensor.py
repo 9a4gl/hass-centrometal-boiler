@@ -1,5 +1,5 @@
-from typing import List
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.core import HomeAssistant
 
 from .WebBoilerGenericSensor import WebBoilerGenericSensor
 
@@ -7,8 +7,8 @@ from .WebBoilerGenericSensor import WebBoilerGenericSensor
 class WebBoilerConfigurationSensor(WebBoilerGenericSensor):
     @property
     def native_value(self):
+        """Return the value of the sensor."""
         if self.device["type"] == "peltec":
-            """Return the value of the sensor."""
             configurations = [
                 "1. DHW",
                 "2. DHC",
@@ -30,7 +30,8 @@ class WebBoilerConfigurationSensor(WebBoilerGenericSensor):
         return self.parameter["value"]
 
     @staticmethod
-    def create_entities(hass, device) -> List[SensorEntity]:
+    def create_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
+        """Create entities."""
         entities = []
         entities.append(
             WebBoilerConfigurationSensor(

@@ -1,8 +1,9 @@
 """Support for Centrometal Boiler System."""
 
+from homeassistant.core import HomeAssistant
 from .common import format_name
 from homeassistant.components.binary_sensor import (
-    DEVICE_CLASS_CONNECTIVITY,
+    BinarySensorDeviceClass,
     BinarySensorEntity,
 )
 
@@ -13,7 +14,7 @@ from homeassistant.const import (
 from .const import DOMAIN, WEB_BOILER_CLIENT
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(hass: HomeAssistant, config_entry, async_add_entities):
     entities = []
 
     unique_id = config_entry.data[CONF_EMAIL]
@@ -26,7 +27,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class WebBoilerWebsocketStatus(BinarySensorEntity):
     """Representation of Centrometal Boiler System websocket connection status."""
 
-    def __init__(self, hass, web_boiler_client, device) -> None:
+    def __init__(self, hass: HomeAssistant, web_boiler_client, device) -> None:
         """Initialize the binary sensor."""
         super().__init__()
         self.hass = hass
@@ -67,4 +68,4 @@ class WebBoilerWebsocketStatus(BinarySensorEntity):
     @property
     def device_class(self):
         """Return the class of this device, from component DEVICE_CLASSES."""
-        return DEVICE_CLASS_CONNECTIVITY
+        return BinarySensorDeviceClass.CONNECTIVITY

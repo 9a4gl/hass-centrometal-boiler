@@ -1,3 +1,4 @@
+from homeassistant.core import HomeAssistant
 from ..const import DOMAIN, WEB_BOILER_CLIENT
 from ..common import create_device_info, format_name
 
@@ -12,7 +13,7 @@ import asyncio
 class WebBoilerCircuitSwitch(SwitchEntity):
     """Representation of a boiler Power Switch."""
 
-    def __init__(self, hass, device, naslov, dbindex):
+    def __init__(self, hass: HomeAssistant, device, naslov, dbindex) -> None:
         """Initialize the Boiler Power Switch."""
         self.hass = hass
         self.web_boiler_client = hass.data[DOMAIN][device.username][WEB_BOILER_CLIENT]

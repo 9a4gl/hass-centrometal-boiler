@@ -1,14 +1,16 @@
 import collections
 
-from typing import List
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.core import HomeAssistant
 
 from .WebBoilerGenericSensor import WebBoilerGenericSensor
 from centrometal_web_boiler.WebBoilerDeviceCollection import WebBoilerParameter
 
 
 class WebBoilerWorkingTableSensor(WebBoilerGenericSensor):
-    def __init__(self, hass, device, sensor_data, param_status, param_tables):
+    def __init__(
+        self, hass: HomeAssistant, device, sensor_data, param_status, param_tables
+    ) -> None:
         super().__init__(hass, device, sensor_data, param_status)
         self.param_tables = param_tables
         for key in self.param_tables:
@@ -81,7 +83,7 @@ class WebBoilerWorkingTableSensor(WebBoilerGenericSensor):
         return collections.OrderedDict(sorted(pval.items()))
 
     @staticmethod
-    def create_entities(hass, device) -> List[SensorEntity]:
+    def create_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
         pval_data = WebBoilerWorkingTableSensor.get_pval_data(device)
         entities = []
         for key in pval_data.keys():
