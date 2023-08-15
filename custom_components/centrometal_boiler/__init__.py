@@ -171,7 +171,9 @@ class WebBoilerSystem:
                 _LOGGER.info(
                     f"WebBoilerSystem::tick refresh data {self.web_boiler_client.username}"
                 )
-                await self.web_boiler_client.refresh()
+                refresh_successful = await self.web_boiler_client.refresh()
+                if not refresh_successful:
+                    await self.relogin()
 
     async def relogin(self):
         self.last_relogin_timestamp = time.time()
