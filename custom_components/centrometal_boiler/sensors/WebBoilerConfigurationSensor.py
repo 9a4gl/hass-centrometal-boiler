@@ -26,7 +26,10 @@ class WebBoilerConfigurationSensor(WebBoilerGenericSensor):
                 "14. BUF--IHCX2",
                 "15. CRO -- DHW",
             ]
-            return configurations[int(self.parameter["value"])]
+            try:
+                return configurations[int(self.parameter["value"])]
+            except Exception:
+                pass
         return self.parameter["value"]
 
     @staticmethod

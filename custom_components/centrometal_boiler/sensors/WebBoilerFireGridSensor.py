@@ -27,9 +27,12 @@ class WebBoilerFireGridSensor(WebBoilerGenericSensor):
     @property
     def native_value(self):
         """Return the value of the sensor."""
-        value_ind = int(self.parameter["value"])
-        value_max = int(self.param_max["value"])
-        value_dir = int(self.param_dir["value"])
+        try:
+            value_ind = int(self.parameter["value"])
+            value_max = int(self.param_max["value"])
+            value_dir = int(self.param_dir["value"])
+        except Exception:
+            return "0"
         if value_max < 0:
             return "0"
         text = str(int(value_ind * 100 / value_max))
