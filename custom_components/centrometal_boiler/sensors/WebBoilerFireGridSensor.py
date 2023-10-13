@@ -37,8 +37,8 @@ class WebBoilerFireGridSensor(WebBoilerGenericSensor):
             return "0"
         text = str(int(value_ind * 100 / value_max))
         if value_dir > 0:
-            return "> " + text
-        return "< " + text
+            return "+" + text
+        return "-" + text
 
     @property
     def device_state_attributes(self):
