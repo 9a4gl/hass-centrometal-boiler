@@ -36,10 +36,13 @@ def format_time(hass: HomeAssistant, timestamp, tzinfo=None):
 
 
 def format_name(hass: HomeAssistant, device, name) -> str:
+    name = name.replace("GMX EASY", "biotec")
     username = device.username
     serial = device["serial"]
     web_boiler_client = hass.data[DOMAIN][username][WEB_BOILER_CLIENT]
     web_boiler_system = hass.data[DOMAIN][username][WEB_BOILER_SYSTEM]
     if len(web_boiler_client.data.values()) > 1:
         name = f"{serial} {name}"
-    return f"{web_boiler_system.prefix} {name}"
+    if len(web_boiler_system.prefix) > 0:
+        return f"{web_boiler_system.prefix} {name}"
+    return name
