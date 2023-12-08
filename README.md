@@ -61,7 +61,7 @@ The following devices are supported, other may work with CM WiFi-Box.
 * CentroPlus + Cm Pelet-set
 * BioTec-L
 * EKO-CK P + Cm Pelet-set
-* BioTec-Plus
+* BioTec-Plus (also Morvan GMX EASY)
 * EKO-CKS Multi Plus ? (need tester) ?
 
 ## Services
