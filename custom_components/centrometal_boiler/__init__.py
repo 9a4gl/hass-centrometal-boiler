@@ -1,4 +1,5 @@
 """Support for Centrometa Boiler devices."""
+
 import logging
 import datetime
 import time
@@ -73,10 +74,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     await schedule_tick()
 
-    for component in PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(entry, component)
-        )
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     _LOGGER.debug(
         "Centrometal Boiler System component setup finished "
@@ -121,9 +119,9 @@ class WebBoilerSystem:
 
     async def start(self):
         _LOGGER.debug(f"Starting Centrometal Boiler System {self.username}")
-        self._hass.data[DOMAIN][self.username][
-            WEB_BOILER_CLIENT
-        ] = self.web_boiler_client
+        self._hass.data[DOMAIN][self.username][WEB_BOILER_CLIENT] = (
+            self.web_boiler_client
+        )
 
         try:
             loggedIn = await self.web_boiler_client.login(self.username, self.password)
