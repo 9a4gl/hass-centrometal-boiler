@@ -142,7 +142,7 @@ class WebBoilerGenericSensor(SensorEntity):
     def create_conf_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
         entities = []
         generic_sensors = dict()
-        if device["type"] == "peltec":
+        if device["type"] in ["peltec", "compact"]:
             generic_sensors = PELTEC_GENERIC_SENSORS
         elif device["type"] == "cmpelet":
             generic_sensors = CM_PELET_SET_GENERIC_SENSORS
