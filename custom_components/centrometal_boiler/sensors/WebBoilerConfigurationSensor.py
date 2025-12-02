@@ -8,7 +8,7 @@ class WebBoilerConfigurationSensor(WebBoilerGenericSensor):
     @property
     def native_value(self):
         """Return the value of the sensor."""
-        if self.device["type"] == "peltec":
+        if device["type"] in ["peltec", "compact"]:
             configurations = [
                 "1. DHW",
                 "2. DHC",

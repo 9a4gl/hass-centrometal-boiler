@@ -37,9 +37,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry, async_add_entitie
         entities.extend(
             WebBoilerHeatingCircuitSensor.create_heating_circuits_entities(hass, device)
         )
-        if device["type"] == "peltec" or device["type"] == "biopl":
+        if device["type"] in ["peltec", "compact", "biopl"]:
             entities.extend(WebBoilerPelletLevelSensor.create_entities(hass, device))
-        if device["type"] == "peltec":
+        if device["type"] in ["peltec", "compact"]:
             entities.extend(WebBoilerFireGridSensor.create_entities(hass, device))
         entities.extend(WebBoilerGenericSensor.create_conf_entities(hass, device))
         entities.extend(
