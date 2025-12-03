@@ -21,7 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 class WebBoilerGenericSensor(SensorEntity):
     """Representation of a Centrometal Boiler Sensor."""
 
-    def __init__(self, hass: HomeAssistant, device, sensor_data, parameter) -> None:
+    def __init__(self, hass: HomeAssistant, device, sensor_data, parameter, disabled_by_default=False) -> None:
         """Initialize the Centrometarl Boiler Sensor."""
         self.hass = hass
         self.web_boiler_client = hass.data[DOMAIN][device.username][WEB_BOILER_CLIENT]
@@ -39,6 +39,9 @@ class WebBoilerGenericSensor(SensorEntity):
         self._product = device["product"]
         self._name = format_name(hass, device, f"{self._product} {self._description}")
         self._unique_id = f"{self._serial}-{self._parameter_name}"
+        if disabled_by_default:
+          self._attr_entity_registry_enabled_default = False
+          self._attr_entity_registry_visible_default = False
         #
         self.added_to_hass = False
         self.parameter["used"] = True
@@ -165,5 +168,5 @@ class WebBoilerGenericSensor(SensorEntity):
                 continue
             _LOGGER.info("Creating unknown entry for %s", param_key)
             sensor_data = [None, "mdi:help", None, "{?} " + param_key, {}]
-            entities.append(WebBoilerGenericSensor(hass, device, sensor_data, param))
+            entities.append(WebBoilerGenericSensor(hass, device, sensor_data, param, True))
         return entities
