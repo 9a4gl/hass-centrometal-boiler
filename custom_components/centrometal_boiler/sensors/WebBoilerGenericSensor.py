@@ -11,6 +11,7 @@ from .generic_sensors_all import (
     get_generic_temperature_settings_sensors,
 )
 from .generic_sensors_peltec import PELTEC_GENERIC_SENSORS
+from .generic_sensors_compact import COMPACT_GENERIC_SENSORS
 from .generic_sensors_cm_pelet_set import CM_PELET_SET_GENERIC_SENSORS
 from .generic_sensors_biotec import BIOTEC_GENERIC_SENSORS
 from .generic_sensors_biotec_plus import BIOTEC_PLUS_GENERIC_SENSORS
@@ -142,8 +143,10 @@ class WebBoilerGenericSensor(SensorEntity):
     def create_conf_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
         entities = []
         generic_sensors = dict()
-        if device["type"] in ["peltec", "compact"]:
+        if device["type"] in ["peltec"]:
             generic_sensors = PELTEC_GENERIC_SENSORS
+        elif device["type"] == "compact":
+            generic_sensors = COMPACT_GENERIC_SENSORS
         elif device["type"] == "cmpelet":
             generic_sensors = CM_PELET_SET_GENERIC_SENSORS
         elif device["type"] == "biotec":
