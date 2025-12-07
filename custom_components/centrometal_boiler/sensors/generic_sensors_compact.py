@@ -1,5 +1,9 @@
 import copy
-from generic_sensors_peltec import PELTEC_SENSOR_TEMPERATURES, PELTEC_SENSOR_COUNTERS, PELTEC_SENSOR_MISC
+from .generic_sensors_peltec import (
+    PELTEC_SENSOR_TEMPERATURES,
+    PELTEC_SENSOR_COUNTERS,
+    PELTEC_SENSOR_MISC,
+)
 
 # Make copies of the peltec sensors and remove those not returned by the API for the compact.
 # I'm unsure of whether this is because of my configuration (37) or because those really do not exist for the compact.
