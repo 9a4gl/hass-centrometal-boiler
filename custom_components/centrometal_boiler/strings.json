@@ -15,7 +15,8 @@
         "data": {
           "email": "[%key:common::config_flow::data::email%]",
           "password": "[%key:common::config_flow::data::password%]",
-          "prefix": "[%key:common::config_flow::data::prefix%]"
+          "prefix": "[%key:common::config_flow::data::prefix%]",
+          "product_prefix": "[%key:common::config_flow::data::product_prefix%]"
         }
       }
     }

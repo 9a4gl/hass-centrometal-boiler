@@ -46,11 +46,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     _LOGGER.debug("Setting up Centrometal Boiler System component")
 
     prefix = entry.data[CONF_PREFIX] if (CONF_PREFIX in entry.data) else ""
+    product_prefix = entry.data['product_prefix'] if ('product_prefix' in entry.data) else True
     web_boiler_system = WebBoilerSystem(
         hass,
         username=entry.data[CONF_EMAIL],
         password=entry.data[CONF_PASSWORD],
         prefix=prefix,
+        product_prefix=product_prefix,
     )
 
     unique_id = entry.data[CONF_EMAIL]
@@ -86,7 +88,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 class WebBoilerSystem:
     """A Centrometal Boiler System class."""
 
-    def __init__(self, hass, *, username, password, prefix):
+    def __init__(self, hass, *, username, password, prefix, product_prefix):
         """Initialize the Centrometal Boiler System."""
         self._hass = hass
         self.username = username
@@ -94,6 +96,7 @@ class WebBoilerSystem:
         self.prefix = prefix.rstrip()
         if len(self.prefix) > 0:
             self.prefix = self.prefix + " "
+        self.product_prefix = product_prefix
         self.web_boiler_client = WebBoilerClient()
         self.last_relogin_timestamp = datetime.datetime.timestamp(
             datetime.datetime.now()
