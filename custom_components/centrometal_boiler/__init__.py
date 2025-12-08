@@ -95,12 +95,19 @@ class WebBoilerSystem:
         if len(self.prefix) > 0:
             self.prefix = self.prefix + " "
         self.web_boiler_client = WebBoilerClient()
+        self.web_boiler_client.set_connectivity_callback(self.update_callback)
         self.last_relogin_timestamp = datetime.datetime.timestamp(
             datetime.datetime.now()
         )
         self.last_refresh_timestamp = datetime.datetime.timestamp(
             datetime.datetime.now()
         )
+    
+    async def update_callback(self, status):
+        _LOGGER.debug(f"update_callback called")
+        if not self.web_boiler_client.websocket_connected:
+            _LOGGER.debug(f"Trying relogin")
+            await self.relogin()
 
     async def on_parameter_updated(self, device, param, create=False):
         action = "Create" if create else "update"
