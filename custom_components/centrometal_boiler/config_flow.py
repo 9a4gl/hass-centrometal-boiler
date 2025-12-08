@@ -31,6 +31,7 @@ class CentrometalBoilerConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAI
         fields[vol.Required(CONF_EMAIL)] = str
         fields[vol.Required(CONF_PASSWORD)] = str
         fields[vol.Optional(CONF_PREFIX)] = str
+        fields[vol.Optional('product_prefix')] = bool
 
         return self.async_show_form(
             step_id="user", data_schema=vol.Schema(fields), errors=errors
@@ -67,6 +68,7 @@ class CentrometalBoilerConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAI
                 CONF_EMAIL: user_input[CONF_EMAIL],
                 CONF_PASSWORD: user_input[CONF_PASSWORD],
                 CONF_PREFIX: user_input.get(CONF_PREFIX, ""),
+                'product_prefix': user_input.get('product_prefix', ""),
             },
         )
 

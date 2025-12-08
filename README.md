@@ -67,7 +67,7 @@ The following devices are supported, other may work with CM WiFi-Box.
 ## Services
 
 `centrometal_boiler.turn`
-Start or stop the bolier..
+Start or stop the boiler..
 
 ## Development
 

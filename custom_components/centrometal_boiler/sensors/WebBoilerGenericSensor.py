@@ -38,7 +38,10 @@ class WebBoilerGenericSensor(SensorEntity):
         self._serial = device["serial"]
         self._parameter_name = parameter["name"]
         self._product = device["product"]
-        self._name = format_name(hass, device, f"{self._product} {self._description}")
+        if self.web_boiler_system.product_prefix == True:
+            self._name = format_name(hass, device, f"{self._product} {self._description}")
+        else:
+            self._name = format_name(hass, device, self._description)
         self._unique_id = f"{self._serial}-{self._parameter_name}"
         if disabled_by_default:
           self._attr_entity_registry_enabled_default = False

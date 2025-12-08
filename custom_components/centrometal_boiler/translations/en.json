@@ -15,7 +15,8 @@
         "data": {
           "email": "E-mail",
           "password": "Password",
-          "prefix": "Prefix (leave empty if not needed to prefix all entities)"
+          "prefix": "Prefix (leave empty if not needed to prefix all entities)",
+          "product_prefix": "Prefix all sensors with the boiler's name"
         }
       }
     }
