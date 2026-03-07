@@ -13,6 +13,7 @@ from .sensors.WebBoilerGenericSensor import WebBoilerGenericSensor
 from .sensors.WebBoilerConfigurationSensor import WebBoilerConfigurationSensor
 from .sensors.WebBoilerWorkingTableSensor import WebBoilerWorkingTableSensor
 from .sensors.WebBoilerPelletLevelSensor import WebBoilerPelletLevelSensor
+from .sensors.WebBoilerFuelPercentageSensor import WebBoilerFuelPercentageSensor
 from .sensors.WebBoilerCurrentTimeSensor import WebBoilerCurrentTimeSensor
 from .sensors.WebBoilerFireGridSensor import WebBoilerFireGridSensor
 from .sensors.WebBoilerHeatingCircuitSensor import WebBoilerHeatingCircuitSensor
@@ -39,6 +40,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry, async_add_entitie
         )
         if device["type"] in ["peltec", "compact", "biopl"]:
             entities.extend(WebBoilerPelletLevelSensor.create_entities(hass, device))
+            entities.extend(WebBoilerFuelPercentageSensor.create_entities(hass, device))
         if device["type"] in ["peltec", "compact"]:
             entities.extend(WebBoilerFireGridSensor.create_entities(hass, device))
         entities.extend(WebBoilerGenericSensor.create_conf_entities(hass, device))
