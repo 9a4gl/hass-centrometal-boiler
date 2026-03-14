@@ -1,30 +1,25 @@
-from homeassistant.core import HomeAssistant
-from .const import DOMAIN, WEB_BOILER_CLIENT, WEB_BOILER_SYSTEM
-
-import homeassistant.util.dt as dt_util
 from datetime import datetime
+
+from homeassistant.core import HomeAssistant
+import homeassistant.util.dt as dt_util
+
+from .const import DOMAIN, WEB_BOILER_CLIENT, WEB_BOILER_SYSTEM
 
 
 def create_device_info(device) -> dict:
     param_power = device.get_parameter("B_sng")
     param_fw_ver = device.get_parameter("B_VER")
-    param_wifi_ver = device.get_parameter("B_WifiVER")
-    power = param_power["value"] or "?"
-    firmware_ver = param_fw_ver["value"] or "?"
-    wifi_ver = param_wifi_ver["value"] or "?"
+    power = param_power["value"] or "None"
+    firmware_ver = param_fw_ver["value"] or "None"
     model = device["product"] + " " + power
     serial = device["serial"]
     name = "Centrometal Boiler " + model + " " + serial
-    sw_version = firmware_ver + " Wifi:" + wifi_ver
     return {
-        "identifiers": {
-            # Serial numbers are unique identifiers within a specific domain
-            (DOMAIN, device["serial"])
-        },
+        "identifiers": {(DOMAIN, device["serial"])},
         "name": name,
         "manufacturer": "Centrometal",
         "model": model,
-        "sw_version": sw_version,
+        "sw_version": firmware_ver,
     }
 
 

@@ -8,7 +8,6 @@ from centrometal_web_boiler.WebBoilerDeviceCollection import WebBoilerParameter
 class WebBoilerDeviceTypeSensor(WebBoilerGenericSensor):
     @property
     def available(self):
-        """Return the availablity of the sensor."""
         return True
 
     @staticmethod
@@ -16,13 +15,10 @@ class WebBoilerDeviceTypeSensor(WebBoilerGenericSensor):
         parameter = WebBoilerParameter()
         parameter["name"] = "Device_Type"
         parameter["value"] = device["type"]
-        entities = []
-        entities.append(
+        return [
             WebBoilerDeviceTypeSensor(
-                hass,
-                device,
+                hass, device,
                 [None, "mdi:star-circle", None, "Device Type"],
                 parameter,
             )
-        )
-        return entities
+        ]
