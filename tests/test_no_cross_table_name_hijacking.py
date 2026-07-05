@@ -106,17 +106,22 @@ def test_cm_pelet_set_heater_keeps_its_own_name_not_generic_electric_heater() ->
     assert "Heater State" in name
 
 
-def test_peltec2_exposes_only_the_confirmed_k1_pump_state() -> None:
+def test_peltec2_exposes_confirmed_k1_enabled_and_pump_states() -> None:
     device = _make_device("peltec2", "PelTec II Lambda")
     device.create_parameter("K1B_onOff", 1)
     device.create_parameter("K1B_P", 0)
     entities = _run_sensor_setup_order(device)
 
-    assert _name_for(entities, "K1B_onOff") is None
+    enabled_name = _name_for(entities, "K1B_onOff")
+    assert enabled_name is not None
+    assert "Heating Circuit Enabled" in enabled_name
+    assert "DHW" not in enabled_name
+
     p_name = _name_for(entities, "K1B_P")
     assert p_name is not None
     assert "DHW" not in p_name
     assert "K1 Circuit Pump" in p_name
+
     p_entity = next(e for e in entities if e._param_name == "K1B_P")
     assert p_entity.native_value == "Off"
 
