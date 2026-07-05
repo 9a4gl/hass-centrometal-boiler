@@ -1,22 +1,58 @@
 {
   "config": {
     "abort": {
-      "already_configured": "Location is already configured"
+      "already_configured": "Account is already configured",
+      "reauth_successful": "Re-authentication was successful",
+      "wrong_account": "The provided account does not match the existing configuration entry"
     },
     "error": {
-      "cannot_connect": "Failed to connect, please try again.",
+      "cannot_connect": "Failed to connect. Check the credentials and try again.",
       "invalid_auth": "Invalid authentication.",
-      "too_many_requests": "Too many requests, retry later.",
+      "too_many_requests": "Too many requests. Try again later.",
       "unknown": "Unexpected error."
     },
     "step": {
       "user": {
-        "description": "Please enter your credentials. If prefix is defined all created entities will be prefixed (usefull to work with multiple boilers).",
+        "description": "Enter the credentials for your Centrometal Web Boiler account.",
         "data": {
           "email": "E-mail",
           "password": "Password",
-          "prefix": "Prefix (leave empty if not needed to prefix all entities)",
-          "product_prefix": "Prefix all sensors with the boiler's name"
+          "prefix": "Entity name prefix"
+        },
+        "data_description": {
+          "prefix": "Optional. Use this when one Home Assistant instance contains multiple boilers."
+        }
+      },
+      "reauth_confirm": {
+        "description": "Update the credentials for your Centrometal Web Boiler account.",
+        "data": {
+          "email": "E-mail",
+          "password": "Password",
+          "prefix": "Entity name prefix"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "websocket_status": {
+        "name": "Cloud connection"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "description": "Tune how often the integration polls Centrometal and how it backs off after a connection problem. Defaults match previous releases.",
+        "data": {
+          "refresh_interval": "Refresh interval",
+          "retry_base_interval": "Initial retry interval",
+          "retry_max_interval": "Maximum retry interval"
+        },
+        "data_description": {
+          "refresh_interval": "How often to refresh boiler state over HTTP while connected.",
+          "retry_base_interval": "Delay before the first relogin attempt after a disconnect. Doubles after each further failure.",
+          "retry_max_interval": "The relogin delay never grows past this, no matter how long the outage lasts."
         }
       }
     }

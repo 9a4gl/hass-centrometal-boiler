@@ -1,0 +1,43 @@
+name: Bug report
+description: Report a problem with the Centrometal Boiler integration
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Remove credentials, serial numbers, and location details from logs before posting.
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+      placeholder: 2026.4.0
+    validations:
+      required: true
+  - type: input
+    id: integration_version
+    attributes:
+      label: Integration version
+      placeholder: 0.1.0.0
+    validations:
+      required: true
+  - type: input
+    id: boiler_model
+    attributes:
+      label: Boiler model
+    validations:
+      required: false
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem description
+      description: What happened? What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      render: text
+    validations:
+      required: false

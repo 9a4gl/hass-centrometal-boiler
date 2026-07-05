@@ -6,13 +6,13 @@ BIOTEC_SENSOR_TEMPERATURES = {
         UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
         SensorDeviceClass.TEMPERATURE,
-        "Buffer Tank Temparature Up",
+        "Buffer Tank Temperature (Upper)",
     ],
     "B_Tak2_1": [
         UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
         SensorDeviceClass.TEMPERATURE,
-        "Buffer Tank Temparature Down",
+        "Buffer Tank Temperature (Lower)",
     ],
     "B_Tdpl1": [
         UnitOfTemperature.CELSIUS,

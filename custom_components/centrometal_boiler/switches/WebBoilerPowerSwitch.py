@@ -1,94 +1,152 @@
-import asyncio
-
-from homeassistant.core import HomeAssistant
-
-# pylint: disable=relative-beyond-top-level
-from ..common import create_device_info, format_name
-from ..const import DOMAIN, WEB_BOILER_CLIENT, WEB_BOILER_SYSTEM
-
-from homeassistant.components.switch import SwitchEntity
+import datetime
+from typing import Any
 
 import homeassistant.util.dt as dt_util
-from datetime import datetime
+from homeassistant.core import HomeAssistant
+from homeassistant.components.switch import SwitchEntity
+from homeassistant.exceptions import HomeAssistantError
+
+from ..common import create_device_info, format_name
+
+
+def _value_is_on(v: Any) -> bool | None:
+    """Decide ON/OFF from a parameter value, or None when unknown.
+
+    Returns None for unrecognised values so callers can fall back to a
+    secondary parameter rather than silently reporting the switch as ON
+    (which is what the previous ``return str(v) != "OFF"`` did, and which
+    caused HA to flip switches the wrong way for some devices).
+    """
+    if v in (1, "1", "1.0", "ON", "On", "on", True, "TRUE", "True", "true"):
+        return True
+    if v in (0, "0", "0.0", "OFF", "Off", "off", False, "FALSE", "False", "false"):
+        return False
+    try:
+        intval = int(float(str(v).strip()))
+        if intval == 1:
+            return True
+        if intval == 0:
+            return False
+    except (ValueError, TypeError):
+        pass
+    return None
 
 
 class WebBoilerPowerSwitch(SwitchEntity):
-    """Representation of a boiler Power Switch."""
-
     def __init__(self, hass: HomeAssistant, device) -> None:
-        """Initialize the Boiler Power Switch."""
         self.hass = hass
-        self.web_boiler_client = hass.data[DOMAIN][device.username][WEB_BOILER_CLIENT]
-        self.web_boiler_system = hass.data[DOMAIN][device.username][WEB_BOILER_SYSTEM]
+        self.web_boiler_client = device["__client"]
+        self.web_boiler_system = device["__system"]
         self._device = device
-        self._product = device["product"]
-        self._name = format_name(hass, device, f"{self._product} Boiler Switch")
+        self._name = format_name(hass, device, f"{device['product']} Boiler Switch")
         self._unique_id = device["serial"]
-        self._state = None
-        self._error_message = ""
-        self._param = device.get_parameter("B_STATE")
+        self._param_cmd = device.get_parameter("B_CMD")
+        self._param_state = device.get_parameter("B_STATE")
 
-    def __del__(self):
-        self._param.set_update_callback(None, "switch")
+    async def async_will_remove_from_hass(self) -> None:
+        try:
+            if self._param_cmd:
+                self._param_cmd.set_update_callback(None, "switch")
+        except Exception:
+            pass
+        try:
+            if self._param_state:
+                self._param_state.set_update_callback(None, "switch")
+        except Exception:
+            pass
 
     async def async_added_to_hass(self):
-        """Subscribe to events."""
         self.async_schedule_update_ha_state(False)
-        self._param.set_update_callback(self.update_callback, "switch")
+        if self._param_cmd:
+            self._param_cmd.set_update_callback(self.update_callback, "switch")
+        if self._param_state:
+            self._param_state.set_update_callback(self.update_callback, "switch")
 
     @property
     def should_poll(self) -> bool:
-        """No polling needed for a power socket."""
         return False
 
-    async def update_callback(self, device):
-        """Call update for Home Assistant when the device is updated."""
+    async def update_callback(self, _device):
         self.async_write_ha_state()
 
     @property
-    def name(self):
-        """Return the name of the device."""
+    def name(self) -> str:
         return self._name
 
     @property
     def unique_id(self) -> str:
-        """Return a unique ID."""
         return self._unique_id
 
-    @property
-    def is_on(self):
-        """Return true if it is on."""
-        return self._param["value"] != "OFF"
+    def _current_cmd_on(self) -> bool | None:
+        if not self._param_cmd:
+            return None
+        try:
+            return _value_is_on(self._param_cmd["value"])
+        except Exception:
+            return None
+
+    def _current_state_on(self) -> bool | None:
+        try:
+            return _value_is_on(self._param_state["value"])
+        except Exception:
+            return None
 
     @property
-    def available(self):
-        """Return True if the device is available."""
-        return self.web_boiler_client.is_websocket_connected()
-
-    def error(self):
-        """Return the error message."""
-        return self._error_message
+    def is_on(self) -> bool | None:
+        cmd_val = self._current_cmd_on()
+        if cmd_val is not None:
+            return cmd_val
+        return self._current_state_on()
 
     @property
-    def device_state_attributes(self):
-        """Return the state attributes of the power switch."""
+    def available(self) -> bool:
+        return self.web_boiler_client.has_fresh_data()
+
+    def _compute_last_updated_str(self) -> str:
         tzinfo = dt_util.get_time_zone(self.hass.config.time_zone)
-        last_updated_dt = datetime.fromtimestamp(int(self._param["timestamp"]))
-        last_updated = last_updated_dt.astimezone(tzinfo).strftime("%d.%m.%Y %H:%M:%S")
-        attributes = {}
-        attributes["Last updated"] = last_updated
-        return attributes
-
-    def turn_on(self, **kwargs):
-        asyncio.run_coroutine_threadsafe(
-            self.web_boiler_client.turn(self._device["serial"], True), self.hass.loop
-        )
-
-    def turn_off(self, **kwargs):
-        asyncio.run_coroutine_threadsafe(
-            self.web_boiler_client.turn(self._device["serial"], False), self.hass.loop
-        )
+        for param in (self._param_cmd, self._param_state):
+            if not param:
+                continue
+            try:
+                raw_ts = param.get("timestamp") if hasattr(param, "get") else param["timestamp"]
+                return (
+                    datetime.datetime.fromtimestamp(int(raw_ts), tz=datetime.timezone.utc)
+                    .astimezone(tzinfo)
+                    .strftime("%d.%m.%Y %H:%M:%S")
+                )
+            except Exception:
+                continue
+        return "?"
 
     @property
-    def device_info(self):
+    def extra_state_attributes(self) -> dict[str, Any]:
+        attrs: dict[str, Any] = {"Last updated": self._compute_last_updated_str()}
+        try:
+            attrs["Command Active (B_CMD)"] = self._param_cmd["value"] if self._param_cmd else "N/A"
+        except Exception:
+            attrs["Command Active (B_CMD)"] = "N/A"
+        try:
+            attrs["Boiler State (B_STATE)"] = self._param_state["value"] if self._param_state else "N/A"
+        except Exception:
+            attrs["Boiler State (B_STATE)"] = "N/A"
+        return attrs
+
+    async def _async_turn_and_refresh(self, power_on: bool) -> None:
+        if not await self.web_boiler_client.turn(self._device["serial"], power_on):
+            raise HomeAssistantError("Failed to send the boiler power command")
+        refreshed = await self.web_boiler_client.refresh()
+        if not refreshed:
+            raise HomeAssistantError(
+                "The boiler command was sent, but the integration could not refresh the latest state"
+            )
+        await self.web_boiler_client.data.notify_all_updated()
+
+    async def async_turn_on(self, **kwargs) -> None:
+        await self._async_turn_and_refresh(True)
+
+    async def async_turn_off(self, **kwargs) -> None:
+        await self._async_turn_and_refresh(False)
+
+    @property
+    def device_info(self) -> dict[str, Any]:
         return create_device_info(self._device)

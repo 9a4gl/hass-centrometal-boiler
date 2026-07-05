@@ -1,5 +1,15 @@
 {
-    "name": "Centrometal Boiler System",
-    "render_readme": true,
-    "homeassistant": "2024.11.2"
+  "name": "Centrometal Boiler System",
+  "content_in_root": false,
+  "homeassistant": "2024.11.0",
+  "country": [
+    "HR",
+    "RO",
+    "BA",
+    "RS",
+    "SI",
+    "HU",
+    "AT",
+    "DE"
+  ]
 }

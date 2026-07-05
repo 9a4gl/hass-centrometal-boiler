@@ -7,8 +7,7 @@ from .WebBoilerGenericSensor import WebBoilerGenericSensor
 class WebBoilerConfigurationSensor(WebBoilerGenericSensor):
     @property
     def native_value(self):
-        """Return the value of the sensor."""
-        if self.device["type"] in ["peltec", "compact"]:
+        if self.device["type"] in ("peltec", "peltec2"):
             configurations = [
                 "1. DHW",
                 "2. DHC",
@@ -27,21 +26,25 @@ class WebBoilerConfigurationSensor(WebBoilerGenericSensor):
                 "15. CRO -- DHW",
             ]
             try:
-                return configurations[int(self.parameter["value"])]
+                idx = int(self.parameter["value"])
+                if 0 <= idx < len(configurations):
+                    return configurations[idx]
             except Exception:
                 pass
         return self.parameter["value"]
 
     @staticmethod
     def create_entities(hass: HomeAssistant, device) -> list[SensorEntity]:
-        """Create entities."""
-        entities = []
-        entities.append(
-            WebBoilerConfigurationSensor(
-                hass,
-                device,
-                [None, "mdi:state-machine", None, "Configuration"],
-                device.get_parameter("B_KONF"),
-            )
-        )
+        entities: list[SensorEntity] = []
+        if WebBoilerGenericSensor._device_has_parameter(device, "B_KONF"):
+            parameter = device.get_parameter("B_KONF")
+            if not parameter.get("used"):
+                entities.append(
+                    WebBoilerConfigurationSensor(
+                        hass,
+                        device,
+                        [None, "mdi:state-machine", None, "Configuration"],
+                        parameter,
+                    )
+                )
         return entities
