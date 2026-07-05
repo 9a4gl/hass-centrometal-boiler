@@ -4,19 +4,30 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   python:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v5
+
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.13"
-      - name: Install validation tools
-        run: python -m pip install --upgrade pip pytest ruff
+          python-version: "3.14"
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install homeassistant aiohttp pytest pytest-asyncio ruff "websockets>=13.1" "certifi>=2024.7.4" voluptuous
+
       - name: Compile Python files
         run: python -m compileall custom_components tests
+
       - name: Ruff critical checks
         run: ruff check .
+
       - name: Run tests
-        run: pytest
+        run: pytest -q
