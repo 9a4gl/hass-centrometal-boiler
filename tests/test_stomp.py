@@ -25,13 +25,7 @@ def test_heartbeat_frame_is_recognized() -> None:
 
 
 def test_single_complete_frame_is_parsed() -> None:
-    payload = (
-        "MESSAGE\n"
-        "subscription:sub-1\n"
-        "destination:/topic/cm.inst.peltec.SN123\n"
-        "\n"
-        '{"B_TI":42}\x00'
-    )
+    payload = 'MESSAGE\nsubscription:sub-1\ndestination:/topic/cm.inst.peltec.SN123\n\n{"B_TI":42}\x00'
     frames, remainder = stomp.extract_complete_frames(payload, "")
     assert remainder == ""
     assert len(frames) == 1

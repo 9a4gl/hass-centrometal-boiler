@@ -12,7 +12,7 @@ def test_manifest_has_required_custom_integration_keys() -> None:
         assert key in manifest
 
     assert manifest["domain"] == "centrometal_boiler"
-    assert manifest["version"] == "0.1.0.1"
+    assert manifest["version"] == "0.2.0.11"
 
 
 def test_hacs_metadata_exists() -> None:
@@ -20,6 +20,7 @@ def test_hacs_metadata_exists() -> None:
 
     assert hacs["name"] == "Centrometal Boiler System"
     assert hacs["content_in_root"] is False
+
 
 def test_hacs_metadata_uses_supported_keys_only() -> None:
     hacs = json.loads((ROOT / "hacs.json").read_text())

@@ -23,6 +23,7 @@ def create_device_info(device) -> DeviceInfo:
         manufacturer="Centrometal",
         model=model,
         sw_version=firmware_ver,
+        configuration_url="https://www.web-boiler.com",
     )
 
 

@@ -27,10 +27,7 @@ class HttpHelper:
         # Kept under the legacy camelCase name to preserve the public API.
         if 0 <= index < self.get_device_count():
             return self.client.installations[index]
-        raise IndexError(
-            f"HttpHelper.getDevice: invalid index {index} "
-            f"(have {self.get_device_count()} device(s))"
-        )
+        raise IndexError(f"HttpHelper.getDevice: invalid index {index} (have {self.get_device_count()} device(s))")
 
     def get_device_by_id(self, id: str | int) -> dict[str, Any]:
         target = str(id)

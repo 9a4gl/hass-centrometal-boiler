@@ -7,16 +7,32 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD, CONF_PREFIX
+from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 from .centrometal_web_boiler import HttpClientAuthError, HttpClientConnectionError, WebBoilerClient
-from .const import DOMAIN
+from .const import (
+    CONF_REFRESH_INTERVAL,
+    CONF_RETRY_BASE_INTERVAL,
+    CONF_RETRY_MAX_INTERVAL,
+    DEFAULT_REFRESH_INTERVAL,
+    DEFAULT_RETRY_BASE_INTERVAL,
+    DEFAULT_RETRY_MAX_INTERVAL,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class CentrometalBoilerConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> CentrometalBoilerOptionsFlowHandler:
+        return CentrometalBoilerOptionsFlowHandler()
 
     def _schema(self, *, email_default: str = "", prefix_default: str = "") -> vol.Schema:
         return vol.Schema(
@@ -152,6 +168,55 @@ class CentrometalBoilerConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAI
             },
             reload_even_if_entry_is_unchanged=True,
         )
+
+
+class CentrometalBoilerOptionsFlowHandler(config_entries.OptionsFlow):
+    async def async_step_init(self, user_input: dict | None = None):
+        if user_input is not None:
+            return self.async_create_entry(data=user_input)
+
+        options = self.config_entry.options
+        schema = vol.Schema(
+            {
+                vol.Optional(
+                    CONF_REFRESH_INTERVAL,
+                    default=options.get(CONF_REFRESH_INTERVAL, DEFAULT_REFRESH_INTERVAL),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=30,
+                        max=3600,
+                        step=10,
+                        mode=selector.NumberSelectorMode.BOX,
+                        unit_of_measurement="s",
+                    )
+                ),
+                vol.Optional(
+                    CONF_RETRY_BASE_INTERVAL,
+                    default=options.get(CONF_RETRY_BASE_INTERVAL, DEFAULT_RETRY_BASE_INTERVAL),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=15,
+                        max=600,
+                        step=5,
+                        mode=selector.NumberSelectorMode.BOX,
+                        unit_of_measurement="s",
+                    )
+                ),
+                vol.Optional(
+                    CONF_RETRY_MAX_INTERVAL,
+                    default=options.get(CONF_RETRY_MAX_INTERVAL, DEFAULT_RETRY_MAX_INTERVAL),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=60,
+                        max=86400,
+                        step=30,
+                        mode=selector.NumberSelectorMode.BOX,
+                        unit_of_measurement="s",
+                    )
+                ),
+            }
+        )
+        return self.async_show_form(step_id="init", data_schema=schema)
 
 
 class CannotConnect(Exception):

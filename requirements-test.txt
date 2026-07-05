@@ -1,4 +1,0 @@
-aiohttp
-websockets
-pytest
-pytest-asyncio

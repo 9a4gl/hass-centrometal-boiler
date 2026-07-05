@@ -24,8 +24,9 @@ import time
 from json import JSONDecodeError
 from typing import Any, Awaitable, Callable, TypedDict
 
-from .const import WEB_BOILER_STOMP_DEVICE_TOPIC, WEB_BOILER_STOMP_NOTIFICATION_TOPIC
+from .const import WEB_BOILER_STOMP_DEVICE_TOPIC
 from .logging_utils import redact_account
+from .parameter_filters import is_ignored_peltec2_parameter
 
 
 class DeviceLookupError(LookupError):
@@ -55,10 +56,8 @@ class WebBoilerDeviceFields(TypedDict, total=False):
     city: str
     parameters: dict[str, "WebBoilerParameter"]
     temperatures: dict[str, Any]
-    info: dict[str, Any]
-    weather: dict[str, Any]
+    errors: list[dict[str, Any]]
     circuits: dict[str, Any]
-    widgets: dict[str, Any]
 
 
 def _normalize_timestamp(timestamp: Any) -> int:
@@ -107,17 +106,13 @@ def _decode_json_body(body: str) -> dict[str, Any]:
 
     remainder = cleaned[end:].strip()
     if remainder:
-        logging.getLogger(__name__).debug(
-            "Ignoring trailing realtime payload data after JSON body: %r", remainder
-        )
+        logging.getLogger(__name__).debug("Ignoring trailing realtime payload data after JSON body: %r", remainder)
     if not isinstance(data, dict):
         raise ValueError("Realtime payload must decode to a JSON object")
     return data
 
 
-def _salvage_json_prefix(
-    cleaned: str, original_err: JSONDecodeError
-) -> dict[str, Any] | None:
+def _salvage_json_prefix(cleaned: str, original_err: JSONDecodeError) -> dict[str, Any] | None:
     """Try to recover a valid JSON object from the prefix of a corrupted body.
 
     When two STOMP frames are merged (the ``\\x00`` terminator between them is
@@ -140,8 +135,7 @@ def _salvage_json_prefix(
         if not isinstance(obj, dict) or len(obj) < 2:
             continue
         logger.info(
-            "Salvaged %d key(s) from corrupted realtime payload "
-            "(corruption at char %d, truncated at char %d)",
+            "Salvaged %d key(s) from corrupted realtime payload (corruption at char %d, truncated at char %d)",
             len(obj),
             pos,
             cut,
@@ -185,10 +179,8 @@ class WebBoilerDevice(dict):
         self.log_account = redact_account(username)
         self["parameters"] = {}
         self["temperatures"] = {}
-        self["info"] = {}
-        self["weather"] = {}
+        self["errors"] = None
         self["circuits"] = {}
-        self["widgets"] = {}
 
     def has_parameter(self, name: str) -> bool:
         return name in self["parameters"]
@@ -215,15 +207,7 @@ class WebBoilerDevice(dict):
             return self.create_parameter(name)
         return self["parameters"][name]
 
-    def get_widget_by_template(self, template: str) -> dict[str, Any] | None:
-        for widget in self["widgets"].values():
-            if widget["template"] == template:
-                return widget
-        return None
-
-    async def update_parameter(
-        self, name: str, value: Any, timestamp: Any = None
-    ) -> WebBoilerParameter:
+    async def update_parameter(self, name: str, value: Any, timestamp: Any = None) -> WebBoilerParameter:
         normalized_timestamp = _normalize_timestamp(timestamp)
         parameter = self.get_or_create_parameter(name)
         await parameter.update(name, value, normalized_timestamp)
@@ -289,9 +273,7 @@ class WebBoilerDeviceCollection(dict):
             new_device["product"] = device["product"]
             self[serial] = new_device
 
-    async def parse_installation_statuses(
-        self, installation_status_all: dict[str, Any]
-    ) -> None:
+    async def parse_installation_statuses(self, installation_status_all: dict[str, Any]) -> None:
         for device_id, value in installation_status_all.items():
             device = self.get_device_by_id(device_id)
             for group, data in value.items():
@@ -300,9 +282,9 @@ class WebBoilerDeviceCollection(dict):
                     device["countryCode"] = data["countryCode"]
                 elif group == "params":
                     for param_id, param_data in data.items():
-                        parameter = await device.update_parameter(
-                            param_id, param_data.get("v"), param_data.get("ut")
-                        )
+                        if device.get("type") == "peltec2" and is_ignored_peltec2_parameter(param_id):
+                            continue
+                        parameter = await device.update_parameter(param_id, param_data.get("v"), param_data.get("ut"))
                         # Without this, an HTTP refresh updated the cache
                         # but HA entities did not re-render until the next
                         # websocket message arrived. Fire the same callback
@@ -316,7 +298,8 @@ class WebBoilerDeviceCollection(dict):
                         self.log_account,
                     )
 
-    def parse_parameter_lists(self, parameter_list: dict[str, Any]) -> None:
+    def parse_parameter_lists(self, parameter_list: dict[str, Any]) -> list[WebBoilerParameter]:
+        updated_metadata: list[WebBoilerParameter] = []
         for serial, device_data in parameter_list.items():
             device = self.get_device_by_serial(serial)
             for data_id, data_value in device_data.items():
@@ -330,13 +313,12 @@ class WebBoilerDeviceCollection(dict):
                                 index = list_item["dbindex"]
                                 device["temperatures"][index] = list_item
                         elif group == "Info":
-                            for list_item in data_value_item["list"]:
-                                index = list_item["installation_status"]
-                                device["info"][index] = list_item
+                            # Static portal display metadata is not used to
+                            # create entities; do not retain it.
+                            continue
                         elif group == "Weather forecast":
-                            for list_item in data_value_item["list"]:
-                                index = list_item["naslov"]
-                                device["weather"][index] = list_item
+                            # Weather is intentionally not stored or exposed.
+                            continue
                         elif group == "Heating circuits":
                             for list_item in data_value_item["list"]:
                                 index = list_item["naslov"]
@@ -353,21 +335,30 @@ class WebBoilerDeviceCollection(dict):
                         data_id,
                         self.log_account,
                     )
+        return updated_metadata
 
-    def parse_grid(self, http_client: Any) -> None:
-        http_client.grid = json.loads(http_client.widgetgrid["grid"])
-        if "widgets" in http_client.grid:
-            for widget in http_client.grid["widgets"]:
-                device = self.get_device_by_id(widget["data"]["installation"])
-                device["widgets"][widget["id"]] = widget
-        if "widgets2" in http_client.grid:
-            for widget in http_client.grid["widgets2"]:
-                device = self.get_device_by_id(widget["data"]["installation"])
-                device["widgets"][widget["id"]] = widget
+    def parse_errors_lists(self, errors_lists: dict[str, Any]) -> list[WebBoilerParameter]:
+        updated_metadata: list[WebBoilerParameter] = []
+        for device_id, payload in errors_lists.items():
+            device = self.get_device_by_id(device_id)
+            columns = [col.get("id") for col in payload.get("cols", [])]
+            events: list[dict[str, Any]] = []
+            for row in payload.get("rows", []):
+                if isinstance(row, list):
+                    events.append({columns[i]: row[i] for i in range(min(len(columns), len(row)))})
+            device["errors"] = events
+            parameter = device.get_or_create_parameter("Errors_History")
+            parameter["name"] = "Errors_History"
+            if events:
+                latest = events[-1]
+                parameter["value"] = latest.get("description") or latest.get("received_parameter") or "Event"
+            else:
+                parameter["value"] = "No events"
+            parameter["timestamp"] = int(time.time())
+            updated_metadata.append(parameter)
+        return updated_metadata
 
-    async def _update_device_with_real_time_data(
-        self, device: WebBoilerDevice, body: str
-    ) -> None:
+    async def _update_device_with_real_time_data(self, device: WebBoilerDevice, body: str) -> None:
         try:
             data = _decode_json_body(body)
         except (JSONDecodeError, ValueError) as err:
@@ -380,10 +371,11 @@ class WebBoilerDeviceCollection(dict):
             )
             return
         for param_id, value in data.items():
-            if device.has_parameter(param_id):
-                parameter = await device.update_parameter(param_id, value)
-                for on_update_callback in list(self.on_update_callbacks.values()):
-                    await on_update_callback(device, parameter)
+            if device.get("type") == "peltec2" and is_ignored_peltec2_parameter(param_id):
+                continue
+            parameter = await device.update_parameter(param_id, value)
+            for on_update_callback in list(self.on_update_callbacks.values()):
+                await on_update_callback(device, parameter)
 
     async def parse_real_time_frame(self, stomp_frame: dict[str, Any]) -> None:
         if "headers" not in stomp_frame or "body" not in stomp_frame:
@@ -397,31 +389,23 @@ class WebBoilerDeviceCollection(dict):
         subscription = headers["subscription"]
         destination = headers["destination"]
 
-        if subscription.startswith("sub-"):
-            if destination.startswith(WEB_BOILER_STOMP_DEVICE_TOPIC):
-                dotpos = destination.rfind(".")
-                serial = destination[dotpos + 1 :]
-                try:
-                    device = self.get_device_by_serial(serial)
-                except DeviceLookupError:
-                    self.logger.warning(
-                        "Unexpected realtime message for unknown serial: %s (%s) - skipping",
-                        serial,
-                        self.log_account,
-                    )
-                    return
-                await self._update_device_with_real_time_data(device, body)
-            else:
+        if destination.startswith(WEB_BOILER_STOMP_DEVICE_TOPIC):
+            dotpos = destination.rfind(".")
+            serial = destination[dotpos + 1 :]
+            try:
+                device = self.get_device_by_serial(serial)
+            except DeviceLookupError:
                 self.logger.warning(
-                    "Unexpected message for destination: %s (%s) - skipping",
-                    destination,
+                    "Unexpected realtime message for unknown serial: %s (%s) - skipping",
+                    serial,
                     self.log_account,
                 )
-        elif subscription == WEB_BOILER_STOMP_NOTIFICATION_TOPIC:
-            self.logger.info("Notification received: %s (%s)", body, self.log_account)
+                return
+            await self._update_device_with_real_time_data(device, body)
         else:
             self.logger.warning(
-                "Unexpected message for subscription: %s (%s) - skipping",
+                "Unexpected message for destination: %s (subscription %s, %s) - skipping",
+                destination,
                 subscription,
                 self.log_account,
             )

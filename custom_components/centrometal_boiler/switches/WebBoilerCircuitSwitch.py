@@ -20,18 +20,18 @@ class WebBoilerCircuitSwitch(SwitchEntity):
         self._unique_id = f"{self._serial}_switch_{dbindex}"
         self._dbindex = dbindex
         self._table_key = f"table_{dbindex}_switch"
-        self._param_name_def   = f"PDEF_{dbindex}_0"
+        self._param_name_def = f"PDEF_{dbindex}_0"
         self._param_name_state = f"PVAL_{dbindex}_0"
-        self._param_name_off   = f"PMIN_{dbindex}_0"
-        self._param_name_on    = f"PMAX_{dbindex}_0"
-        self._param_def   = self._device.get_parameter(self._param_name_def)
+        self._param_name_off = f"PMIN_{dbindex}_0"
+        self._param_name_on = f"PMAX_{dbindex}_0"
+        self._param_def = self._device.get_parameter(self._param_name_def)
         self._param_state = self._device.get_parameter(self._param_name_state)
-        self._param_off   = self._device.get_parameter(self._param_name_off)
-        self._param_on    = self._device.get_parameter(self._param_name_on)
-        self._param_def["used"]   = True
+        self._param_off = self._device.get_parameter(self._param_name_off)
+        self._param_on = self._device.get_parameter(self._param_name_on)
+        self._param_def["used"] = True
         self._param_state["used"] = True
-        self._param_off["used"]   = True
-        self._param_on["used"]    = True
+        self._param_off["used"] = True
+        self._param_on["used"] = True
 
     async def async_will_remove_from_hass(self) -> None:
         try:
@@ -152,7 +152,9 @@ class WebBoilerCircuitSwitch(SwitchEntity):
             raise HomeAssistantError("Failed to send the heating circuit command")
         refreshed = await self.web_boiler_client.refresh()
         if not refreshed:
-            raise HomeAssistantError("The heating circuit command was sent, but the integration could not refresh the latest state")
+            raise HomeAssistantError(
+                "The heating circuit command was sent, but the integration could not refresh the latest state"
+            )
         await self.web_boiler_client.data.notify_all_updated()
 
     async def async_turn_on(self, **kwargs) -> None:

@@ -39,5 +39,22 @@
         "name": "Cloud connection"
       }
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "description": "Tune how often the integration polls Centrometal and how it backs off after a connection problem. Defaults match previous releases.",
+        "data": {
+          "refresh_interval": "Refresh interval",
+          "retry_base_interval": "Initial retry interval",
+          "retry_max_interval": "Maximum retry interval"
+        },
+        "data_description": {
+          "refresh_interval": "How often to refresh boiler state over HTTP while connected.",
+          "retry_base_interval": "Delay before the first relogin attempt after a disconnect. Doubles after each further failure.",
+          "retry_max_interval": "The relogin delay never grows past this, no matter how long the outage lasts."
+        }
+      }
+    }
   }
 }

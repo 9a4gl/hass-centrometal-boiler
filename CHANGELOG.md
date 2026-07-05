@@ -1,109 +1,43 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## 0.2.0.11 — controller targets, requests, recirculation, and Wi-Fi RSSI correction
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+- Added K1 heating-circuit enabled state, pump demand, flow target temperature, and room target temperature while preserving the existing measured-temperature and pump entities.
+- Kept target temperatures out of long-term measurement statistics because they are setpoints rather than measured values.
+- Added DHW priority, conditional buffer-tank heat request, DHW recirculation enabled, and DHW recirculation pump states only for controller configurations containing the corresponding DHW or buffer component.
+- Corrected `CNT_0` to Boiler Work + Standby Time and `CNT_15` to Boiler Work Time; both runtime values use minutes.
+- Corrected Wi-Fi signal handling to match the controller display: the entity uses dB and portal value `0` is treated as the unavailable `---dB` sentinel. Nonzero readings become available automatically, without creating long-term RSSI statistics.
+- Preserved all existing unique IDs and left unverified mode, safety, valve-direction, and auxiliary-output parameters hidden.
 
-## [0.1.0.1] - 2026-04-26
+## 0.2.0.10 — restore Lambda and Wi-Fi readings
 
-### Security
+- Restored the v1-compatible Lambda behavior: finite controller values such as `0`, `25.4`, and `25.5` are displayed instead of forcing the entity unavailable.
+- Restored Wi-Fi signal to the portal percentage unit and preserved `0` as a valid reading.
+- Kept the Lambda placeholder entity so it still appears when the controller temporarily omits the parameter and recovers automatically when a value returns.
+- Added diagnostic attributes for Lambda measurement activity, boiler state, flame detection, raw values, and portal connection context without changing entity IDs.
+- Left all other 0.2.0.9 mappings and entities unchanged.
 
-- TLS handling now defaults to `auto`: the client first attempts normal
-  certificate verification, then falls back to an unverified retry only if the
-  Centrometal endpoint presents a certificate-chain error on that host. Set
-  `CENTROMETAL_VERIFY_SSL=1` for strict verification or
-  `CENTROMETAL_VERIFY_SSL=0` to skip the initial verified attempt.
+## 0.2.0.9 — documented PelTec II telemetry and resilient Lambda entity
 
-### Added
+- Added documented PelTec II operation stages `S3-1`, `S3-2`, and `S7` without changing existing stage values.
+- Added operation-stage group, description, raw-code, and modulation-level attributes.
+- Added descriptive attributes for `R`, `B`, `T`, `G`, and `F` temporary shutdown marks while preserving their existing entity states.
+- Exposed photocell resistance, fan speed, 4-way mixing-valve position, feeder-screw activity, turbulator-cleaner activity, and burner-grate position.
+- Kept the Lambda Probe entity present when the controller omits the value while not firing; it becomes available automatically when a valid reading returns.
+- Corrected the PelTec II display names for rated boiler power and DHW tank temperature, and added the kW unit to rated power.
+- Left uncertain safety, recirculation, auxiliary-output, and ambiguous counter mappings unchanged.
 
-- HTTP refresh now actively pulls `installation-status-all` after sending
-  REFRESH/RSTAT, and fires the parameter-update callback chain. Previously the
-  client only sent control commands and waited for the websocket to deliver
-  the new state — if the websocket lagged or dropped a frame, Home Assistant
-  kept showing stale values. Refresh is now self-sufficient.
-- Entity availability now follows fresh data, not raw websocket state. Each
-  entity's `available` property reads `WebBoilerClient.has_fresh_data()`,
-  which is `True` when the websocket is connected *or* an HTTP refresh has
-  succeeded in the last 5 minutes. Transient WS gaps no longer flap entities
-  in/out of unavailable, but a long-dead integration does eventually report
-  unavailable per HA's official guidance.
-- Tick loop keeps HTTP refresh running while the websocket reconnect loop is
-  still within tolerance (3 × `WEB_BOILER_LOGIN_RETRY_INTERVAL`). Forces a
-  full relogin only when the WS has been down longer than that.
-- Telemetry timestamps on `WebBoilerClient`: `last_successful_http_refresh`,
-  `last_websocket_message`, `disconnected_since`. Exposed via
-  `has_recent_http_refresh()` and `websocket_disconnected_for()`.
-- `_response_is_success()` parser for `turn` / `turn_circuit` responses.
-  Accepts `{"status": "success"|"ok"|"done"}`, `{"success": True}`,
-  `{"ok": True}`, the same shapes wrapped one level under `result` / `data`,
-  and bare `True`. Deliberately does not deep-walk arbitrary structures —
-  a buried success marker inside an explicit error response is still
-  treated as failure.
-- DHW / heating circuit switch attributes now expose `PVAL`, `PMIN`, `PMAX`
-  diagnostics. Lets users paste the live triplet straight into a bug
-  report when HA's switch state disagrees with the WebUI.
-- Power-switch value parser now recognises `"1.0"` / `"0.0"` and uses
-  `int(float(...))` for stringified-float values.
+## 0.2.0.8 — final PelTec II cleanup
 
-### Fixed
-
-- Power switch no longer silently reports ON for unknown values. The
-  parser returns `None` on values it doesn't recognise so the caller falls
-  back to a secondary parameter; the previous `return str(v) != "OFF"`
-  branch caused HA to flip switches the wrong way for some firmware
-  variants.
-- `aiohttp.ClientSession` is now created lazily on first use instead of in
-  `HttpClient.__init__`. Modern aiohttp requires a running event loop in
-  `ClientSession.__init__`, so the previous code only worked when
-  `HttpClient` was constructed from inside an async context. Direct
-  construction (tests, scripts, future synchronous callers) no longer
-  raises `RuntimeError: no running event loop`.
-- Websocket subscription IDs reset on each new connection. Previously they
-  grew unbounded across reconnects within a single `start()` call.
-- Heartbeat loop now wakes immediately on shutdown (waits on the stop
-  event with a 30 s timeout instead of a fixed `asyncio.sleep(30)`).
-- Heartbeat exceptions are logged at DEBUG with `exc_info=True` instead of
-  silently swallowed by `except Exception: return`.
-- `WebBoilerClient.turn` and `turn_circuit` now propagate
-  `HttpClientAuthError` to the orchestrator instead of swallowing it. Auth
-  errors during a control command now correctly trigger the existing
-  relogin path; previously they returned `False` and the session stayed
-  broken until the next refresh tick.
-- `HttpClient.get_installations` no longer overwrites `self.installations`
-  twice in succession (`self.installations = ...; self.installations =
-  self.installations["installations"]`).
-- `HttpClient` instance attributes (`installations`, `configuration`,
-  `widgetgrid`, `widgetgrid_list`, `installation_status_all`, `csrf_token`,
-  `grid`) are now declared in `__init__` with empty defaults instead of
-  springing into existence on first call.
-- Bare `Exception` raises replaced with specific built-in or domain types:
-  `IndexError` from `HttpHelper.getDevice`, `HttpHelperLookupError`
-  (`LookupError`) from helper lookups, `DeviceLookupError` (`LookupError`)
-  from `WebBoilerDeviceCollection` lookups.
-- `if name not in d.keys()` replaced with `if name not in d` throughout.
-
-### Changed
-
-- Dropped the `lxml` runtime dependency. The two pieces of HTML parsing
-  the client actually needs (CSRF token extraction, post-login loading-div
-  detection) are now done with the standard library `html.parser`.
-  Removes a heavy C-extension and the install friction it caused on
-  ARM-based Home Assistant hosts.
-- Type hints applied uniformly across `HttpClient`, `HttpHelper`,
-  `WebBoilerDeviceCollection`. Previously incorrect annotations corrected
-  (e.g. `refresh_device(...) -> None` actually returned a dict).
-- `TypedDict` schemas (`WebBoilerDeviceFields`, `WebBoilerParameterFields`)
-  added to document the device / parameter dict shape for static analysis
-  and IDE autocomplete. Runtime dict semantics unchanged so the
-  sensor and switch consumers continue to work without edits.
-
-### Tests
-
-- Added 31 new unit tests across five files covering the previously
-  untested critical paths: STOMP frame extraction, JSON salvage logic,
-  HTML parser replacements, the new command-response success parser, and
-  the entity-availability signal. **34 tests total, all passing.**
-
-## [0.1.0.0] - 2026-04-26
-
-- DHW switch fix.
+- Rebuilt PelTec II entity creation around a strict portal-confirmed allowlist.
+- Removed raw, hidden, duplicated, and unverified PelTec II fallback entities.
+- Removed weather, schedule, and notification entities and their loading paths.
+- Discarded PelTec II schedule values during HTTP and WebSocket ingestion.
+- Discarded portal weather groups during parameter-list parsing.
+- Added automatic removal of obsolete sensor registry entries from earlier builds.
+- Corrected internet-access, Wi-Fi dB, status-mark, transition-state, fuel-level, lambda, and temperature decoding.
+- Decoded the external-start input from the controller bitmask without exposing the raw input value.
+- Corrected pump, heater, demand, configuration, and active-file names.
+- Kept invalid portal sentinel values unavailable instead of presenting them as measurements.
+- Retained decoded portal error history and confirmed editable settings.
+- Added portal-capture regression tests and Home Assistant runtime smoke validation.

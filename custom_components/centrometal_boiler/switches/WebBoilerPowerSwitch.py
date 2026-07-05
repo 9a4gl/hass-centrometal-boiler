@@ -40,7 +40,7 @@ class WebBoilerPowerSwitch(SwitchEntity):
         self._device = device
         self._name = format_name(hass, device, f"{device['product']} Boiler Switch")
         self._unique_id = device["serial"]
-        self._param_cmd   = device.get_parameter("B_CMD")
+        self._param_cmd = device.get_parameter("B_CMD")
         self._param_state = device.get_parameter("B_STATE")
 
     async def async_will_remove_from_hass(self) -> None:
@@ -109,7 +109,11 @@ class WebBoilerPowerSwitch(SwitchEntity):
                 continue
             try:
                 raw_ts = param.get("timestamp") if hasattr(param, "get") else param["timestamp"]
-                return datetime.datetime.fromtimestamp(int(raw_ts), tz=datetime.timezone.utc).astimezone(tzinfo).strftime("%d.%m.%Y %H:%M:%S")
+                return (
+                    datetime.datetime.fromtimestamp(int(raw_ts), tz=datetime.timezone.utc)
+                    .astimezone(tzinfo)
+                    .strftime("%d.%m.%Y %H:%M:%S")
+                )
             except Exception:
                 continue
         return "?"
@@ -132,7 +136,9 @@ class WebBoilerPowerSwitch(SwitchEntity):
             raise HomeAssistantError("Failed to send the boiler power command")
         refreshed = await self.web_boiler_client.refresh()
         if not refreshed:
-            raise HomeAssistantError("The boiler command was sent, but the integration could not refresh the latest state")
+            raise HomeAssistantError(
+                "The boiler command was sent, but the integration could not refresh the latest state"
+            )
         await self.web_boiler_client.data.notify_all_updated()
 
     async def async_turn_on(self, **kwargs) -> None:

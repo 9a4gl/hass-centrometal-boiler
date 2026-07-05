@@ -39,11 +39,7 @@ def test_csrf_token_returns_none_when_missing() -> None:
 
 
 def test_login_succeeded_detects_loading_div() -> None:
-    html_text = (
-        "<html><body>"
-        '<div id="id-loading-screen-blackout"></div>'
-        "</body></html>"
-    )
+    html_text = '<html><body><div id="id-loading-screen-blackout"></div></body></html>'
     assert _login_succeeded(html_text) is True
 
 

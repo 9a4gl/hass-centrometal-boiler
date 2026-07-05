@@ -12,13 +12,13 @@ CM_PELET_SET_SENSOR_TEMPERATURES = {
         UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
         SensorDeviceClass.TEMPERATURE,
-        "Buffer Tank Up",
+        "Buffer Tank Temperature (Upper)",
     ],
     "B_Tak2": [
         UnitOfTemperature.CELSIUS,
         "mdi:thermometer",
         SensorDeviceClass.TEMPERATURE,
-        "Buffer Tank Down",
+        "Buffer Tank Temperature (Lower)",
     ],
     "B_Tva1": [
         UnitOfTemperature.CELSIUS,

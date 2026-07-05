@@ -70,6 +70,7 @@ class WebBoilerClient:
         # Telemetry timestamps used by the entity-availability calculation
         # and by the orchestrator's tick(). All are monotonic seconds.
         self.last_successful_http_refresh: float | None = None
+        self.last_metadata_refresh: float | None = None
         self.last_websocket_message: float | None = None
         self.disconnected_since: float | None = time.monotonic()
 
@@ -89,19 +90,35 @@ class WebBoilerClient:
             self.logger.warning("WebBoilerClient - there is no installed device (%s)", self.log_account)
             return False
         self.data.parse_installations(self.http_client.installations)
-        await asyncio.gather(self.http_client.get_configuration(), self.http_client.get_widgetgrid_list())
         tasks = [
-            self.http_client.get_widgetgrid(self.http_client.widgetgrid_list["selected"]),
             self.http_client.get_installation_status_all(self.http_helper.get_all_devices_ids()),
-            self.http_client.get_notifications(),
         ]
         for serial in self.http_helper.get_all_devices_serials():
             tasks.append(self.http_client.get_parameter_list(serial))
         await asyncio.gather(*tasks)
         await self.data.parse_installation_statuses(self.http_client.installation_status_all)
         self.data.parse_parameter_lists(self.http_client.parameter_list)
-        self.data.parse_grid(self.http_client)
-        self.last_successful_http_refresh = time.monotonic()
+
+        # Event history is useful metadata, not a prerequisite for loading
+        # the boiler. Older accounts/firmware may reject this endpoint, so a
+        # failure here must not prevent the integration from starting.
+        try:
+            await asyncio.gather(
+                *(self.http_client.get_errors_list(id_) for id_ in self.http_helper.get_all_devices_ids())
+            )
+            self.data.parse_errors_lists(self.http_client.errors_list)
+        except HttpClientAuthError:
+            raise
+        except HttpClientConnectionError as err:
+            self.logger.warning(
+                "Could not load Centrometal event history: %s (%s)",
+                err,
+                self.log_account,
+            )
+
+        now = time.monotonic()
+        self.last_successful_http_refresh = now
+        self.last_metadata_refresh = now
         return True
 
     async def close_websocket(self) -> bool:
@@ -111,7 +128,8 @@ class WebBoilerClient:
         except Exception as e:
             self.logger.error(
                 "WebBoilerClient::close_websocket failed %s (%s)",
-                str(e), getattr(self, "log_account", "account-unknown"),
+                str(e),
+                getattr(self, "log_account", "account-unknown"),
             )
             return False
 
@@ -146,7 +164,44 @@ class WebBoilerClient:
                 await asyncio.sleep(delay)
             statuses = await self.http_client.get_installation_status_all(ids)
             await self.data.parse_installation_statuses(statuses)
-            self.last_successful_http_refresh = time.monotonic()
+            metadata_parameters = []
+            now = time.monotonic()
+
+            # Event history is supplemental. A temporary failure of this
+            # endpoint must not invalidate a successful boiler-state refresh.
+            try:
+                await asyncio.gather(*(self.http_client.get_errors_list(id_) for id_ in ids))
+                metadata_parameters.extend(self.data.parse_errors_lists(self.http_client.errors_list))
+            except HttpClientAuthError:
+                raise
+            except HttpClientConnectionError as err:
+                self.logger.warning(
+                    "Could not refresh Centrometal event history: %s (%s)",
+                    err,
+                    self.log_account,
+                )
+
+            # Editable-setting and circuit metadata come from parameter-list
+            # and are refreshed hourly. Non-entity groups are discarded.
+            if self.last_metadata_refresh is None or now - self.last_metadata_refresh >= 3600:
+                try:
+                    serials = self.http_helper.get_all_devices_serials()
+                    await asyncio.gather(*(self.http_client.get_parameter_list(serial) for serial in serials))
+                    metadata_parameters.extend(self.data.parse_parameter_lists(self.http_client.parameter_list))
+                    self.last_metadata_refresh = now
+                except HttpClientAuthError:
+                    raise
+                except HttpClientConnectionError as err:
+                    self.logger.warning(
+                        "Could not refresh Centrometal metadata: %s (%s)",
+                        err,
+                        self.log_account,
+                    )
+
+            for parameter in metadata_parameters:
+                await parameter.notify_updated()
+
+            self.last_successful_http_refresh = now
             return True
         except HttpClientAuthError:
             raise
@@ -156,9 +211,7 @@ class WebBoilerClient:
         except Exception:
             # Last-resort guard — log with traceback so we can diagnose, but
             # do not let a stray bug in parsing kill the orchestrator tick.
-            self.logger.exception(
-                "WebBoilerClient::refresh unexpected failure (%s)", self.log_account
-            )
+            self.logger.exception("WebBoilerClient::refresh unexpected failure (%s)", self.log_account)
             return False
 
     async def _notify_connectivity(self):
@@ -171,7 +224,6 @@ class WebBoilerClient:
         self.disconnected_since = None
         self.last_websocket_message = time.monotonic()
         await self._notify_connectivity()
-        await self.ws_client.subscribe_to_notifications(ws)
         for serial in self.http_helper.get_all_devices_serials():
             device = self.data.get_device_by_serial(serial)
             await self.ws_client.subscribe_to_installation(ws, device)
@@ -190,7 +242,9 @@ class WebBoilerClient:
         self.logger.log(
             log_level,
             "WebBoilerClient - disconnected close_status_code:%s close_msg:%s (%s)",
-            close_status_code, close_msg, self.log_account,
+            close_status_code,
+            close_msg,
+            self.log_account,
         )
 
     async def ws_error_callback(self, ws, err):
@@ -242,7 +296,9 @@ class WebBoilerClient:
         except LookupError as err:
             self.logger.error(
                 "WebBoilerClient::turn unknown serial %s: %s (%s)",
-                serial, err, self.log_account,
+                serial,
+                err,
+                self.log_account,
             )
             return False
         try:
@@ -254,9 +310,7 @@ class WebBoilerClient:
             return False
         ok = _response_is_success(response)
         if not ok:
-            self.logger.warning(
-                "WebBoilerClient::turn rejected response %s (%s)", response, self.log_account
-            )
+            self.logger.warning("WebBoilerClient::turn rejected response %s (%s)", response, self.log_account)
         return ok
 
     async def turn_circuit(self, serial, circuit, on):
@@ -265,7 +319,9 @@ class WebBoilerClient:
         except LookupError as err:
             self.logger.error(
                 "WebBoilerClient::turn_circuit unknown serial %s: %s (%s)",
-                serial, err, self.log_account,
+                serial,
+                err,
+                self.log_account,
             )
             return False
         try:
@@ -273,15 +329,14 @@ class WebBoilerClient:
         except HttpClientAuthError:
             raise
         except HttpClientConnectionError as e:
-            self.logger.warning(
-                "WebBoilerClient::turn_circuit failed: %s (%s)", e, self.log_account
-            )
+            self.logger.warning("WebBoilerClient::turn_circuit failed: %s (%s)", e, self.log_account)
             return False
         ok = _response_is_success(response)
         if not ok:
             self.logger.warning(
                 "WebBoilerClient::turn_circuit rejected response %s (%s)",
-                response, self.log_account,
+                response,
+                self.log_account,
             )
         return ok
 

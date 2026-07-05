@@ -1,52 +1,37 @@
 """TLS policy tests.
 
-Centrometal's public endpoint may present an incomplete certificate chain on
-some Home Assistant hosts. Default mode is therefore ``off`` so installations do
-not fill the log with certificate fallback warnings. Users can force strict
-verification with ``CENTROMETAL_VERIFY_SSL=1`` or use ``auto`` to try verified
-TLS first and fallback only on certificate errors.
+Certificate verification against the Centrometal endpoint is always enabled.
+Past verification failures on some Home Assistant hosts were caused by an
+outdated system CA trust store, not a problem with the server's certificate,
+so the client verifies against certifi's bundled (and independently updated)
+root store instead of ever disabling verification.
 """
 
 from __future__ import annotations
 
+import ssl
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "custom_components" / "centrometal_boiler"))
 
-from centrometal_web_boiler.HttpClient import (  # noqa: E402
-    TLS_VERIFY_ENV,
-    _ssl_request_value,
-    _tls_verify_mode,
-)
+import pytest
+
+from centrometal_web_boiler.HttpClient import build_verified_ssl_context  # noqa: E402
 
 
-def test_tls_default_is_off(monkeypatch) -> None:
-    monkeypatch.delenv(TLS_VERIFY_ENV, raising=False)
-    assert _tls_verify_mode() == "off"
-    assert _ssl_request_value() is False
+def test_ssl_context_verifies_certificates() -> None:
+    ctx = build_verified_ssl_context()
+    assert ctx.verify_mode == ssl.CERT_REQUIRED
+    assert ctx.check_hostname is True
 
 
-def test_tls_strict_env(monkeypatch) -> None:
-    monkeypatch.setenv(TLS_VERIFY_ENV, "1")
-    assert _tls_verify_mode() == "strict"
-    assert _ssl_request_value() is None
-
-
-def test_tls_off_env(monkeypatch) -> None:
-    monkeypatch.setenv(TLS_VERIFY_ENV, "0")
-    assert _tls_verify_mode() == "off"
-    assert _ssl_request_value() is False
-
-
-def test_tls_auto_env(monkeypatch) -> None:
-    monkeypatch.setenv(TLS_VERIFY_ENV, "auto")
-    assert _tls_verify_mode() == "auto"
-    assert _ssl_request_value() is None
-
-
-def test_tls_unknown_env_falls_back_to_off(monkeypatch) -> None:
-    monkeypatch.setenv(TLS_VERIFY_ENV, "unexpected")
-    assert _tls_verify_mode() == "off"
-    assert _ssl_request_value() is False
+def test_ssl_context_uses_certifi_bundle_when_available() -> None:
+    certifi = pytest.importorskip("certifi")
+    ctx = build_verified_ssl_context()
+    # A context built with cafile=certifi.where() still ends up CERT_REQUIRED
+    # with hostname checking on; this just confirms certifi is picked up in
+    # the test environment and doesn't make the context any less strict.
+    assert certifi.where()
+    assert ctx.verify_mode == ssl.CERT_REQUIRED

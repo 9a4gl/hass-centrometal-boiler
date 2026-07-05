@@ -2,13 +2,13 @@ from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import UnitOfTemperature
 
 GENERIC_SENSORS_COMMON = {
-    "B_CMD":     [None, "mdi:state-machine", None, "Command Active"],
-    "B_BRAND":   [None, "mdi:information",   None, "Brand"],
-    "B_INST":    [None, "mdi:information",   None, "Installation"],
-    "B_PRODNAME":[None, "mdi:information",   None, "Product Name"],
-    "B_VER":     [None, "mdi:information",   None, "Firmware Version"],
-    "B_sng":     [None, "mdi:information",   None, "Nominal Power"],
-    "B_WifiVER": [None, "mdi:wifi",           None, "Wifi Box Version"],
+    "B_CMD": [None, "mdi:state-machine", None, "Command Active"],
+    "B_BRAND": [None, "mdi:information", None, "Brand"],
+    "B_INST": [None, "mdi:information", None, "Installation"],
+    "B_PRODNAME": [None, "mdi:information", None, "Product Name"],
+    "B_VER": [None, "mdi:information", None, "Firmware Version"],
+    "B_sng": [None, "mdi:information", None, "Nominal Power"],
+    "B_WifiVER": [None, "mdi:wifi", None, "Wifi Box Version"],
 }
 
 

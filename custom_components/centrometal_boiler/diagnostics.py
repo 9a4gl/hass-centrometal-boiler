@@ -21,9 +21,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry) -> dict
     for index, (serial, device) in enumerate(data.items(), start=1):
         device_key = f"device_{index}_{_hash_identifier(str(serial))}"
         devices[device_key] = {
-            k: v
-            for k, v in device.items()
-            if k not in {"parameters", "widgets", "__client", "__system"}
+            k: v for k, v in device.items() if k not in {"parameters", "widgets", "__client", "__system"}
         }
         devices[device_key]["parameters"] = {
             name: {

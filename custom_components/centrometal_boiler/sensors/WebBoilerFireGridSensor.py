@@ -39,15 +39,47 @@ class WebBoilerFireGridSensor(WebBoilerGenericSensor):
         if value_max <= 0:
             return "0"
         pct = int(value_ind * 100 / value_max)
+        if pct == 0:
+            return "0"
         return f"+{pct}" if value_dir > 0 else f"-{pct}"
 
     @property
     def extra_state_attributes(self):
         base = super().extra_state_attributes or {}
         attrs = dict(base)
-        attrs["Ind"] = self.parameter["value"]
-        attrs["Max"] = self.param_max["value"]
-        attrs["Dir"] = self.param_dir["value"]
+        try:
+            value_ind = int(self.parameter["value"])
+            value_max = int(self.param_max["value"])
+            value_dir = int(self.param_dir["value"])
+            position = int(value_ind * 100 / value_max) if value_max > 0 else 0
+        except Exception:
+            value_ind = self.parameter.get("value")
+            value_max = self.param_max.get("value")
+            value_dir = self.param_dir.get("value")
+            position = None
+
+        if position is None:
+            direction = "Unknown"
+            grate_state = "Unknown"
+        elif position <= 0:
+            direction = "Stationary"
+            grate_state = "Closed - ready to operate"
+        elif position >= 100:
+            direction = "Stationary"
+            grate_state = "Open - cleaning"
+        elif isinstance(value_dir, int) and value_dir > 0:
+            direction = "Opening"
+            grate_state = "Opening"
+        else:
+            direction = "Closing"
+            grate_state = "Closing"
+
+        attrs["Position percentage"] = position
+        attrs["Direction"] = direction
+        attrs["Grate state"] = grate_state
+        attrs["Raw index"] = value_ind
+        attrs["Raw maximum"] = value_max
+        attrs["Raw direction"] = value_dir
         return attrs
 
     @staticmethod
@@ -64,9 +96,12 @@ class WebBoilerFireGridSensor(WebBoilerGenericSensor):
             return entities
         entities.append(
             WebBoilerFireGridSensor(
-                hass, device,
-                ["", "mdi:grid", None, "Fire Grid Position"],
-                param_ind, param_dir, param_max,
+                hass,
+                device,
+                ["", "mdi:grid", None, "Burner Grate Position"],
+                param_ind,
+                param_dir,
+                param_max,
             )
         )
         return entities

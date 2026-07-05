@@ -1,90 +1,60 @@
 # Centrometal Boiler System for Home Assistant
 
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://www.hacs.xyz/)
-![Version](https://img.shields.io/badge/version-0.1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-0.2.0.11-blue.svg)
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.11%2B-blue.svg)
 ![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)
 
 A Home Assistant custom integration for Centrometal Web Boiler cloud-connected heating systems using the CM WiFi-Box.
 
-The integration connects Home Assistant to the Centrometal Web Boiler service and exposes supported boilers as sensors, binary sensors, and switches for monitoring, dashboards, and automations.
+## PelTec II behavior in 0.2.0.11
 
-## Features
+PelTec II entities are created from a strict allowlist verified against an authenticated portal HTTP and WebSocket capture. Raw, hidden, duplicated, or unverified controller fields are not created as Home Assistant entities.
 
-- Setup from the Home Assistant UI
-- Cloud push updates over the Centrometal Web Boiler websocket endpoint
-- Multi-device support for accounts with more than one boiler
-- Sensors for boiler state, temperatures, counters, configuration, firmware, heating circuits, fire grid, and device type
-- Binary sensors for on/off states and cloud connection status
-- Switch entities for supported boiler power and heating circuit controls
-- Re-authentication flow when credentials need to be updated
-- Diagnostics support with sensitive values redacted
-- Clean unload/reload handling for Home Assistant restarts and integration reloads
+The integration does not create or load schedule, weather, or notification entities. Schedule values received inside the main boiler status stream are discarded before they enter the device parameter cache. Weather groups from the parameter-list response are discarded. There is no option to enable either feature.
 
-## Supported devices
+Exposed PelTec II data includes:
 
-Known compatible device families include:
+- Boiler power and operating state
+- Portal-visible temperatures with invalid-value filtering
+- Heating-circuit enabled state, pump demand, pump state, target temperatures, and measured temperatures
+- Pump, fan, heater, flame, vacuum, fuel-level, lambda, and Wi-Fi states where the portal meaning is confirmed
+- Photocell resistance, fan speed, 4-way mixing-valve position, feeder-screw activity, turbulator-cleaner activity, and burner-grate position
+- Descriptive attributes for temporary shutdown marks and operation-stage groups
+- Working counters, including corrected total/active boiler runtime labels
+- Editable portal temperature settings and the K1 circuit switch
+- Controller configuration, product, software version, active file, and event history
+- Cloud/WebSocket connectivity and the decoded external-start input
 
-- PelTec and PelTec-lambda
-- CentroPlus with CM Pelet-set
-- BioTec-L
-- BioTec-Plus
-- EKO-CK P with CM Pelet-set
-- Compact
+The Lambda Probe entity is created even when the controller omits the reading while the boiler is not firing. Any finite numeric value supplied by the controller, including idle values such as `25.5`, is displayed; a later live combustion value updates normally without reloading the integration. The Wi-Fi signal entity follows the controller display: nonzero values are shown in dB, while portal value `0` represents the unavailable `---dB` state and recovers automatically when RSSI is reported.
 
-Other Centrometal devices connected through the CM WiFi-Box may also work.
-
-## Requirements
-
-- Home Assistant `2024.11.0` or newer
-- A Centrometal boiler connected through a CM WiFi-Box
-- A working Centrometal Web Boiler account
-- The boiler visible in the Centrometal web or mobile application
+Older PelTec and other supported Centrometal families retain their established mappings.
 
 ## Installation
 
-### HACS custom repository
-
-1. Open **HACS** in Home Assistant.
-2. Open the menu in the top-right corner.
-3. Select **Custom repositories**.
-4. Add this repository URL:
-
-   ```text
-   https://github.com/Internetrevizor/hass-centrometal-boiler
-   ```
-
-5. Select **Integration** as the category.
-6. Install **Centrometal Boiler System**.
-7. Restart Home Assistant.
-
 ### Manual installation
 
-1. Download the latest release ZIP from GitHub.
-2. Copy `custom_components/centrometal_boiler` into your Home Assistant `config/custom_components/` directory.
+1. Copy the `centrometal_boiler` folder into `config/custom_components/`.
+2. Remove or replace the existing `config/custom_components/centrometal_boiler` folder first.
 3. Restart Home Assistant.
-4. Go to **Settings → Devices & services → Add integration**.
-5. Search for **Centrometal Boiler System** and complete setup.
+4. Open **Settings → Devices & services → Add integration** and select **Centrometal Boiler System**.
+
+On the first restart, obsolete sensor registry entries created by earlier builds are removed automatically.
+
+### HACS custom repository
+
+Add the repository as a custom HACS integration, install it, and restart Home Assistant.
 
 ## Configuration
 
-The integration is configured entirely from the Home Assistant UI. YAML configuration is not required.
+Configuration is through the Home Assistant UI. Enter the Centrometal account e-mail, password, and optional entity-name prefix.
 
-During setup, enter:
+The integration options only control HTTP refresh and reconnect timing. There are no schedule or weather switches.
 
-- The e-mail address for the Centrometal Web Boiler account
-- The password for the Centrometal Web Boiler account
-- An optional entity name prefix
+## Diagnostics
 
-The optional prefix is useful when one Home Assistant instance contains multiple boilers or when you want the generated entity names grouped by site or heating system.
-
-## Diagnostics and privacy
-
-Diagnostics redact credentials and account/location fields before export. When sharing logs publicly, review them first and remove account identifiers, device serial numbers, locations, or other private information.
+The Home Assistant diagnostics download includes the current parsed boiler data with credentials and location fields redacted.
 
 ## Debug logging
-
-To collect detailed logs, add this to `configuration.yaml` and restart Home Assistant:
 
 ```yaml
 logger:
@@ -93,52 +63,10 @@ logger:
     custom_components.centrometal_boiler: debug
 ```
 
-Disable debug logging after troubleshooting.
+## TLS
 
-## TLS / certificate handling
-
-The Centrometal web-boiler endpoint may present an incomplete certificate chain
-on some Home Assistant installations. The integration uses `auto` TLS mode by
-default: it tries normal certificate verification first, then retries that
-Centrometal request without verification only if Python reports a certificate
-verification failure.
-
-Optional environment override:
-
-```bash
-CENTROMETAL_VERIFY_SSL=0  # default: skip certificate verification
-CENTROMETAL_VERIFY_SSL=1  # strict: certificate errors fail setup
-CENTROMETAL_VERIFY_SSL=auto  # try verified TLS first, fallback on certificate errors
-```
-
-Leave the variable unset for the recommended compatibility mode.
-
-## Development
-
-Basic local validation:
-
-```bash
-python -m compileall custom_components
-python -m pip install ruff
-ruff check .
-```
-
-The included GitHub Actions run Python syntax checks, Ruff critical checks, HACS validation, and Hassfest validation.
-
-## Support
-
-Use the GitHub issue tracker for bug reports and feature requests:
-
-```text
-https://github.com/Internetrevizor/hass-centrometal-boiler/issues
-```
-
-Include the Home Assistant version, integration version, boiler model, and relevant redacted logs.
-
-## Disclaimer
-
-This integration is an independent community project and is not affiliated with, endorsed by, or supported by Centrometal d.o.o.
+HTTPS and WebSocket certificate verification is always enabled and uses the `certifi` root store.
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See `LICENSE`.
+Apache License 2.0. This is an independent community project and is not affiliated with Centrometal d.o.o.

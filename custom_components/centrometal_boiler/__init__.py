@@ -16,8 +16,17 @@ from .centrometal_web_boiler import (
     HttpClientAuthError,
     HttpClientConnectionError,
     WebBoilerClient,
+    next_retry_delay,
 )
-from .const import DOMAIN, WEB_BOILER_LOGIN_RETRY_INTERVAL, WEB_BOILER_REFRESH_INTERVAL
+from .const import (
+    CONF_REFRESH_INTERVAL,
+    CONF_RETRY_BASE_INTERVAL,
+    CONF_RETRY_MAX_INTERVAL,
+    DEFAULT_REFRESH_INTERVAL,
+    DEFAULT_RETRY_BASE_INTERVAL,
+    DEFAULT_RETRY_MAX_INTERVAL,
+    DOMAIN,
+)
 from .runtime import CentrometalRuntimeData
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,6 +36,7 @@ def _redact_account(account: str) -> str:
     """Return a stable non-reversible account identifier for logs."""
     digest = hashlib.sha256(account.encode()).hexdigest()[:8]
     return f"account-{digest}"
+
 
 PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.SWITCH, Platform.BINARY_SENSOR]
 CentrometalConfigEntry = ConfigEntry[CentrometalRuntimeData]
@@ -52,15 +62,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: CentrometalConfigEntry) 
             await system.start()
         except ConfigEntryAuthFailed:
             raise
-        except Exception as err:
-            raise ConfigEntryNotReady(
-                f"Cannot connect to Centrometal web-boiler server: {err}"
-            ) from err
+        except HttpClientAuthError as err:
+            raise ConfigEntryAuthFailed("Invalid Centrometal credentials") from err
+        except (HttpClientConnectionError, ConnectionError) as err:
+            raise ConfigEntryNotReady(f"Cannot connect to Centrometal web-boiler server: {err}") from err
 
         runtime = CentrometalRuntimeData(client=system.web_boiler_client, system=system)
         entry.runtime_data = runtime
         stop_listener = hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, system.stop)
         runtime.stop_listener = stop_listener
+        entry.async_on_unload(entry.add_update_listener(_async_options_updated))
 
         system.start_tick()
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -74,6 +85,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: CentrometalConfigEntry) 
         except Exception as err:
             _LOGGER.debug("Centrometal setup cleanup failed: %s", err)
         raise
+
+
+async def _async_options_updated(hass: HomeAssistant, entry: CentrometalConfigEntry) -> None:
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: CentrometalConfigEntry) -> bool:
@@ -90,7 +105,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: CentrometalConfigEntry)
 
 
 class WebBoilerSystem:
-    def __init__(self, hass: HomeAssistant, *, entry: CentrometalConfigEntry, username: str, password: str, prefix: str) -> None:
+    def __init__(
+        self, hass: HomeAssistant, *, entry: CentrometalConfigEntry, username: str, password: str, prefix: str
+    ) -> None:
         self._hass = hass
         self._entry = entry
         self.username = username
@@ -99,6 +116,13 @@ class WebBoilerSystem:
         prefix = prefix.rstrip()
         self.prefix = (prefix + " ") if prefix else ""
         self.web_boiler_client = WebBoilerClient(hass)
+        self.refresh_interval = entry.options.get(CONF_REFRESH_INTERVAL, DEFAULT_REFRESH_INTERVAL)
+        self.retry_base_interval = entry.options.get(CONF_RETRY_BASE_INTERVAL, DEFAULT_RETRY_BASE_INTERVAL)
+        self.retry_max_interval = entry.options.get(CONF_RETRY_MAX_INTERVAL, DEFAULT_RETRY_MAX_INTERVAL)
+        # Counts consecutive failed relogin attempts so retries back off
+        # instead of hammering the server on a fixed cadence during a
+        # prolonged outage. Reset to 0 on the next fully successful login.
+        self._relogin_attempt = 0
         now_ts = time.monotonic()
         self.last_relogin_timestamp = now_ts
         self.last_refresh_timestamp = now_ts
@@ -184,9 +208,7 @@ class WebBoilerSystem:
             except Exception as ex:
                 _LOGGER.warning("WebBoilerSystem.tick raised: %s", ex)
 
-        self._tick_unsub = async_track_time_interval(
-            self._hass, _on_interval, datetime.timedelta(seconds=60)
-        )
+        self._tick_unsub = async_track_time_interval(self._hass, _on_interval, datetime.timedelta(seconds=60))
 
     def cancel_tick(self) -> None:
         if self._tick_unsub:
@@ -197,6 +219,16 @@ class WebBoilerSystem:
         _LOGGER.debug("Stopping Centrometal WebBoilerSystem %s", self._log_account)
         await self.web_boiler_client.close()
 
+    def _current_retry_delay(self) -> float:
+        """Seconds to wait before the next relogin attempt.
+
+        Backs off exponentially (capped at ``retry_max_interval``) with each
+        consecutive failure, and resets to ``retry_base_interval`` as soon as
+        a relogin succeeds, so a brief blip recovers quickly while a
+        prolonged outage is not retried on a fixed cadence forever.
+        """
+        return next_retry_delay(self._relogin_attempt, base=self.retry_base_interval, cap=self.retry_max_interval)
+
     async def tick(self):
         now = time.monotonic()
         connected = self.web_boiler_client.is_websocket_connected()
@@ -205,15 +237,17 @@ class WebBoilerSystem:
         if not connected:
             disconnected_for = self.web_boiler_client.websocket_disconnected_for()
             # Tolerance: keep using the existing reconnect loop for up to 3x
-            # the relogin retry interval. While we wait, keep refreshing
-            # state via HTTP so HA entities don't go stale.
-            if websocket_running and disconnected_for < (WEB_BOILER_LOGIN_RETRY_INTERVAL * 3):
+            # the *base* relogin retry interval (not the backed-off value, so
+            # this window doesn't grow along with the backoff). While we
+            # wait, keep refreshing state via HTTP so HA entities don't go
+            # stale.
+            if websocket_running and disconnected_for < (self.retry_base_interval * 3):
                 _LOGGER.debug(
                     "Centrometal websocket disconnected for %.0fs but reconnect loop is active (%s)",
                     disconnected_for,
                     self._log_account,
                 )
-                if now - self.last_refresh_timestamp > WEB_BOILER_REFRESH_INTERVAL:
+                if now - self.last_refresh_timestamp > self.refresh_interval:
                     self.last_refresh_timestamp = now
                     try:
                         await self.web_boiler_client.refresh()
@@ -222,7 +256,7 @@ class WebBoilerSystem:
                     except HttpClientConnectionError:
                         pass
                 return
-            if now - self.last_relogin_timestamp > WEB_BOILER_LOGIN_RETRY_INTERVAL:
+            if now - self.last_relogin_timestamp > self._current_retry_delay():
                 _LOGGER.info(
                     "Centrometal WebBoilerSystem::tick websocket unavailable for %.0fs; trying relogin %s",
                     disconnected_for,
@@ -231,15 +265,14 @@ class WebBoilerSystem:
                 await self.relogin()
             return
 
-        if now - self.last_refresh_timestamp > WEB_BOILER_REFRESH_INTERVAL:
+        if now - self.last_refresh_timestamp > self.refresh_interval:
             self.last_refresh_timestamp = now
             _LOGGER.info("WebBoilerSystem::tick refresh data %s", self._log_account)
             try:
                 refresh_successful = await self.web_boiler_client.refresh()
             except HttpClientAuthError:
                 _LOGGER.info(
-                    "WebBoilerSystem::tick HTTP session expired during refresh, "
-                    "attempting silent relogin %s",
+                    "WebBoilerSystem::tick HTTP session expired during refresh, attempting silent relogin %s",
                     self._log_account,
                 )
                 await self._silent_http_relogin()
@@ -295,6 +328,15 @@ class WebBoilerSystem:
         if ok:
             self.last_refresh_timestamp = time.monotonic()
 
+    def _record_relogin_success(self) -> None:
+        self._relogin_attempt = 0
+
+    def _record_relogin_failure(self) -> None:
+        # Bounded so the exponential backoff calculation stays cheap even
+        # after a very long outage; next_retry_delay() already clamps the
+        # resulting delay to retry_max_interval regardless.
+        self._relogin_attempt = min(self._relogin_attempt + 1, 32)
+
     async def relogin(self):
         self.last_relogin_timestamp = time.monotonic()
         try:
@@ -305,14 +347,17 @@ class WebBoilerSystem:
         try:
             relogin_successful = await self.web_boiler_client.relogin()
         except HttpClientAuthError:
+            self._record_relogin_failure()
             _LOGGER.warning("WebBoilerSystem relogin failed due to invalid credentials %s", self._log_account)
             self._entry.async_start_reauth(self._hass)
             return
         except HttpClientConnectionError as err:
+            self._record_relogin_failure()
             _LOGGER.warning("WebBoilerSystem relogin failed due to connection error %s (%s)", err, self._log_account)
             return
 
         if relogin_successful:
+            self._record_relogin_success()
             self._annotate_devices()
             await self.web_boiler_client.start_websocket(self.on_parameter_updated)
             try:
@@ -332,4 +377,5 @@ class WebBoilerSystem:
                 self.last_refresh_timestamp = time.monotonic()
             return
 
+        self._record_relogin_failure()
         _LOGGER.warning("WebBoilerSystem::tick failed to relogin %s", self._log_account)

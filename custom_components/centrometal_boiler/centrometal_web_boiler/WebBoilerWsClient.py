@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import ssl
 from typing import Optional
 
 from websockets.asyncio.client import connect
@@ -10,12 +9,11 @@ from websockets.exceptions import ConnectionClosed
 
 from . import stomp
 from .logging_utils import redact_account
-from .HttpClient import TLS_VERIFY_ENV, _tls_verify_mode
+from .HttpClient import build_verified_ssl_context
 from .const import (
     WEB_BOILER_STOMP_DEVICE_TOPIC,
     WEB_BOILER_STOMP_LOGIN_PASSCODE,
     WEB_BOILER_STOMP_LOGIN_USERNAME,
-    WEB_BOILER_STOMP_NOTIFICATION_TOPIC,
     WEB_BOILER_STOMP_URL,
 )
 
@@ -37,12 +35,9 @@ class WebBoilerWsClient:
         self._connected_event = asyncio.Event()
         self._heartbeat_task: Optional[asyncio.Task] = None
 
-    async def _create_ssl_context(self, *, unverified: bool = False):
+    async def _create_ssl_context(self):
         loop = asyncio.get_running_loop()
-        mode = _tls_verify_mode()
-        if mode == "off" or unverified:
-            return await loop.run_in_executor(None, ssl._create_unverified_context)
-        return await loop.run_in_executor(None, ssl.create_default_context)
+        return await loop.run_in_executor(None, build_verified_ssl_context)
 
     async def _heartbeat_loop(self, ws) -> None:
         # We wait on the stop event with a 30-second timeout instead of
@@ -131,9 +126,8 @@ class WebBoilerWsClient:
             self._connected_event.clear()
 
     async def _run(self):
-        use_unverified_ssl = False
         while not self._stop_event.is_set():
-            ssl_ctx = await self._create_ssl_context(unverified=use_unverified_ssl)
+            ssl_ctx = await self._create_ssl_context()
             try:
                 async for ws in connect(
                     WEB_BOILER_STOMP_URL,
@@ -171,19 +165,6 @@ class WebBoilerWsClient:
                 break
             except asyncio.CancelledError:
                 raise
-            except ssl.SSLError as err:
-                if _tls_verify_mode() == "auto" and not use_unverified_ssl:
-                    self.logger.debug(
-                        "TLS certificate verification failed for websocket %s; retrying without verification because %s=auto. Error: %s",
-                        WEB_BOILER_STOMP_URL,
-                        TLS_VERIFY_ENV,
-                        err,
-                    )
-                    use_unverified_ssl = True
-                    continue
-                self.logger.exception("WebBoilerWsClient connect loop failed (%s)", self.log_account)
-                await self.error_callback(None, err)
-                break
             except Exception as err:
                 self.logger.exception("WebBoilerWsClient connect loop failed (%s)", self.log_account)
                 await self.error_callback(None, err)
@@ -235,10 +216,6 @@ class WebBoilerWsClient:
             self._task = None
         self._connected_event.clear()
         self._ws = None
-
-    async def subscribe_to_notifications(self, ws):
-        topic = WEB_BOILER_STOMP_NOTIFICATION_TOPIC
-        await ws.send(stomp.subscribe(topic, "sub-0", "auto"))
 
     async def subscribe_to_installation(self, ws, device):
         device_type = device["type"]

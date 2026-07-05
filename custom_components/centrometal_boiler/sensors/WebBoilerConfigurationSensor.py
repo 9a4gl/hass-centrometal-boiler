@@ -9,11 +9,21 @@ class WebBoilerConfigurationSensor(WebBoilerGenericSensor):
     def native_value(self):
         if self.device["type"] in ("peltec", "peltec2"):
             configurations = [
-                "1. DHW", "2. DHC", "3. DHW || DHC", "4. BUF",
-                "5. DHW || BUF", "6. BUF -- IHC", "7. DHW || BUF -- IHC",
-                "8. BUF -- DHW", "9. BUF -- IHC || DHW", "10. CRO",
-                "11. CRO / BUF", "12. DHC || DHW(2)", "13. DHC 2X",
-                "14. BUF--IHCX2", "15. CRO -- DHW",
+                "1. DHW",
+                "2. DHC",
+                "3. DHW || DHC",
+                "4. BUF",
+                "5. DHW || BUF",
+                "6. BUF -- IHC",
+                "7. DHW || BUF -- IHC",
+                "8. BUF -- DHW",
+                "9. BUF -- IHC || DHW",
+                "10. CRO",
+                "11. CRO / BUF",
+                "12. DHC || DHW(2)",
+                "13. DHC 2X",
+                "14. BUF--IHCX2",
+                "15. CRO -- DHW",
             ]
             try:
                 idx = int(self.parameter["value"])
@@ -31,7 +41,8 @@ class WebBoilerConfigurationSensor(WebBoilerGenericSensor):
             if not parameter.get("used"):
                 entities.append(
                     WebBoilerConfigurationSensor(
-                        hass, device,
+                        hass,
+                        device,
                         [None, "mdi:state-machine", None, "Configuration"],
                         parameter,
                     )
