@@ -64,6 +64,15 @@ The following devices are supported, other may work with CM WiFi-Box.
 * BioTec-Plus (also Morvan GMX EASY)
 * EKO-CKS Multi Plus ? (need tester) ?
 
+## Number entities (temperature set points)
+
+Every temperature setting that the Centrometal web portal lets you edit
+(boiler temperature, DHW temperature, minimal buffer tank temperature,
+differentials, day/night room temperature of each heating circuit, ...)
+is exposed as a `number` entity. Minimum and maximum values are taken from
+the boiler (`PMIN_<n>_0` / `PMAX_<n>_0`). Values are written the same way the
+portal does it (`PWR <n>` via `/api/inst/control/multiple`).
+
 ## Services
 
 `centrometal_boiler.turn`
