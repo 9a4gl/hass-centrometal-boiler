@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
 
 import pytest
+from centrometal_web_boiler.const import WEB_BOILER_STOMP_DEVICE_TOPIC
 
 from custom_components.centrometal_boiler import (
     async_setup_entry,
@@ -86,7 +87,8 @@ async def live(system, value, number=1):
     body = json.dumps({"B_TMP": value})
     await deliver(
         system,
-        f"MESSAGE\nsubscription:sub-1\ndestination:/topic/cm.inst.biopl.test-{number}\n\n{body}\x00",
+        f"MESSAGE\nsubscription:sub-1\n"
+        f"destination:{WEB_BOILER_STOMP_DEVICE_TOPIC}biopl.test-{number}\n\n{body}\x00",
     )
 
 

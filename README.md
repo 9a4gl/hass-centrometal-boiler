@@ -51,13 +51,14 @@ ln -s ../hass-centrometal-boiler/custom_components/centrometal_boiler
 
 [Issue #29](https://github.com/9a4gl/hass-centrometal-boiler/issues/29)
 reports frozen readings and a STOMP ACCESS_REFUSED response while HTTPS
-login and the status endpoint continued to work. The maintainer reports
-that live updates work with an older Python environment and reproduced the
-problem with Python 3.13.11 and newer dependencies. A local WebSocket fix
-worked in the maintainer's testing, with package dependencies still under
-investigation. HTTP polling keeps readings flowing when the live transport
-fails. The existing HTTP REFRESH and RSTAT commands request device updates
-without applying the status measurements to Home Assistant.
+login and the status endpoint continued to work. Integration
+[0.0.57](https://github.com/9a4gl/hass-centrometal-boiler/releases/tag/0.0.57)
+uses library 0.0.62 with a corrected WebSocket subscription topic. That
+library release requires newer aiohttp and aiodns versions than Home
+Assistant 2026.2.3 pins. The [companion library PR](https://github.com/9a4gl/py-centrometal-web-boiler/pull/4)
+addresses those package constraints. HTTP polling keeps readings flowing when the live
+transport fails. The existing HTTP REFRESH and RSTAT commands request
+device updates without applying the status measurements to Home Assistant.
 
 The patched integration falls back immediately on a STOMP error or after
 60 seconds without a valid live parameter update for any installation.
@@ -96,8 +97,9 @@ marked unavailable until data resumes.
 
    For the v0.0.54 overlay, keep its manifest and all other installed files.
    This retains its published `py-centrometal-web-boiler==0.0.58` dependency
-   and its existing set of entities. The patched files also support the
-   published `0.0.61` dependency pinned on upstream main.
+   and its existing set of entities. This overlay adds HTTP fallback.
+   The corrected WebSocket topic comes with library `0.0.62`, which
+   integration 0.0.57 installs on compatible Home Assistant versions.
 4. Restart Home Assistant. Open a temperature sensor already on your
    dashboard or in **Developer Tools → States**. Watch it through a natural
    change in boiler temperature and compare against the web portal. During
