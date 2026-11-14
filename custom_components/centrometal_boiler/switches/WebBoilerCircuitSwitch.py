@@ -85,7 +85,7 @@ class WebBoilerCircuitSwitch(SwitchEntity):
     @property
     def available(self):
         """Return True if the device is available."""
-        return self.web_boiler_client.is_websocket_connected()
+        return self.web_boiler_client.is_device_data_available(self._device["id"])
 
     def error(self):
         """Return the error message."""
