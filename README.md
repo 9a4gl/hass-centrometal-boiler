@@ -50,10 +50,14 @@ ln -s ../hass-centrometal-boiler/custom_components/centrometal_boiler
 ### Frozen measurements after November 14, 2026
 
 [Issue #29](https://github.com/9a4gl/hass-centrometal-boiler/issues/29)
-documents a broker permission error. HTTPS login and the status endpoint
-still worked while the broker accepted STOMP CONNECT and rejected SUBSCRIBE
-with ACCESS_REFUSED. The HTTP REFRESH and RSTAT commands request device
-updates. They do not apply the returned measurements to Home Assistant.
+reports frozen readings and a STOMP ACCESS_REFUSED response while HTTPS
+login and the status endpoint continued to work. The maintainer reports
+that live updates work with an older Python environment and reproduced the
+problem with Python 3.13.11 and newer dependencies. A local WebSocket fix
+worked in the maintainer's testing, with package dependencies still under
+investigation. HTTP polling keeps readings flowing when the live transport
+fails. The existing HTTP REFRESH and RSTAT commands request device updates
+without applying the status measurements to Home Assistant.
 
 The patched integration falls back immediately on a STOMP error or after
 60 seconds without a valid live parameter update for any installation.
