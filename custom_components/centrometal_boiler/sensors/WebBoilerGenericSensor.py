@@ -104,7 +104,7 @@ class WebBoilerGenericSensor(SensorEntity):
     @property
     def available(self):
         """Return the availablity of the sensor."""
-        return self.web_boiler_client.is_websocket_connected()
+        return self.web_boiler_client.is_device_data_available(self.device["id"])
 
     @property
     def extra_state_attributes(self):
