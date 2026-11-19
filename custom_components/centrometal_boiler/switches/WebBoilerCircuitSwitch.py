@@ -78,8 +78,14 @@ class WebBoilerCircuitSwitch(SwitchEntity):
     def is_on(self):
         """Return true if it is on."""
         try:
-            return int(self._param_state["value"]) == int(self._param_on["value"])
-        except ValueError:
+            on_value = int(self._param_on["value"])
+        except (ValueError, TypeError, KeyError):
+            # Some circuits (e.g. 2nd circuit on BioTec-L) do not report
+            # PMIN/PMAX/PDEF_<dbindex>_0 - the portal uses 1 as "on".
+            on_value = 1
+        try:
+            return int(self._param_state["value"]) == on_value
+        except (ValueError, TypeError, KeyError):
             return False
 
     @property
